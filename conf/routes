@@ -1,0 +1,1 @@
+GET		/cricbuzz/countries			controllers.CountryController.getAll()
