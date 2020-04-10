@@ -1,1 +1,2 @@
 GET		/cricbuzz/countries			controllers.CountryController.getAll()
+GET     /cricbuzz/countries/:id     controllers.CountryController.get(id: Long)

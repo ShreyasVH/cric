@@ -30,4 +30,9 @@ public class CountryController extends BaseController
 	{
 		return this.countryService.getAll().thenApplyAsync(list -> ok(Json.toJson(list)), this.httpExecutionContext.current());
 	}
+
+	public CompletionStage<Result> get(Long id)
+	{
+		return this.countryService.get(id).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
+	}
 }

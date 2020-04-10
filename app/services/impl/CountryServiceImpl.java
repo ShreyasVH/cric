@@ -28,4 +28,10 @@ public class CountryServiceImpl implements CountryService
 	{
 		return this.countryRepository.getAll();
 	}
+
+    @Override
+    public CompletionStage<Country> get(Long id)
+	{
+        return this.countryRepository.get(id);
+    }
 }
