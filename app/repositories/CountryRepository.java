@@ -2,7 +2,6 @@ package repositories;
 
 import enums.ErrorCode;
 import exceptions.DBInteractionException;
-import exceptions.NotFoundException;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import play.db.ebean.EbeanConfig;
@@ -70,12 +69,41 @@ public class CountryRepository
 				throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
 			}
 
-			if(null == country)
+			return country;
+		}, this.databaseExecutionContext);
+	}
+
+	public CompletionStage<Country> create(Country country)
+	{
+		return CompletableFuture.supplyAsync(() -> {
+			try
 			{
-				throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+				this.db.save(country);
+			}
+			catch(Exception ex)
+			{
+				String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+				throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+			}
+			return country;
+		}, this.databaseExecutionContext);
+	}
+
+	public CompletionStage<Country> get(String name)
+	{
+		return CompletableFuture.supplyAsync(() -> {
+			Country country = null;
+			try
+			{
+				country = this.db.find(Country.class).where().eq("name", name).findOne();
+			}
+			catch(Exception ex)
+			{
+				String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+				throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
 			}
 
 			return country;
-		});
+		}, this.databaseExecutionContext);
 	}
 }

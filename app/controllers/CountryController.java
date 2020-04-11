@@ -1,5 +1,8 @@
 package controllers;
 
+import enums.ErrorCode;
+import exceptions.BadRequestException;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.libs.Json;
 
@@ -8,7 +11,9 @@ import java.util.concurrent.CompletionStage;
 
 import play.libs.concurrent.HttpExecutionContext;
 
+import requests.CountryRequest;
 import services.CountryService;
+import utils.Utils;
 
 public class CountryController extends BaseController
 {
@@ -35,4 +40,19 @@ public class CountryController extends BaseController
 	{
 		return this.countryService.get(id).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
 	}
+
+	public CompletionStage<Result> create(Http.Request request)
+    {
+        CountryRequest countryRequest = null;
+        try
+        {
+			countryRequest = Utils.convertObject(request.body().asJson(), CountryRequest.class);
+        }
+        catch(Exception ex)
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+        }
+
+        return this.countryService.create(countryRequest).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
+    }
 }

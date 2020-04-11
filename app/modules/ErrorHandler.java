@@ -24,9 +24,18 @@ public class ErrorHandler implements HttpErrorHandler {
         String content = exception.getMessage();
         Integer errorCode = 5000;
 
-        if(exception.getCause() instanceof MyException)
+        if((exception instanceof MyException) || (exception.getCause() instanceof MyException))
         {
-            MyException myException = (MyException) exception.getCause();
+            MyException myException;
+            if(exception instanceof MyException)
+            {
+                myException = (MyException) exception;
+            }
+            else
+            {
+                myException = (MyException) exception.getCause();
+            }
+
             httpsStatusCode = myException.getHttpStatusCode();
             content = myException.getDescription();
             errorCode = myException.getCode();
