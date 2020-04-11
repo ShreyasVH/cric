@@ -14,40 +14,37 @@ import java.util.ArrayList;
 import com.google.inject.Inject;
 import modules.DatabaseExecutionContext;
 
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
+import play.db.ebean.EbeanDynamicEvolutions;
 
 public class CountryRepository
 {
+	private final EbeanServer db;
+	private final EbeanDynamicEvolutions ebeanDynamicEvolutions;
 	private final DatabaseExecutionContext databaseExecutionContext;
-	private final EbeanConfig ebeanConfig;
 
 	@Inject
 	public CountryRepository
 	(
 		EbeanConfig ebeanConfig,
+		EbeanDynamicEvolutions ebeanDynamicEvolutions,
 		DatabaseExecutionContext databaseExecutionContext
 	)
 	{
-		this.ebeanConfig = ebeanConfig;
+		this.ebeanDynamicEvolutions = ebeanDynamicEvolutions;
+		this.db = Ebean.getServer(ebeanConfig.defaultServer());
 		this.databaseExecutionContext = databaseExecutionContext;
-	}
-
-	private EbeanServer getConnection()
-	{
-		return Ebean.getServer(this.ebeanConfig.defaultServer());
 	}
 
 	public CompletionStage<List<Country>> getAll()
 	{
 		return CompletableFuture.supplyAsync(() -> {
-			EbeanServer db = this.getConnection();
 			List<Country> countries = new ArrayList<>();
 
 			try
 			{
-				countries = db.find(Country.class).findList();
+				countries = this.db.find(Country.class).findList();
 			}
 			catch(Exception ex)
 			{
@@ -63,10 +60,9 @@ public class CountryRepository
 	{
 		return CompletableFuture.supplyAsync(() -> {
 			Country country = null;
-			EbeanServer db = this.getConnection();
 			try
 			{
-				country = db.find(Country.class).where().eq("id", id).findOne();
+				country = this.db.find(Country.class).where().eq("id", id).findOne();
 			}
 			catch(Exception ex)
 			{
