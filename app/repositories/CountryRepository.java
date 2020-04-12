@@ -73,7 +73,7 @@ public class CountryRepository
 		}, this.databaseExecutionContext);
 	}
 
-	public CompletionStage<Country> create(Country country)
+	public CompletionStage<Country> save(Country country)
 	{
 		return CompletableFuture.supplyAsync(() -> {
 			try

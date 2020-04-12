@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import requests.CountryRequest;
+import requests.CreateCountryRequest;
 
 import java.util.Date;
 
@@ -36,9 +36,9 @@ public class Country extends Model
 	@Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP", nullable = false)
 	private Date updatedAt;
 
-	public Country(CountryRequest countryRequest)
+	public Country(CreateCountryRequest createCountryRequest)
 	{
-		this.id = countryRequest.getId();
-		this.name = countryRequest.getName();
+		this.id = createCountryRequest.getId();
+		this.name = createCountryRequest.getName();
 	}
 }

@@ -11,7 +11,8 @@ import java.util.concurrent.CompletionStage;
 
 import play.libs.concurrent.HttpExecutionContext;
 
-import requests.CountryRequest;
+import requests.CreateCountryRequest;
+import requests.UpdateCountryRequest;
 import services.CountryService;
 import utils.Utils;
 
@@ -43,16 +44,31 @@ public class CountryController extends BaseController
 
 	public CompletionStage<Result> create(Http.Request request)
     {
-        CountryRequest countryRequest = null;
+        CreateCountryRequest createCountryRequest = null;
         try
         {
-			countryRequest = Utils.convertObject(request.body().asJson(), CountryRequest.class);
+			createCountryRequest = Utils.convertObject(request.body().asJson(), CreateCountryRequest.class);
         }
         catch(Exception ex)
         {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
         }
 
-        return this.countryService.create(countryRequest).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
+        return this.countryService.create(createCountryRequest).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
+    }
+
+    public CompletionStage<Result> update(Long id, Http.Request request)
+    {
+        UpdateCountryRequest updateCountryRequest = null;
+        try
+        {
+            updateCountryRequest = Utils.convertObject(request.body().asJson(), UpdateCountryRequest.class);
+        }
+        catch(Exception ex)
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+        }
+
+        return this.countryService.update(id, updateCountryRequest).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
     }
 }
