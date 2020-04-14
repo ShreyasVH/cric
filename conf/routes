@@ -2,3 +2,5 @@ GET		/cricbuzz/countries			controllers.CountryController.getAll()
 GET     /cricbuzz/countries/:id     controllers.CountryController.get(id: Long)
 POST    /cricbuzz/countries         controllers.CountryController.create(request: Request)
 PUT     /cricbuzz/countries/:id     controllers.CountryController.update(id: Long, request: Request)
+
+GET		/cricbuzz/stadiums			controllers.StadiumController.getAll()
