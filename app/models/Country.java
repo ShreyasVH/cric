@@ -3,10 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Column;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,6 +32,9 @@ public class Country extends Model
 
 	@Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP", nullable = false)
 	private Date updatedAt;
+
+	@OneToMany(mappedBy = "country")
+	private Stadium stadium;
 
 	public Country(CreateCountryRequest createCountryRequest)
 	{

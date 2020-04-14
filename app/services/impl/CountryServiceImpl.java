@@ -16,6 +16,7 @@ import repositories.CountryRepository;
 
 import requests.CreateCountryRequest;
 import requests.UpdateCountryRequest;
+import responses.CountryResponse;
 import services.CountryService;
 import utils.Utils;
 
@@ -32,13 +33,13 @@ public class CountryServiceImpl implements CountryService
 		this.countryRepository = countryRepository;
 	}
 
-	public CompletionStage<List<Country>> getAll()
+	public CompletionStage<List<CountryResponse>> getAll()
 	{
-		return this.countryRepository.getAll();
+		return this.countryRepository.getAll().thenApplyAsync(countryList -> Utils.convertObjectList(countryList, CountryResponse.class));
 	}
 
     @Override
-    public CompletionStage<Country> get(Long id)
+    public CompletionStage<CountryResponse> get(Long id)
 	{
 		CompletionStage<Country> response = this.countryRepository.get(id);
 		return response.thenApplyAsync(country -> {
@@ -47,12 +48,12 @@ public class CountryServiceImpl implements CountryService
 				throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
 			}
 
-			return country;
+			return Utils.convertObject(country, CountryResponse.class);
 		});
     }
 
 	@Override
-	public CompletionStage<Country> create(CreateCountryRequest createCountryRequest)
+	public CompletionStage<CountryResponse> create(CreateCountryRequest createCountryRequest)
 	{
 		createCountryRequest.validate();
 
@@ -66,12 +67,12 @@ public class CountryServiceImpl implements CountryService
 			Country country = new Country(createCountryRequest);
 			country.setCreatedAt(Utils.getCurrentDate());
 			country.setUpdatedAt(Utils.getCurrentDate());
-			return this.countryRepository.save(country);
+			return this.countryRepository.save(country).thenApplyAsync(countryResponse -> Utils.convertObject(countryResponse, CountryResponse.class));
 		});
 	}
 
     @Override
-    public CompletionStage<Country> update(Long id, UpdateCountryRequest updateCountryRequest)
+    public CompletionStage<CountryResponse> update(Long id, UpdateCountryRequest updateCountryRequest)
 	{
 		updateCountryRequest.validate();
 
@@ -93,11 +94,11 @@ public class CountryServiceImpl implements CountryService
 			if(isUpdateRequired)
 			{
 				existingCountry.setUpdatedAt(Utils.getCurrentDate());
-				return this.countryRepository.save(existingCountry);
+				return this.countryRepository.save(existingCountry).thenApplyAsync(updatedCountry -> Utils.convertObject(updatedCountry, CountryResponse.class));
 			}
 			else
 			{
-				return CompletableFuture.supplyAsync(() -> existingCountry);
+				return CompletableFuture.supplyAsync(() -> Utils.convertObject(existingCountry, CountryResponse.class));
 			}
 		});
     }
