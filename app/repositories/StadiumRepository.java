@@ -52,4 +52,39 @@ public class StadiumRepository
             return stadiums;
         }, this.databaseExecutionContext);
     }
+
+    public CompletionStage<Stadium> save(Stadium stadium)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            try
+            {
+                this.db.save(stadium);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+            return stadium;
+        }, this.databaseExecutionContext);
+    }
+
+    public CompletionStage<Stadium> get(String name, Long countryId)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            Stadium stadium = null;
+
+            try
+            {
+                stadium = this.db.find(Stadium.class).where().eq("name", name).eq("country.id", countryId).findOne();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return stadium;
+        }, this.databaseExecutionContext);
+    }
 }
