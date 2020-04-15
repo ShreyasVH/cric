@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 
@@ -10,7 +11,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import requests.CreateCountryRequest;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "countries")
@@ -33,8 +36,9 @@ public class Country extends Model
 	@Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP", nullable = false)
 	private Date updatedAt;
 
-	@OneToMany(mappedBy = "country")
-	private Stadium stadium;
+	@OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
+	@JsonBackReference
+	private List<Stadium> stadiums = new ArrayList<>();
 
 	public Country(CreateCountryRequest createCountryRequest)
 	{

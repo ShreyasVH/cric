@@ -1,11 +1,14 @@
 package services;
 
-import responses.StadiumResponse;
+import models.Stadium;
+import requests.stadiums.CreateRequest;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 public interface StadiumService
 {
-    CompletionStage<List<StadiumResponse>> getAll();
+    CompletionStage<List<Stadium>> getAll();
+
+    CompletionStage<Stadium> create(CreateRequest createRequest);
 }

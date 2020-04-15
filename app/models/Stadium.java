@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import lombok.Getter;
 import lombok.Setter;
+import requests.stadiums.CreateRequest;
 
 import javax.persistence.*;
 
@@ -28,9 +29,13 @@ public class Stadium extends Model
     @Column(name = "state", length = 100)
     private String state;
 
-    @Column(name = "country_id", nullable = false, columnDefinition = "UNSIGNED int")
-    private Long countryId;
-
     @ManyToOne
     private Country country;
+
+    public Stadium(CreateRequest createRequest)
+    {
+        this.name = createRequest.getName();
+        this.city = createRequest.getCity();
+        this.state = createRequest.getState();
+    }
 }

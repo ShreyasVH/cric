@@ -1,19 +1,20 @@
 package services;
 
 import java.util.List;
+
+import models.Country;
 import requests.CreateCountryRequest;
 import requests.UpdateCountryRequest;
-import responses.CountryResponse;
 
 import java.util.concurrent.CompletionStage;
 
 public interface CountryService
 {
-	CompletionStage<List<CountryResponse>> getAll();
+	CompletionStage<List<Country>> getAll();
 
-	CompletionStage<CountryResponse> get(Long id);
+	CompletionStage<Country> get(Long id);
 
-	CompletionStage<CountryResponse> create(CreateCountryRequest createCountryRequest);
+	CompletionStage<Country> create(CreateCountryRequest createCountryRequest);
 
-	CompletionStage<CountryResponse> update(Long id, UpdateCountryRequest updateCountryRequest);
+	CompletionStage<Country> update(Long id, UpdateCountryRequest updateCountryRequest);
 }

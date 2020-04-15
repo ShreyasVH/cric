@@ -1,6 +1,5 @@
 package modules;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.MyException;
 import play.http.HttpErrorHandler;
 import play.libs.Json;
