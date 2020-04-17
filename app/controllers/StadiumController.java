@@ -9,6 +9,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import requests.stadiums.CreateRequest;
+import requests.stadiums.UpdateRequest;
 import services.StadiumService;
 import utils.Utils;
 
@@ -55,5 +56,20 @@ public class StadiumController extends Controller
     public CompletionStage<Result> get(Long id)
     {
         return this.stadiumService.get(id).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
+    }
+
+    public CompletionStage<Result> update(Long id, Http.Request request)
+    {
+        UpdateRequest updateRequest = null;
+        try
+        {
+            updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
+        }
+        catch(Exception ex)
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+        }
+
+        return this.stadiumService.update(id, updateRequest).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
     }
 }
