@@ -87,4 +87,23 @@ public class StadiumRepository
             return stadium;
         }, this.databaseExecutionContext);
     }
+
+    public CompletionStage<Stadium> get(Long id)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            Stadium stadium = null;
+
+            try
+            {
+                stadium = this.db.find(Stadium.class).where().eq("id", id).findOne();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return stadium;
+        }, this.databaseExecutionContext);
+    }
 }

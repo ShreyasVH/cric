@@ -11,4 +11,6 @@ public interface StadiumService
     CompletionStage<List<Stadium>> getAll();
 
     CompletionStage<Stadium> create(CreateRequest createRequest);
+
+    CompletionStage<Stadium> get(Long id);
 }

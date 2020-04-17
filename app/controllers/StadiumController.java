@@ -51,4 +51,9 @@ public class StadiumController extends Controller
 
         return this.stadiumService.create(createStadiumRequest).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
     }
+
+    public CompletionStage<Result> get(Long id)
+    {
+        return this.stadiumService.get(id).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
+    }
 }

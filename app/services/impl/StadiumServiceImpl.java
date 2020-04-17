@@ -54,4 +54,9 @@ public class StadiumServiceImpl implements StadiumService
             });
         });
     }
+
+    public CompletionStage<Stadium> get(Long id)
+    {
+        return this.stadiumRepository.get(id);
+    }
 }
