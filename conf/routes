@@ -1,12 +1,13 @@
-GET		/cricbuzz/countries			controllers.CountryController.getAll
-GET     /cricbuzz/countries/:id     controllers.CountryController.get(id: Long)
-POST    /cricbuzz/countries         controllers.CountryController.create(request: Request)
-PUT     /cricbuzz/countries/:id     controllers.CountryController.update(id: Long, request: Request)
+GET		/cricbuzz/countries			            controllers.CountryController.getAll
+GET     /cricbuzz/countries/:id                 controllers.CountryController.get(id: Long)
+POST    /cricbuzz/countries                     controllers.CountryController.create(request: Request)
+PUT     /cricbuzz/countries/:id                 controllers.CountryController.update(id: Long, request: Request)
 
-GET		/cricbuzz/stadiums			controllers.StadiumController.getAll
-POST    /cricbuzz/stadiums          controllers.StadiumController.create(request: Request)
-GET		/cricbuzz/stadiums/:id		controllers.StadiumController.get(id: Long)
-PUT     /cricbuzz/stadiums/:id      controllers.StadiumController.update(id: Long, request: Request)
+GET		/cricbuzz/stadiums			            controllers.StadiumController.getAll
+POST    /cricbuzz/stadiums                      controllers.StadiumController.create(request: Request)
+GET		/cricbuzz/stadiums/:id		            controllers.StadiumController.get(id: Long)
+PUT     /cricbuzz/stadiums/:id                  controllers.StadiumController.update(id: Long, request: Request)
 
-GET     /cricbuzz/teams             controllers.TeamController.getAll
-GET     /cricbuzz/teams/:id         controllers.TeamController.get(id: Long)
+GET     /cricbuzz/teams                         controllers.TeamController.getAll
+GET     /cricbuzz/teams/:id                     controllers.TeamController.get(id: Long)
+GET     /cricbuzz/teams/keyword/:keyword        controllers.TeamController.getByKeyword(keyword: String)

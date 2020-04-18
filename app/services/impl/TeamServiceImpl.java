@@ -31,4 +31,9 @@ public class TeamServiceImpl implements TeamService
     {
         return this.teamRepository.get(id);
     }
+
+    public CompletionStage<List<Team>> get(String keyword)
+    {
+        return this.teamRepository.get(keyword);
+    }
 }

@@ -71,4 +71,23 @@ public class TeamRepository
             return team;
         }, this.databaseExecutionContext);
     }
+
+    public CompletionStage<List<Team>> get(String keyword)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Team> teams = new ArrayList<>();
+
+            try
+            {
+                teams = this.db.find(Team.class).where().icontains("name", keyword).findList();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return teams;
+        }, this.databaseExecutionContext);
+    }
 }

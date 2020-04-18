@@ -10,4 +10,6 @@ public interface TeamService
     CompletionStage<List<Team>> getAll();
 
     CompletionStage<Team> get(Long id);
+
+    CompletionStage<List<Team>> get(String keyword);
 }
