@@ -90,4 +90,40 @@ public class TeamRepository
             return teams;
         }, this.databaseExecutionContext);
     }
+
+    public CompletionStage<Team> save(Team team)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            try
+            {
+                this.db.save(team);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return team;
+        }, this.databaseExecutionContext);
+    }
+
+    public CompletionStage<Team> get(String name, Long countryId)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            Team team = null;
+
+            try
+            {
+                team = this.db.find(Team.class).where().icontains("name", name).eq("country.id", countryId).findOne();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return team;
+        }, this.databaseExecutionContext);
+    }
 }

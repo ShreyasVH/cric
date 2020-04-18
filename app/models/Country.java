@@ -40,6 +40,10 @@ public class Country extends Model
 	@JsonBackReference
 	private List<Stadium> stadiums = new ArrayList<>();
 
+	@OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
+	@JsonBackReference
+	private List<Team> teams = new ArrayList<>();
+
 	public Country(CreateCountryRequest createCountryRequest)
 	{
 		this.id = createCountryRequest.getId();
