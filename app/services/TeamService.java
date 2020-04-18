@@ -8,4 +8,6 @@ import java.util.concurrent.CompletionStage;
 public interface TeamService
 {
     CompletionStage<List<Team>> getAll();
+
+    CompletionStage<Team> get(Long id);
 }

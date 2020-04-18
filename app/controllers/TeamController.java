@@ -31,4 +31,9 @@ public class TeamController extends Controller
     {
         return this.teamService.getAll().thenApplyAsync(list -> ok(Json.toJson(list)), this.httpExecutionContext.current());
     }
+
+    public CompletionStage<Result> get(Long id)
+    {
+        return this.teamService.get(id).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
+    }
 }

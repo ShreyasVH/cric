@@ -9,3 +9,4 @@ GET		/cricbuzz/stadiums/:id		controllers.StadiumController.get(id: Long)
 PUT     /cricbuzz/stadiums/:id      controllers.StadiumController.update(id: Long, request: Request)
 
 GET     /cricbuzz/teams             controllers.TeamController.getAll
+GET     /cricbuzz/teams/:id         controllers.TeamController.get(id: Long)

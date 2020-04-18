@@ -26,4 +26,9 @@ public class TeamServiceImpl implements TeamService
     {
         return this.teamRepository.getAll();
     }
+
+    public CompletionStage<Team> get(Long id)
+    {
+        return this.teamRepository.get(id);
+    }
 }

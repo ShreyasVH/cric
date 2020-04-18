@@ -52,4 +52,23 @@ public class TeamRepository
             return teams;
         }, this.databaseExecutionContext);
     }
+
+    public CompletionStage<Team> get(Long id)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            Team team = null;
+
+            try
+            {
+                team = this.db.find(Team.class).where().eq("id", id).findOne();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return team;
+        }, this.databaseExecutionContext);
+    }
 }
