@@ -11,7 +11,6 @@ import repositories.StadiumRepository;
 import requests.stadiums.CreateRequest;
 import requests.stadiums.UpdateRequest;
 import services.StadiumService;
-import utils.Utils;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
