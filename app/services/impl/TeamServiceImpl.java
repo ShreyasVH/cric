@@ -6,13 +6,17 @@ import enums.ErrorCode;
 import exceptions.BadRequestException;
 import models.Country;
 import models.Team;
+import org.springframework.util.StringUtils;
 import repositories.CountryRepository;
 import repositories.TeamRepository;
+import requests.UpdateCountryRequest;
 import requests.teams.CreateRequest;
+import requests.teams.UpdateRequest;
 import services.TeamService;
 import utils.Utils;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class TeamServiceImpl implements TeamService
@@ -70,6 +74,58 @@ public class TeamServiceImpl implements TeamService
                 team.setUpdatedAt(Utils.getCurrentDate());
                 return this.teamRepository.save(team);
             });
+        });
+    }
+
+    public CompletionStage<Team> update(Long id, UpdateRequest updateRequest)
+    {
+        updateRequest.validate();
+
+        CompletionStage<Team> response = this.teamRepository.get(id);
+        return response.thenComposeAsync(existingTeam -> {
+            if(null == existingTeam)
+            {
+                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
+            }
+
+            boolean isUpdateRequired = false;
+
+            if(!StringUtils.isEmpty(updateRequest.getName()) && (!existingTeam.getName().equals(updateRequest.getName())))
+            {
+                existingTeam.setName(updateRequest.getName());
+                isUpdateRequired = true;
+            }
+
+            if((null != updateRequest.getTeamType()) && (!existingTeam.getTeamType().equals(updateRequest.getTeamType())))
+            {
+                existingTeam.setTeamType(updateRequest.getTeamType());
+                isUpdateRequired = true;
+            }
+
+            if(null != updateRequest.getCountryId())
+            {
+                CompletionStage<Country> countryResponse = this.countryRepository.get(updateRequest.getCountryId());
+                return countryResponse.thenComposeAsync(country -> {
+                    if(null == country)
+                    {
+                        throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+                    }
+
+                    existingTeam.setCountry(country);
+                    return this.teamRepository.save(existingTeam);
+                });
+            }
+            else
+            {
+                if(isUpdateRequired)
+                {
+                    return this.teamRepository.save(existingTeam);
+                }
+                else
+                {
+                    return CompletableFuture.supplyAsync(() -> existingTeam);
+                }
+            }
         });
     }
 }
