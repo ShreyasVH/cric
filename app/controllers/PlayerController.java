@@ -32,4 +32,9 @@ public class PlayerController extends Controller
     {
         return this.playerService.get(id).thenApplyAsync(player -> ok(Json.toJson(player)), this.httpExecutionContext.current());
     }
+
+    public CompletionStage<Result> getByKeyword(String keyword)
+    {
+        return this.playerService.get(keyword).thenApplyAsync(player -> ok(Json.toJson(player)), this.httpExecutionContext.current());
+    }
 }

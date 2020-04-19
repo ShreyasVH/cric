@@ -11,6 +11,7 @@ import responses.PlayerResponse;
 import services.PlayerService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
@@ -129,5 +130,11 @@ public class PlayerServiceImpl implements PlayerService
                 });
             });
         });
+    }
+
+    @Override
+    public CompletionStage<List<Player>> get(String keyword)
+    {
+        return this.playerRepository.get(keyword);
     }
 }

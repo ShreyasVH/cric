@@ -13,6 +13,7 @@ import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,25 @@ public class PlayerRepository
             }
 
             return player;
+        }, this.databaseExecutionContext);
+    }
+
+    public CompletionStage<List<Player>> get(String keyword)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            List<Player> players = new ArrayList<>();
+
+            try
+            {
+                players = this.db.find(Player.class).where().icontains("name", keyword).findList();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return players;
         }, this.databaseExecutionContext);
     }
 
