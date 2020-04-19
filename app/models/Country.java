@@ -36,13 +36,17 @@ public class Country extends Model
 	@Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP", nullable = false)
 	private Date updatedAt;
 
-	@OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
-	@JsonBackReference
-	private List<Stadium> stadiums = new ArrayList<>();
-
-	@OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
-	@JsonBackReference
-	private List<Team> teams = new ArrayList<>();
+//	@OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
+//	@JsonBackReference
+//	private List<Stadium> stadiums = new ArrayList<>();
+//
+//	@OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
+//	@JsonBackReference
+//	private List<Team> teams = new ArrayList<>();
+//
+//	@OneToMany(mappedBy = "country", cascade = CascadeType.ALL)
+//	@JsonBackReference
+//	private List<Player> players = new ArrayList<>();
 
 	public Country(CreateCountryRequest createCountryRequest)
 	{
