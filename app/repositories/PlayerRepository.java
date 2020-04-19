@@ -77,6 +77,25 @@ public class PlayerRepository
         }, this.databaseExecutionContext);
     }
 
+    public CompletionStage<Player> get(String name, Long countryId)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            Player player = null;
+
+            try
+            {
+                player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).findOne();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return player;
+        }, this.databaseExecutionContext);
+    }
+
     public CompletionStage<Map<GameType, Map<String, Integer>>> getDismissalStats(Long playerId)
     {
         return CompletableFuture.supplyAsync(() -> {
@@ -234,6 +253,22 @@ public class PlayerRepository
             }
 
             return statsFinal;
+        }, this.databaseExecutionContext);
+    }
+
+    public CompletionStage<Player> save(Player player)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            try
+            {
+                this.db.save(player);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+            return player;
         }, this.databaseExecutionContext);
     }
 }

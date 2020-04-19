@@ -1,30 +1,41 @@
 package services.impl;
 
 import com.google.inject.Inject;
+import com.google.inject.internal.cglib.core.$CollectionUtils;
+import enums.ErrorCode;
 import enums.GameType;
+import exceptions.BadRequestException;
+import models.Country;
 import models.Player;
+import repositories.CountryRepository;
 import repositories.PlayerRepository;
+import requests.players.CreateRequest;
 import responses.BattingStats;
 import responses.BowlingStats;
 import responses.FieldingStats;
 import responses.PlayerResponse;
 import services.PlayerService;
+import utils.Utils;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class PlayerServiceImpl implements PlayerService
 {
+    private final CountryRepository countryRepository;
     private final PlayerRepository playerRepository;
 
     @Inject
     public PlayerServiceImpl
     (
+        CountryRepository countryRepository,
         PlayerRepository playerRepository
     )
     {
+        this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
     }
 
@@ -136,5 +147,35 @@ public class PlayerServiceImpl implements PlayerService
     public CompletionStage<List<Player>> get(String keyword)
     {
         return this.playerRepository.get(keyword);
+    }
+
+    @Override
+    public CompletionStage<Player> create(CreateRequest createRequest)
+    {
+        createRequest.validate();
+
+        CompletionStage<Player> response = this.playerRepository.get(createRequest.getName(), createRequest.getCountryId());
+        return response.thenComposeAsync(existingPlayer -> {
+            if(null != existingPlayer)
+            {
+                throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
+            }
+
+            CompletionStage<Country> countryResponse = this.countryRepository.get(createRequest.getCountryId());
+            return countryResponse.thenComposeAsync(country -> {
+                if(null == country)
+                {
+                    throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+                }
+
+                Player player = new Player(createRequest);
+
+                player.setCountry(country);
+                player.setCreatedAt(Utils.getCurrentDate());
+                player.setUpdatedAt(Utils.getCurrentDate());
+
+                return this.playerRepository.save(player);
+            });
+        });
     }
 }

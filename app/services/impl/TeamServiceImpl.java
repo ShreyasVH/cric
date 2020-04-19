@@ -65,7 +65,7 @@ public class TeamServiceImpl implements TeamService
             return countryResponse.thenComposeAsync(country -> {
                 if(null == country)
                 {
-                    throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
+                    throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
                 }
 
                 Team team = new Team(createRequest);
@@ -112,6 +112,7 @@ public class TeamServiceImpl implements TeamService
                     }
 
                     existingTeam.setCountry(country);
+                    existingTeam.setUpdatedAt(Utils.getCurrentDate());
                     return this.teamRepository.save(existingTeam);
                 });
             }
@@ -119,6 +120,7 @@ public class TeamServiceImpl implements TeamService
             {
                 if(isUpdateRequired)
                 {
+                    existingTeam.setUpdatedAt(Utils.getCurrentDate());
                     return this.teamRepository.save(existingTeam);
                 }
                 else
