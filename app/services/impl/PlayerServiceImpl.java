@@ -7,9 +7,11 @@ import enums.GameType;
 import exceptions.BadRequestException;
 import models.Country;
 import models.Player;
+import org.springframework.util.StringUtils;
 import repositories.CountryRepository;
 import repositories.PlayerRepository;
 import requests.players.CreateRequest;
+import requests.players.UpdateRequest;
 import responses.BattingStats;
 import responses.BowlingStats;
 import responses.FieldingStats;
@@ -176,6 +178,62 @@ public class PlayerServiceImpl implements PlayerService
 
                 return this.playerRepository.save(player);
             });
+        });
+    }
+
+    @Override
+    public CompletionStage<Player> update(Long id, UpdateRequest updateRequest)
+    {
+        updateRequest.validate();
+
+        CompletionStage<Player> response = this.playerRepository.get(id);
+        return response.thenComposeAsync(existingPlayer -> {
+            if(null == existingPlayer)
+            {
+                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+            }
+
+            boolean isUpdateRequired = false;
+
+            if(!StringUtils.isEmpty(updateRequest.getName()) && !existingPlayer.getName().equals(updateRequest.getName()))
+            {
+                isUpdateRequired = true;
+                existingPlayer.setName(updateRequest.getName());
+            }
+
+            if(!StringUtils.isEmpty(updateRequest.getImage()) && !existingPlayer.getImage().equals(updateRequest.getImage()))
+            {
+                isUpdateRequired = true;
+                existingPlayer.setImage(updateRequest.getImage());
+            }
+
+            if(null == updateRequest.getCountryId())
+            {
+                if(isUpdateRequired)
+                {
+                    existingPlayer.setUpdatedAt(Utils.getCurrentDate());
+                    return this.playerRepository.save(existingPlayer);
+                }
+                else
+                {
+                    return CompletableFuture.supplyAsync(() -> existingPlayer);
+                }
+            }
+            else
+            {
+                CompletionStage<Country> countryResponse = this.countryRepository.get(updateRequest.getCountryId());
+                return countryResponse.thenComposeAsync(country -> {
+
+                    if(null == country)
+                    {
+                        throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+                    }
+
+                    existingPlayer.setCountry(country);
+                    existingPlayer.setUpdatedAt(Utils.getCurrentDate());
+                    return this.playerRepository.save(existingPlayer);
+                });
+            }
         });
     }
 }

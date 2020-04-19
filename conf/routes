@@ -17,3 +17,4 @@ PUT     /cricbuzz/teams/:id                     controllers.TeamController.updat
 GET     /cricbuzz/players/:id                   controllers.PlayerController.get(id: Long)
 GET     /cricbuzz/players/keyword/:keyword      controllers.PlayerController.getByKeyword(keyword: String)
 POST    /cricbuzz/players                       controllers.PlayerController.create(request: Request)
+PUT     /cricbuzz/players/:id                   controllers.PlayerController.update(id: Long, request: Request)
