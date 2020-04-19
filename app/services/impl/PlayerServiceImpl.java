@@ -1,6 +1,7 @@
 package services.impl;
 
 import com.google.inject.Inject;
+import enums.GameType;
 import models.Player;
 import repositories.PlayerRepository;
 import responses.BattingStats;
@@ -8,10 +9,8 @@ import responses.BowlingStats;
 import responses.FieldingStats;
 import responses.PlayerResponse;
 import services.PlayerService;
-import utils.Utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletionStage;
 
@@ -36,65 +35,93 @@ public class PlayerServiceImpl implements PlayerService
         return response.thenComposeAsync(basicDetails -> {
             PlayerResponse playerResponse = new PlayerResponse(basicDetails);
 
-            CompletionStage<Map<String, Integer>> dismissalResponse = this.playerRepository.getDismissalStats(id);
+            CompletionStage<Map<GameType, Map<String, Integer>>> dismissalResponse = this.playerRepository.getDismissalStats(id);
             return dismissalResponse.thenComposeAsync(dismissalStats -> {
                 playerResponse.setDismissalStats(dismissalStats);
 
-                Integer dismissalCount = 0;
-                for(String key: dismissalStats.keySet())
+                Map<GameType, Integer> dismissalCountMap = new HashMap<>();
+                for(GameType gameType: GameType.values())
                 {
-                    dismissalCount += dismissalStats.get(key);
-                }
-                final Integer dismissalCountFinal = dismissalCount;
-
-                CompletionStage<Map<String, Integer>> basicBattingStatsResponse = this.playerRepository.getBasicBattingStats(id);
-                return basicBattingStatsResponse.thenComposeAsync(basicStats -> {
-                    if(!basicStats.keySet().isEmpty())
+                    Integer dismissalCount = 0;
+                    if(dismissalStats.containsKey(gameType))
                     {
-                        BattingStats battingStats = new BattingStats(basicStats);
-                        battingStats.setNotOuts(battingStats.getInnings() - dismissalCountFinal);
-
-                        if(dismissalCountFinal > 0)
+                        for(String key: dismissalStats.get(gameType).keySet())
                         {
-                            battingStats.setAverage(battingStats.getRuns() * 1.0 / dismissalCountFinal);
+                            dismissalCount += dismissalStats.get(gameType).get(key);
                         }
-
-                        if(battingStats.getBalls() > 0)
-                        {
-                            battingStats.setStrikeRate(battingStats.getRuns() * 100.0 / battingStats.getBalls());
-                        }
-
-                        playerResponse.setBattingStats(battingStats);
                     }
+                    dismissalCountMap.put(gameType, dismissalCount);
+                }
 
-                    CompletionStage<Map<String, Integer>> basicBowlingStatsResponse = this.playerRepository.getBasicBowlingStats(id);
-                    return basicBowlingStatsResponse.thenComposeAsync(basicBowlingStats -> {
+                final Map<GameType, Integer> dismissalCountMapFinal = dismissalCountMap;
 
-                        if(!basicBowlingStats.keySet().isEmpty())
+                CompletionStage<Map<GameType, Map<String, Integer>>> basicBattingStatsResponse = this.playerRepository.getBasicBattingStats(id);
+                return basicBattingStatsResponse.thenComposeAsync(basicStatsMap -> {
+                    if(!basicStatsMap.keySet().isEmpty())
+                    {
+                        Map<GameType, BattingStats> battingStatsMap = new HashMap<>();
+
+                        for(GameType gameType: basicStatsMap.keySet())
                         {
-                            BowlingStats bowlingStats = new BowlingStats(basicBowlingStats);
+                            BattingStats battingStats = new BattingStats(basicStatsMap.get(gameType));
+                            battingStats.setNotOuts(battingStats.getInnings() - dismissalCountMapFinal.get(gameType));
 
-                            if(bowlingStats.getBalls() > 0)
+                            if(dismissalCountMapFinal.get(gameType) > 0)
                             {
-                                bowlingStats.setEconomy(bowlingStats.getRuns() * 6.0 / bowlingStats.getBalls());
-
-                                if(bowlingStats.getWickets() > 0)
-                                {
-                                    bowlingStats.setAverage(bowlingStats.getRuns() * 1.0 / bowlingStats.getWickets());
-
-                                    bowlingStats.setStrikeRate(bowlingStats.getBalls() * 1.0 / bowlingStats.getWickets());
-                                }
+                                battingStats.setAverage(battingStats.getRuns() * 1.0 / dismissalCountMapFinal.get(gameType));
                             }
 
-                            playerResponse.setBowlingStats(bowlingStats);
+                            if(battingStats.getBalls() > 0)
+                            {
+                                battingStats.setStrikeRate(battingStats.getRuns() * 100.0 / battingStats.getBalls());
+                            }
+
+                            battingStatsMap.put(gameType, battingStats);
                         }
 
+                        playerResponse.setBattingStats(battingStatsMap);
+                    }
 
-                        CompletionStage<Map<String, Integer>> fieldingStatsResponse = this.playerRepository.getFieldingStats(id);
-                        return fieldingStatsResponse.thenApplyAsync(fieldingStats -> {
-                            if(!fieldingStats.keySet().isEmpty())
+                    CompletionStage<Map<GameType, Map<String, Integer>>> basicBowlingStatsResponse = this.playerRepository.getBasicBowlingStats(id);
+                    return basicBowlingStatsResponse.thenComposeAsync(basicBowlingStatsMap -> {
+                        if(!basicBowlingStatsMap.keySet().isEmpty())
+                        {
+                            Map<GameType, BowlingStats> bowlingStatsFinal = new HashMap<>();
+
+                            for(GameType gameType: basicBowlingStatsMap.keySet())
                             {
-                                playerResponse.setFieldingStats(new FieldingStats(fieldingStats));
+                                BowlingStats bowlingStats = new BowlingStats(basicBowlingStatsMap.get(gameType));
+
+                                if(bowlingStats.getBalls() > 0)
+                                {
+                                    bowlingStats.setEconomy(bowlingStats.getRuns() * 6.0 / bowlingStats.getBalls());
+
+                                    if(bowlingStats.getWickets() > 0)
+                                    {
+                                        bowlingStats.setAverage(bowlingStats.getRuns() * 1.0 / bowlingStats.getWickets());
+
+                                        bowlingStats.setStrikeRate(bowlingStats.getBalls() * 1.0 / bowlingStats.getWickets());
+                                    }
+                                }
+
+                                bowlingStatsFinal.put(gameType, bowlingStats);
+                            }
+
+                            playerResponse.setBowlingStats(bowlingStatsFinal);
+                        }
+
+                        CompletionStage<Map<GameType, Map<String, Integer>>> fieldingStatsResponse = this.playerRepository.getFieldingStats(id);
+                        return fieldingStatsResponse.thenApplyAsync(fieldingStatsMap -> {
+                            if(!fieldingStatsMap.keySet().isEmpty())
+                            {
+                                Map<GameType, FieldingStats> fieldingStatsMapFinal = new HashMap<>();
+                                for(GameType gameType: fieldingStatsMap.keySet())
+                                {
+                                    FieldingStats fieldingStats = new FieldingStats(fieldingStatsMap.get(gameType));
+                                    fieldingStatsMapFinal.put(gameType, fieldingStats);
+                                }
+
+                                playerResponse.setFieldingStats(fieldingStatsMapFinal);
                             }
                             return playerResponse;
                         });
