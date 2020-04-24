@@ -136,14 +136,14 @@ public class SeriesServiceImpl implements SeriesService
     @Override
     public CompletionStage<Series> update(Long id, UpdateRequest updateRequest)
     {
-        updateRequest.validate();
-
         CompletionStage<Series> response = this.seriesRepository.get(id);
         return response.thenComposeAsync(existingSeries -> {
             if(null == existingSeries)
             {
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Series"));
             }
+
+            updateRequest.validate(existingSeries);
 
             Transaction transaction = Ebean.beginTransaction();
             try
