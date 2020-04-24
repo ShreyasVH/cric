@@ -52,4 +52,23 @@ public class SeriesRepository
             return series;
         }, this.databaseExecutionContext);
     }
+
+    public CompletionStage<Series> get(Long id)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            Series series = null;
+
+            try
+            {
+                series = this.db.find(Series.class).where().eq("id", id).findOne();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return series;
+        }, this.databaseExecutionContext);
+    }
 }

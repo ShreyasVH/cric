@@ -1,6 +1,8 @@
 package services.impl;
 
 import com.google.inject.Inject;
+import enums.ErrorCode;
+import exceptions.NotFoundException;
 import models.Series;
 import repositories.SeriesRepository;
 import services.SeriesService;
@@ -25,5 +27,19 @@ public class SeriesServiceImpl implements SeriesService
     public CompletionStage<List<Series>> getAll()
     {
         return this.seriesRepository.getAll();
+    }
+
+    @Override
+    public CompletionStage<Series> get(Long id)
+    {
+        CompletionStage<Series> response = this.seriesRepository.get(id);
+        return response.thenApplyAsync(series -> {
+            if(null == series)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Series"));
+            }
+
+            return series;
+        });
     }
 }

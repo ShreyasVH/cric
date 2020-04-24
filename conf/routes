@@ -20,3 +20,4 @@ POST    /cricbuzz/players                       controllers.PlayerController.cre
 PUT     /cricbuzz/players/:id                   controllers.PlayerController.update(id: Long, request: Request)
 
 GET     /cricbuzz/series                        controllers.SeriesController.getAll
+GET     /cricbuzz/series/:id                    controllers.SeriesController.get(id: Long)

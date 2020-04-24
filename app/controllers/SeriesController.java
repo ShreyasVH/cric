@@ -32,4 +32,9 @@ public class SeriesController extends Controller
     {
         return this.seriesService.getAll().thenApplyAsync(list -> ok(Json.toJson(list)), this.httpExecutionContext.current());
     }
+
+    public CompletionStage<Result> get(Long id)
+    {
+        return this.seriesService.get(id).thenApplyAsync(series -> ok(Json.toJson(series)), this.httpExecutionContext.current());
+    }
 }
