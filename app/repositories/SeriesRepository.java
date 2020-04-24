@@ -2,10 +2,11 @@ package repositories;
 
 import com.google.inject.Inject;
 import enums.ErrorCode;
+import enums.GameType;
 import exceptions.DBInteractionException;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import models.Team;
+import models.Series;
 import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
@@ -15,14 +16,14 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class TeamRepository
+public class SeriesRepository
 {
     private final EbeanServer db;
     private final EbeanDynamicEvolutions ebeanDynamicEvolutions;
     private final DatabaseExecutionContext databaseExecutionContext;
 
     @Inject
-    public TeamRepository
+    public SeriesRepository
     (
         EbeanConfig ebeanConfig,
         EbeanDynamicEvolutions ebeanDynamicEvolutions,
@@ -34,14 +35,14 @@ public class TeamRepository
         this.databaseExecutionContext = databaseExecutionContext;
     }
 
-    public CompletionStage<List<Team>> getAll()
+    public CompletionStage<List<Series>> getAll()
     {
         return CompletableFuture.supplyAsync(() -> {
-            List<Team> teams = new ArrayList<>();
+            List<Series> series = new ArrayList<>();
 
             try
             {
-                teams = this.db.find(Team.class).findList();
+                series = this.db.find(Series.class).findList();
             }
             catch(Exception ex)
             {
@@ -49,18 +50,18 @@ public class TeamRepository
                 throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
             }
 
-            return teams;
+            return series;
         }, this.databaseExecutionContext);
     }
 
-    public CompletionStage<Team> get(Long id)
+    public CompletionStage<Series> get(Long id)
     {
         return CompletableFuture.supplyAsync(() -> {
-            Team team = null;
+            Series series = null;
 
             try
             {
-                team = this.db.find(Team.class).where().eq("id", id).findOne();
+                series = this.db.find(Series.class).where().eq("id", id).findOne();
             }
             catch(Exception ex)
             {
@@ -68,18 +69,18 @@ public class TeamRepository
                 throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
             }
 
-            return team;
+            return series;
         }, this.databaseExecutionContext);
     }
 
-    public CompletionStage<List<Team>> get(List<Long> ids)
+    public CompletionStage<Series> get(String name, GameType gameType)
     {
         return CompletableFuture.supplyAsync(() -> {
-            List<Team> teams = new ArrayList<>();
+            Series series = null;
 
             try
             {
-                teams = this.db.find(Team.class).where().in("id", ids).findList();
+                series = this.db.find(Series.class).where().eq("name", name).eq("gameType", gameType).findOne();
             }
             catch(Exception ex)
             {
@@ -87,62 +88,23 @@ public class TeamRepository
                 throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
             }
 
-            return teams;
+            return series;
         }, this.databaseExecutionContext);
     }
 
-    public CompletionStage<List<Team>> get(String keyword)
+    public CompletionStage<Series> save(Series series)
     {
         return CompletableFuture.supplyAsync(() -> {
-            List<Team> teams = new ArrayList<>();
-
             try
             {
-                teams = this.db.find(Team.class).where().icontains("name", keyword).findList();
+                this.db.save(series);
             }
             catch(Exception ex)
             {
                 String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
                 throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
             }
-
-            return teams;
-        }, this.databaseExecutionContext);
-    }
-
-    public CompletionStage<Team> save(Team team)
-    {
-        return CompletableFuture.supplyAsync(() -> {
-            try
-            {
-                this.db.save(team);
-            }
-            catch(Exception ex)
-            {
-                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-            }
-
-            return team;
-        }, this.databaseExecutionContext);
-    }
-
-    public CompletionStage<Team> get(String name, Long countryId)
-    {
-        return CompletableFuture.supplyAsync(() -> {
-            Team team = null;
-
-            try
-            {
-                team = this.db.find(Team.class).where().icontains("name", name).eq("country.id", countryId).findOne();
-            }
-            catch(Exception ex)
-            {
-                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-            }
-
-            return team;
+            return series;
         }, this.databaseExecutionContext);
     }
 }
