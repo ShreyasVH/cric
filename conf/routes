@@ -21,3 +21,4 @@ PUT     /cricbuzz/players/:id                   controllers.PlayerController.upd
 
 GET     /cricbuzz/series                        controllers.SeriesController.getAll
 GET     /cricbuzz/series/:id                    controllers.SeriesController.get(id: Long)
+POST    /cricbuzz/series                        controllers.SeriesController.create(request: Request)

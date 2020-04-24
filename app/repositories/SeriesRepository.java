@@ -2,6 +2,7 @@ package repositories;
 
 import com.google.inject.Inject;
 import enums.ErrorCode;
+import enums.GameType;
 import exceptions.DBInteractionException;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
@@ -23,11 +24,11 @@ public class SeriesRepository
 
     @Inject
     public SeriesRepository
-            (
-                    EbeanConfig ebeanConfig,
-                    EbeanDynamicEvolutions ebeanDynamicEvolutions,
-                    DatabaseExecutionContext databaseExecutionContext
-            )
+    (
+        EbeanConfig ebeanConfig,
+        EbeanDynamicEvolutions ebeanDynamicEvolutions,
+        DatabaseExecutionContext databaseExecutionContext
+    )
     {
         this.ebeanDynamicEvolutions = ebeanDynamicEvolutions;
         this.db = Ebean.getServer(ebeanConfig.defaultServer());
@@ -68,6 +69,41 @@ public class SeriesRepository
                 throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
             }
 
+            return series;
+        }, this.databaseExecutionContext);
+    }
+
+    public CompletionStage<Series> get(String name, GameType gameType)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            Series series = null;
+
+            try
+            {
+                series = this.db.find(Series.class).where().eq("name", name).eq("gameType", gameType).findOne();
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+
+            return series;
+        }, this.databaseExecutionContext);
+    }
+
+    public CompletionStage<Series> save(Series series)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            try
+            {
+                this.db.save(series);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
             return series;
         }, this.databaseExecutionContext);
     }

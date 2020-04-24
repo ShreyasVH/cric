@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Setter
@@ -27,19 +29,18 @@ public class Series extends Model
     @ManyToOne
     private Country homeCountry;
 
-    @ManyToOne
-    @JoinColumn(name = "team_1")
-    private Team team1;
-
-    @ManyToOne
-    @JoinColumn(name = "team_2")
-    private Team team2;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "series_teams_map",
+        joinColumns = @JoinColumn(name = "series_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id")
+    )
+    private List<Team> teams = new ArrayList<>();
 
     @Column(nullable = false)
     private SeriesType type;
 
-    @Column(name = "match_type", nullable = false)
-    private GameType matchType;
+    @Column(name = "game_type", nullable = false)
+    private GameType gameType;
 
     @Column(name = "start_time", nullable = false)
     private Date startTime;
