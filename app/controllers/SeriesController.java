@@ -9,6 +9,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import requests.series.CreateRequest;
+import requests.series.UpdateRequest;
 import services.SeriesService;
 import utils.Utils;
 
@@ -56,5 +57,20 @@ public class SeriesController extends Controller
         }
 
         return this.seriesService.create(createTeamRequest).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
+    }
+
+    public CompletionStage<Result> update(Long id, Http.Request request)
+    {
+        UpdateRequest updateRequest = null;
+        try
+        {
+            updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
+        }
+        catch(Exception ex)
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+        }
+
+        return this.seriesService.update(id, updateRequest).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
     }
 }

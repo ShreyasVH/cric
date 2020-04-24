@@ -38,10 +38,6 @@ public class Team
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP", nullable = false)
     private Date updatedAt;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<Series> series = new ArrayList<>();
-
     public Team(CreateRequest createRequest)
     {
         this.name = createRequest.getName();
