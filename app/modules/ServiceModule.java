@@ -1,15 +1,9 @@
 package modules;
 
-import services.CountryService;
-import services.PlayerService;
-import services.StadiumService;
-import services.TeamService;
-import services.impl.CountryServiceImpl;
+import services.*;
+import services.impl.*;
 
 import com.google.inject.AbstractModule;
-import services.impl.PlayerServiceImpl;
-import services.impl.StadiumServiceImpl;
-import services.impl.TeamServiceImpl;
 
 public class ServiceModule extends AbstractModule
 {
@@ -20,5 +14,6 @@ public class ServiceModule extends AbstractModule
 		bind(StadiumService.class).to(StadiumServiceImpl.class).asEagerSingleton();
 		bind(TeamService.class).to(TeamServiceImpl.class).asEagerSingleton();
 		bind(PlayerService.class).to(PlayerServiceImpl.class).asEagerSingleton();
+		bind(SeriesService.class).to(SeriesServiceImpl.class).asEagerSingleton();
 	}
 }
