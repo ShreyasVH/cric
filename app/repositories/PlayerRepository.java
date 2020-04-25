@@ -103,7 +103,7 @@ public class PlayerRepository
 
             try
             {
-                String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN match_player_map mpm ON mpm.id = bs.batsman_id AND mpm.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL INNER JOIN dismissal_modes dm ON dm.id = bs.mode_of_dismissal inner join matches m on m.id = mpm.match_id inner join series s on s.id = m.series GROUP BY s.game_type, bs.mode_of_dismissal";
+                String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN dismissal_modes dm ON bs.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL and dm.id = bs.mode_of_dismissal inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series GROUP BY s.game_type, bs.mode_of_dismissal";
                 SqlQuery sqlQuery = this.db.createSqlQuery(query);
                 List<SqlRow> result = sqlQuery.findList();
 
@@ -143,7 +143,7 @@ public class PlayerRepository
 
             try
             {
-                String query = "SELECT COUNT(*) AS innings, SUM(runs) AS runs, SUM(balls) AS balls, SUM(fours) AS fours, SUM(sixes) AS sixes, MAX(runs) AS highest, s.game_type as gameType FROM `batting_scores` bs INNER JOIN match_player_map mpm ON mpm.id = bs.batsman_id AND mpm.player_id = " + playerId + " inner join matches m on m.id = mpm.match_id inner join series s on s.id = m.series group by s.game_type";
+                String query = "SELECT COUNT(*) AS innings, SUM(runs) AS runs, SUM(balls) AS balls, SUM(fours) AS fours, SUM(sixes) AS sixes, MAX(runs) AS highest, s.game_type as gameType FROM `batting_scores` bs inner join matches m on player_id = " + playerId + " and m.id = bs.match_id inner join series s on s.id = m.series group by s.game_type";
                 SqlQuery sqlQuery = this.db.createSqlQuery(query);
                 List<SqlRow> result = sqlQuery.findList();
 
@@ -184,7 +184,7 @@ public class PlayerRepository
 
             try
             {
-                String query = "SELECT dm.name as dismissalMode, count(*) as count, s.game_type as gameType FROM `batting_scores` bs inner join match_player_map mpm on mpm.id = bs.fielder_id and mpm.player_id = " + playerId + " inner join dismissal_modes dm on dm.id = bs.mode_of_dismissal inner join matches m on m.id = mpm.match_id inner join series s on s.id = m.series group by s.game_type, bs.mode_of_dismissal";
+                String query = "select dm.name as dismissalMode, count(*) as count, s.game_type as gameType from fielder_dismissals fd inner join batting_scores bs on bs.id = fd.score_id and fd.player_id = " + playerId + " inner join dismissal_modes dm on dm.id = bs.mode_of_dismissal inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series group by s.game_type, bs.mode_of_dismissal";
                 SqlQuery sqlQuery = this.db.createSqlQuery(query);
                 List<SqlRow> result = sqlQuery.findList();
 
@@ -223,7 +223,7 @@ public class PlayerRepository
 
             try
             {
-                String query = "SELECT COUNT(*) AS innings, SUM(balls) AS balls, SUM(maidens) AS maidens, SUM(runs) AS runs, SUM(wickets) AS wickets, s.game_type AS gameType FROM bowling_figures bf INNER JOIN match_player_map mpm ON mpm.id = bf.bowler_id AND mpm.player_id = " + playerId + " INNER JOIN matches m ON m.id = mpm.match_id INNER JOIN series s ON s.id = m.series GROUP BY s.game_type";
+                String query = "SELECT COUNT(*) AS innings, SUM(balls) AS balls, SUM(maidens) AS maidens, SUM(runs) AS runs, SUM(wickets) AS wickets, s.game_type AS gameType FROM bowling_figures bf INNER JOIN matches m ON bf.player_id = " + playerId + " and m.id = bf.match_id INNER JOIN series s ON s.id = m.series GROUP BY s.game_type";
                 SqlQuery sqlQuery = this.db.createSqlQuery(query);
                 List<SqlRow> result = sqlQuery.findList();
 

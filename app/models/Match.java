@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import enums.ResultType;
 import enums.WinMarginType;
 import io.ebean.Model;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.CacheQueryTuning;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +17,8 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "matches")
+//@Cache(enableQueryCache=true)
+//@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Match extends Model
 {
@@ -63,6 +67,10 @@ public class Match extends Model
     @Column(name = "end_time")
     private Date endTime;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(referencedColumnName = "id", name = "match_id")
+    private List<MatchPlayerMap> players;
+
     private String tag;
 
     @OneToMany
@@ -76,6 +84,10 @@ public class Match extends Model
     @OneToMany
     @JoinColumn(referencedColumnName = "id", name = "match_id")
     private List<ManOfTheMatch> manOfTheMatchList;
+
+    @OneToMany
+    @JoinColumn(name = "match_id", referencedColumnName = "id")
+    private List<Extras> extras;
 
     @Column(name = "created_at")
     private Date createdAt;

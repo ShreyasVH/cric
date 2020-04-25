@@ -13,24 +13,22 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "man_of_the_series")
+@Table(name = "fielder_dismissals")
 //@Cache(enableQueryCache=true)
 //@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ManOfTheSeries extends Model
+public class FielderDismissal extends Model
 {
     @Id
     private Long id;
 
     @ManyToOne
     @JsonBackReference
-    private Series series;
+    private BattingScore score;
 
     @OneToOne
-    @JoinColumn(name = "team_id", referencedColumnName = "id")
-    private Team team;
-
-    @OneToOne
-    @JoinColumn(name = "player_id", referencedColumnName = "id")
     private Player player;
+
+    @OneToOne
+    private Team team;
 }

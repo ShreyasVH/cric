@@ -1,6 +1,5 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import io.ebean.annotation.Cache;
@@ -13,24 +12,19 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-@Table(name = "man_of_the_series")
+@Table(name = "bowler_dismissals")
 //@Cache(enableQueryCache=true)
 //@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ManOfTheSeries extends Model
+public class BowlerDismissal extends Model
 {
     @Id
+    @OneToOne(mappedBy = "bowler")
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private Series series;
-
     @OneToOne
-    @JoinColumn(name = "team_id", referencedColumnName = "id")
-    private Team team;
-
-    @OneToOne
-    @JoinColumn(name = "player_id", referencedColumnName = "id")
     private Player player;
+
+    @OneToOne
+    private Team team;
 }

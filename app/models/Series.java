@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import enums.GameType;
 import enums.SeriesType;
 import io.ebean.Model;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.CacheQueryTuning;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +18,8 @@ import java.util.List;
 @Setter
 @Getter
 @Table(name = "series")
+//@Cache(enableQueryCache=true)
+//@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Series extends Model
 {

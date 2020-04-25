@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.CacheQueryTuning;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +17,8 @@ import java.util.Date;
 @Entity
 @Table(name = "players")
 @NoArgsConstructor
+//@Cache(enableQueryCache=true)
+//@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Player extends Model
 {
