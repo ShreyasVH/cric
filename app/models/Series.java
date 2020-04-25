@@ -48,6 +48,10 @@ public class Series extends Model
     @Column(name = "end_time", nullable = false)
     private Date endTime;
 
+    @OneToMany
+    @JoinColumn(referencedColumnName = "id", name = "series_id")
+    private List<ManOfTheSeries> manOfTheSeriesList;
+
     @Column(name = "created_at", nullable = false)
     private Date createdAt;
 

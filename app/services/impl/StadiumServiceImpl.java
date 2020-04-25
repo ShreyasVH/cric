@@ -3,6 +3,7 @@ package services.impl;
 import com.google.inject.Inject;
 import enums.ErrorCode;
 import exceptions.BadRequestException;
+import exceptions.NotFoundException;
 import models.Country;
 import models.Stadium;
 import org.springframework.util.StringUtils;
@@ -65,7 +66,15 @@ public class StadiumServiceImpl implements StadiumService
 
     public CompletionStage<Stadium> get(Long id)
     {
-        return this.stadiumRepository.get(id);
+        CompletionStage<Stadium> response = this.stadiumRepository.get(id);
+        return response.thenApplyAsync(stadium -> {
+            if(null == stadium)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Stadium"));
+            }
+
+            return stadium;
+        });
     }
 
     @Override

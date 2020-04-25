@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 
 import enums.ErrorCode;
 import exceptions.BadRequestException;
+import exceptions.NotFoundException;
 import models.Country;
 import models.Team;
 import org.springframework.util.StringUtils;
@@ -42,7 +43,14 @@ public class TeamServiceImpl implements TeamService
 
     public CompletionStage<Team> get(Long id)
     {
-        return this.teamRepository.get(id);
+        CompletionStage<Team> response = this.teamRepository.get(id);
+        return response.thenApplyAsync(team -> {
+            if(null == team)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
+            }
+            return team;
+        });
     }
 
     public CompletionStage<List<Team>> get(String keyword)
