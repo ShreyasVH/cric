@@ -5,5 +5,6 @@ public enum ResultType
     NORMAL,
     TIE,
     DRAW,
-    SUPER_OVER
+    SUPER_OVER,
+    WASHED_OUT
 }

@@ -25,6 +25,7 @@ public class Series extends Model
 {
     @Id
     @Column(name = "id", nullable = false)
+    @OneToMany(mappedBy = "matchSeries")
     private Long id;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -39,6 +40,10 @@ public class Series extends Model
         inverseJoinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id")
     )
     private List<Team> teams = new ArrayList<>();
+
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("series")
+    private List<Match> matches;
 
     @Column(nullable = false)
     private SeriesType type;
