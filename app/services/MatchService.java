@@ -1,10 +1,12 @@
 package services;
 
 import models.Match;
+import requests.matches.CreateRequest;
 
-import java.util.concurrent.CompletionStage;
 
 public interface MatchService
 {
-    CompletionStage<Match> get(Long id);
+    Match get(Long id);
+
+    Match create(CreateRequest createRequest);
 }

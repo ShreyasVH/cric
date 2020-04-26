@@ -25,3 +25,4 @@ POST    /cricbuzz/series                        controllers.SeriesController.cre
 PUT     /cricbuzz/series/:id                    controllers.SeriesController.update(id: Long, request: Request)
 
 GET     /cricbuzz/matches/:id                   controllers.MatchController.get(id: Long)
+POST    /cricbuzz/matches                       controllers.MatchController.create(request: Request)

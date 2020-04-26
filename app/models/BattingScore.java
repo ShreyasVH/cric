@@ -48,7 +48,7 @@ public class BattingScore extends Model
     @JoinColumn(name = "mode_of_dismissal")
     private DismissalMode dismissalMode;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "score_id", referencedColumnName = "id")
     private List<FielderDismissal> fielders;
 
@@ -61,10 +61,4 @@ public class BattingScore extends Model
 
     @Column(name = "team_innings_id")
     private int teamInnings;
-
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    private Date updatedAt;
 }

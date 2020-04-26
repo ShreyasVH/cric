@@ -13,6 +13,7 @@ import requests.stadiums.UpdateRequest;
 import services.StadiumService;
 import utils.Utils;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class StadiumController extends Controller
@@ -40,36 +41,40 @@ public class StadiumController extends Controller
 
     public CompletionStage<Result> create(Http.Request request)
     {
-        CreateRequest createStadiumRequest = null;
-        try
-        {
-            createStadiumRequest = Utils.convertObject(request.body().asJson(), CreateRequest.class);
-        }
-        catch(Exception ex)
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-        }
+        return CompletableFuture.supplyAsync(() -> {
+            CreateRequest createStadiumRequest;
+            try
+            {
+                createStadiumRequest = Utils.convertObject(request.body().asJson(), CreateRequest.class);
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
 
-        return this.stadiumService.create(createStadiumRequest).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
+            return this.stadiumService.create(createStadiumRequest);
+        }).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
     }
 
     public CompletionStage<Result> get(Long id)
     {
-        return this.stadiumService.get(id).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
+        return CompletableFuture.supplyAsync(() -> this.stadiumService.get(id)).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
     }
 
     public CompletionStage<Result> update(Long id, Http.Request request)
     {
-        UpdateRequest updateRequest = null;
-        try
-        {
-            updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
-        }
-        catch(Exception ex)
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-        }
+        return CompletableFuture.supplyAsync(() -> {
+            UpdateRequest updateRequest;
+            try
+            {
+                updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
 
-        return this.stadiumService.update(id, updateRequest).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
+            return this.stadiumService.update(id, updateRequest);
+        }).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
     }
 }

@@ -10,7 +10,6 @@ import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -37,7 +36,7 @@ public class StadiumRepository
     public CompletionStage<List<Stadium>> getAll()
     {
         return CompletableFuture.supplyAsync(() -> {
-            List<Stadium> stadiums = new ArrayList<>();
+            List<Stadium> stadiums;
 
             try
             {
@@ -53,57 +52,51 @@ public class StadiumRepository
         }, this.databaseExecutionContext);
     }
 
-    public CompletionStage<Stadium> save(Stadium stadium)
+    public Stadium save(Stadium stadium)
     {
-        return CompletableFuture.supplyAsync(() -> {
-            try
-            {
-                this.db.save(stadium);
-            }
-            catch(Exception ex)
-            {
-                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-            }
-            return stadium;
-        }, this.databaseExecutionContext);
+        try
+        {
+            this.db.save(stadium);
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return stadium;
     }
 
-    public CompletionStage<Stadium> get(String name, Long countryId)
+    public Stadium get(String name, Long countryId)
     {
-        return CompletableFuture.supplyAsync(() -> {
-            Stadium stadium = null;
+        Stadium stadium;
 
-            try
-            {
-                stadium = this.db.find(Stadium.class).where().eq("name", name).eq("country.id", countryId).findOne();
-            }
-            catch(Exception ex)
-            {
-                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-            }
+        try
+        {
+            stadium = this.db.find(Stadium.class).where().eq("name", name).eq("country.id", countryId).findOne();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
 
-            return stadium;
-        }, this.databaseExecutionContext);
+        return stadium;
     }
 
-    public CompletionStage<Stadium> get(Long id)
+    public Stadium get(Long id)
     {
-        return CompletableFuture.supplyAsync(() -> {
-            Stadium stadium = null;
+        Stadium stadium;
 
-            try
-            {
-                stadium = this.db.find(Stadium.class).where().eq("id", id).findOne();
-            }
-            catch(Exception ex)
-            {
-                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-            }
+        try
+        {
+            stadium = this.db.find(Stadium.class).where().eq("id", id).findOne();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
 
-            return stadium;
-        }, this.databaseExecutionContext);
+        return stadium;
     }
 }

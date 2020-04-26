@@ -11,9 +11,9 @@ public interface SeriesService
 {
     CompletionStage<List<Series>> getAll();
 
-    CompletionStage<Series> get(Long id);
+    Series get(Long id);
 
-    CompletionStage<Series> create(CreateRequest createRequest);
+    Series create(CreateRequest createRequest);
 
-    CompletionStage<Series> update(Long id, UpdateRequest updateRequest);
+    Series update(Long id, UpdateRequest updateRequest);
 }

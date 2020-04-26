@@ -5,23 +5,19 @@ import enums.ErrorCode;
 import exceptions.DBInteractionException;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import models.Match;
-import models.Series;
+import models.DismissalMode;
 import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-
-public class MatchRepository
+public class DismissalRepository
 {
     private final EbeanServer db;
     private final EbeanDynamicEvolutions ebeanDynamicEvolutions;
     private final DatabaseExecutionContext databaseExecutionContext;
 
     @Inject
-    public MatchRepository
+    public DismissalRepository
     (
         EbeanConfig ebeanConfig,
         EbeanDynamicEvolutions ebeanDynamicEvolutions,
@@ -33,13 +29,13 @@ public class MatchRepository
         this.databaseExecutionContext = databaseExecutionContext;
     }
 
-    public Match get(Long id)
+    public DismissalMode get(Long id)
     {
-        Match match;
+        DismissalMode dismissalMode;
 
         try
         {
-            match = this.db.find(Match.class).where().eq("id", id).findOne();
+            dismissalMode = this.db.find(DismissalMode.class).where().eq("id", id).findOne();
         }
         catch(Exception ex)
         {
@@ -47,20 +43,6 @@ public class MatchRepository
             throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
         }
 
-        return match;
-    }
-
-    public Match save(Match match)
-    {
-        try
-        {
-            this.db.save(match);
-        }
-        catch(Exception ex)
-        {
-            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-        }
-        return match;
+        return dismissalMode;
     }
 }

@@ -8,7 +8,6 @@ import play.db.ebean.EbeanConfig;
 
 import models.Country;
 import java.util.List;
-import java.util.ArrayList;
 
 import com.google.inject.Inject;
 import modules.DatabaseExecutionContext;
@@ -39,7 +38,7 @@ public class CountryRepository
 	public CompletionStage<List<Country>> getAll()
 	{
 		return CompletableFuture.supplyAsync(() -> {
-			List<Country> countries = new ArrayList<>();
+			List<Country> countries;
 
 			try
 			{
@@ -55,55 +54,49 @@ public class CountryRepository
 		}, this.databaseExecutionContext);
 	}
 
-	public CompletionStage<Country> get(Long id)
+	public Country get(Long id)
 	{
-		return CompletableFuture.supplyAsync(() -> {
-			Country country = null;
-			try
-			{
-				country = this.db.find(Country.class).where().eq("id", id).findOne();
-			}
-			catch(Exception ex)
-			{
-				String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-				throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-			}
+		Country country;
+		try
+		{
+			country = this.db.find(Country.class).where().eq("id", id).findOne();
+		}
+		catch(Exception ex)
+		{
+			String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+			throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+		}
 
-			return country;
-		}, this.databaseExecutionContext);
+		return country;
 	}
 
-	public CompletionStage<Country> save(Country country)
+	public Country save(Country country)
 	{
-		return CompletableFuture.supplyAsync(() -> {
-			try
-			{
-				this.db.save(country);
-			}
-			catch(Exception ex)
-			{
-				String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-				throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-			}
-			return country;
-		}, this.databaseExecutionContext);
+		try
+		{
+			this.db.save(country);
+		}
+		catch(Exception ex)
+		{
+			String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+			throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+		}
+		return country;
 	}
 
-	public CompletionStage<Country> get(String name)
+	public Country get(String name)
 	{
-		return CompletableFuture.supplyAsync(() -> {
-			Country country = null;
-			try
-			{
-				country = this.db.find(Country.class).where().eq("name", name).findOne();
-			}
-			catch(Exception ex)
-			{
-				String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-				throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
-			}
+		Country country;
+		try
+		{
+			country = this.db.find(Country.class).where().eq("name", name).findOne();
+		}
+		catch(Exception ex)
+		{
+			String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+			throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+		}
 
-			return country;
-		}, this.databaseExecutionContext);
+		return country;
 	}
 }

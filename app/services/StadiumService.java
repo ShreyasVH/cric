@@ -11,9 +11,9 @@ public interface StadiumService
 {
     CompletionStage<List<Stadium>> getAll();
 
-    CompletionStage<Stadium> create(CreateRequest createRequest);
+    Stadium create(CreateRequest createRequest);
 
-    CompletionStage<Stadium> get(Long id);
+    Stadium get(Long id);
 
-    CompletionStage<Stadium> update(Long id, UpdateRequest updateRequest);
+    Stadium update(Long id, UpdateRequest updateRequest);
 }

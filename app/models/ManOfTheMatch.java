@@ -29,4 +29,8 @@ public class ManOfTheMatch extends Model
     @OneToOne
     @JoinColumn(name = "player_id", referencedColumnName = "id")
     private Player player;
+
+    @OneToOne
+    @JoinColumn(name = "team_id", referencedColumnName = "id")
+    private Team team;
 }

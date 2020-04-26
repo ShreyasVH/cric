@@ -74,25 +74,19 @@ public class Match extends Model
 
     private String tag;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(referencedColumnName = "id", name = "match_id")
     private List<BattingScore> battingScores;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(referencedColumnName = "id", name = "match_id")
     private List<BowlingFigure> bowlingFigures;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(referencedColumnName = "id", name = "match_id")
     private List<ManOfTheMatch> manOfTheMatchList;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "match_id", referencedColumnName = "id")
     private List<Extras> extras;
-
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    private Date updatedAt;
 }

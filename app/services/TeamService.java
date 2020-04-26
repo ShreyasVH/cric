@@ -11,11 +11,11 @@ public interface TeamService
 {
     CompletionStage<List<Team>> getAll();
 
-    CompletionStage<Team> get(Long id);
+    Team get(Long id);
 
-    CompletionStage<List<Team>> get(String keyword);
+    List<Team> get(String keyword);
 
-    CompletionStage<Team> create(CreateRequest createRequest);
+    Team create(CreateRequest createRequest);
 
-    CompletionStage<Team> update(Long id, UpdateRequest updateRequest);
+    Team update(Long id, UpdateRequest updateRequest);
 }

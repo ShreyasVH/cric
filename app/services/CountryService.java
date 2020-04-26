@@ -12,9 +12,9 @@ public interface CountryService
 {
 	CompletionStage<List<Country>> getAll();
 
-	CompletionStage<Country> get(Long id);
+	Country get(Long id);
 
-	CompletionStage<Country> create(CreateCountryRequest createCountryRequest);
+	Country create(CreateCountryRequest createCountryRequest);
 
-	CompletionStage<Country> update(Long id, UpdateCountryRequest updateCountryRequest);
+	Country update(Long id, UpdateCountryRequest updateCountryRequest);
 }

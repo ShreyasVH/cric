@@ -21,8 +21,6 @@ import utils.Utils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class PlayerServiceImpl implements PlayerService
 {
@@ -42,197 +40,173 @@ public class PlayerServiceImpl implements PlayerService
 
 
     @Override
-    public CompletionStage<PlayerResponse> get(Long id)
+    public PlayerResponse get(Long id)
     {
-        CompletionStage<Player> response = this.playerRepository.get(id);
-        return response.thenComposeAsync(basicDetails -> {
-            PlayerResponse playerResponse = new PlayerResponse(basicDetails);
+        Player basicDetails = this.playerRepository.get(id);
+        PlayerResponse playerResponse = new PlayerResponse(basicDetails);
 
-            CompletionStage<Map<GameType, Map<String, Integer>>> dismissalResponse = this.playerRepository.getDismissalStats(id);
-            return dismissalResponse.thenComposeAsync(dismissalStats -> {
-                playerResponse.setDismissalStats(dismissalStats);
+        Map<GameType, Map<String, Integer>> dismissalStats = this.playerRepository.getDismissalStats(id);
+        playerResponse.setDismissalStats(dismissalStats);
 
-                Map<GameType, Integer> dismissalCountMap = new HashMap<>();
-                for(GameType gameType: GameType.values())
+        Map<GameType, Integer> dismissalCountMap = new HashMap<>();
+        for(GameType gameType: GameType.values())
+        {
+            Integer dismissalCount = 0;
+            if(dismissalStats.containsKey(gameType))
+            {
+                for(String key: dismissalStats.get(gameType).keySet())
                 {
-                    Integer dismissalCount = 0;
-                    if(dismissalStats.containsKey(gameType))
-                    {
-                        for(String key: dismissalStats.get(gameType).keySet())
-                        {
-                            dismissalCount += dismissalStats.get(gameType).get(key);
-                        }
-                    }
-                    dismissalCountMap.put(gameType, dismissalCount);
+                    dismissalCount += dismissalStats.get(gameType).get(key);
+                }
+            }
+            dismissalCountMap.put(gameType, dismissalCount);
+        }
+
+        Map<GameType, Map<String, Integer>> basicStatsMap = this.playerRepository.getBasicBattingStats(id);
+        if(!basicStatsMap.keySet().isEmpty())
+        {
+            Map<GameType, BattingStats> battingStatsMap = new HashMap<>();
+
+            for(GameType gameType: basicStatsMap.keySet())
+            {
+                BattingStats battingStats = new BattingStats(basicStatsMap.get(gameType));
+                battingStats.setNotOuts(battingStats.getInnings() - dismissalCountMap.get(gameType));
+
+                if(dismissalCountMap.get(gameType) > 0)
+                {
+                    battingStats.setAverage(battingStats.getRuns() * 1.0 / dismissalCountMap.get(gameType));
                 }
 
-                final Map<GameType, Integer> dismissalCountMapFinal = dismissalCountMap;
+                if(battingStats.getBalls() > 0)
+                {
+                    battingStats.setStrikeRate(battingStats.getRuns() * 100.0 / battingStats.getBalls());
+                }
 
-                CompletionStage<Map<GameType, Map<String, Integer>>> basicBattingStatsResponse = this.playerRepository.getBasicBattingStats(id);
-                return basicBattingStatsResponse.thenComposeAsync(basicStatsMap -> {
-                    if(!basicStatsMap.keySet().isEmpty())
+                battingStatsMap.put(gameType, battingStats);
+            }
+
+            playerResponse.setBattingStats(battingStatsMap);
+        }
+
+        Map<GameType, Map<String, Integer>> basicBowlingStatsMap = this.playerRepository.getBasicBowlingStats(id);
+        if(!basicBowlingStatsMap.keySet().isEmpty())
+        {
+            Map<GameType, BowlingStats> bowlingStatsFinal = new HashMap<>();
+
+            for(GameType gameType: basicBowlingStatsMap.keySet())
+            {
+                BowlingStats bowlingStats = new BowlingStats(basicBowlingStatsMap.get(gameType));
+
+                if(bowlingStats.getBalls() > 0)
+                {
+                    bowlingStats.setEconomy(bowlingStats.getRuns() * 6.0 / bowlingStats.getBalls());
+
+                    if(bowlingStats.getWickets() > 0)
                     {
-                        Map<GameType, BattingStats> battingStatsMap = new HashMap<>();
+                        bowlingStats.setAverage(bowlingStats.getRuns() * 1.0 / bowlingStats.getWickets());
 
-                        for(GameType gameType: basicStatsMap.keySet())
-                        {
-                            BattingStats battingStats = new BattingStats(basicStatsMap.get(gameType));
-                            battingStats.setNotOuts(battingStats.getInnings() - dismissalCountMapFinal.get(gameType));
-
-                            if(dismissalCountMapFinal.get(gameType) > 0)
-                            {
-                                battingStats.setAverage(battingStats.getRuns() * 1.0 / dismissalCountMapFinal.get(gameType));
-                            }
-
-                            if(battingStats.getBalls() > 0)
-                            {
-                                battingStats.setStrikeRate(battingStats.getRuns() * 100.0 / battingStats.getBalls());
-                            }
-
-                            battingStatsMap.put(gameType, battingStats);
-                        }
-
-                        playerResponse.setBattingStats(battingStatsMap);
+                        bowlingStats.setStrikeRate(bowlingStats.getBalls() * 1.0 / bowlingStats.getWickets());
                     }
+                }
 
-                    CompletionStage<Map<GameType, Map<String, Integer>>> basicBowlingStatsResponse = this.playerRepository.getBasicBowlingStats(id);
-                    return basicBowlingStatsResponse.thenComposeAsync(basicBowlingStatsMap -> {
-                        if(!basicBowlingStatsMap.keySet().isEmpty())
-                        {
-                            Map<GameType, BowlingStats> bowlingStatsFinal = new HashMap<>();
+                bowlingStatsFinal.put(gameType, bowlingStats);
+            }
 
-                            for(GameType gameType: basicBowlingStatsMap.keySet())
-                            {
-                                BowlingStats bowlingStats = new BowlingStats(basicBowlingStatsMap.get(gameType));
+            playerResponse.setBowlingStats(bowlingStatsFinal);
+        }
 
-                                if(bowlingStats.getBalls() > 0)
-                                {
-                                    bowlingStats.setEconomy(bowlingStats.getRuns() * 6.0 / bowlingStats.getBalls());
+        Map<GameType, Map<String, Integer>> fieldingStatsMap = this.playerRepository.getFieldingStats(id);
+        if(!fieldingStatsMap.keySet().isEmpty())
+        {
+            Map<GameType, FieldingStats> fieldingStatsMapFinal = new HashMap<>();
+            for(GameType gameType: fieldingStatsMap.keySet())
+            {
+                FieldingStats fieldingStats = new FieldingStats(fieldingStatsMap.get(gameType));
+                fieldingStatsMapFinal.put(gameType, fieldingStats);
+            }
 
-                                    if(bowlingStats.getWickets() > 0)
-                                    {
-                                        bowlingStats.setAverage(bowlingStats.getRuns() * 1.0 / bowlingStats.getWickets());
-
-                                        bowlingStats.setStrikeRate(bowlingStats.getBalls() * 1.0 / bowlingStats.getWickets());
-                                    }
-                                }
-
-                                bowlingStatsFinal.put(gameType, bowlingStats);
-                            }
-
-                            playerResponse.setBowlingStats(bowlingStatsFinal);
-                        }
-
-                        CompletionStage<Map<GameType, Map<String, Integer>>> fieldingStatsResponse = this.playerRepository.getFieldingStats(id);
-                        return fieldingStatsResponse.thenApplyAsync(fieldingStatsMap -> {
-                            if(!fieldingStatsMap.keySet().isEmpty())
-                            {
-                                Map<GameType, FieldingStats> fieldingStatsMapFinal = new HashMap<>();
-                                for(GameType gameType: fieldingStatsMap.keySet())
-                                {
-                                    FieldingStats fieldingStats = new FieldingStats(fieldingStatsMap.get(gameType));
-                                    fieldingStatsMapFinal.put(gameType, fieldingStats);
-                                }
-
-                                playerResponse.setFieldingStats(fieldingStatsMapFinal);
-                            }
-                            return playerResponse;
-                        });
-                    });
-                });
-            });
-        });
+            playerResponse.setFieldingStats(fieldingStatsMapFinal);
+        }
+        return playerResponse;
     }
 
     @Override
-    public CompletionStage<List<Player>> get(String keyword)
+    public List<Player> get(String keyword)
     {
         return this.playerRepository.get(keyword);
     }
 
     @Override
-    public CompletionStage<Player> create(CreateRequest createRequest)
+    public Player create(CreateRequest createRequest)
     {
         createRequest.validate();
 
-        CompletionStage<Player> response = this.playerRepository.get(createRequest.getName(), createRequest.getCountryId());
-        return response.thenComposeAsync(existingPlayer -> {
-            if(null != existingPlayer)
-            {
-                throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
-            }
+        Player existingPlayer = this.playerRepository.get(createRequest.getName(), createRequest.getCountryId());
+        if(null != existingPlayer)
+        {
+            throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
+        }
 
-            CompletionStage<Country> countryResponse = this.countryRepository.get(createRequest.getCountryId());
-            return countryResponse.thenComposeAsync(country -> {
-                if(null == country)
-                {
-                    throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
-                }
+        Country country = this.countryRepository.get(createRequest.getCountryId());
+        if(null == country)
+        {
+            throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+        }
 
-                Player player = new Player(createRequest);
+        Player player = new Player(createRequest);
 
-                player.setCountry(country);
-                player.setCreatedAt(Utils.getCurrentDate());
-                player.setUpdatedAt(Utils.getCurrentDate());
+        player.setCountry(country);
+        player.setCreatedAt(Utils.getCurrentDate());
+        player.setUpdatedAt(Utils.getCurrentDate());
 
-                return this.playerRepository.save(player);
-            });
-        });
+        return this.playerRepository.save(player);
     }
 
     @Override
-    public CompletionStage<Player> update(Long id, UpdateRequest updateRequest)
+    public Player update(Long id, UpdateRequest updateRequest)
     {
         updateRequest.validate();
 
-        CompletionStage<Player> response = this.playerRepository.get(id);
-        return response.thenComposeAsync(existingPlayer -> {
-            if(null == existingPlayer)
+        Player existingPlayer = this.playerRepository.get(id);
+        if(null == existingPlayer)
+        {
+            throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+        }
+        Player updatedPlayer = existingPlayer;
+
+        boolean isUpdateRequired = false;
+
+        if(!StringUtils.isEmpty(updateRequest.getName()) && !existingPlayer.getName().equals(updateRequest.getName()))
+        {
+            isUpdateRequired = true;
+            existingPlayer.setName(updateRequest.getName());
+        }
+
+        if(!StringUtils.isEmpty(updateRequest.getImage()) && !existingPlayer.getImage().equals(updateRequest.getImage()))
+        {
+            isUpdateRequired = true;
+            existingPlayer.setImage(updateRequest.getImage());
+        }
+
+        if((null != updateRequest.getCountryId()) && (!updateRequest.getCountryId().equals(existingPlayer.getCountry().getId())))
+        {
+            Country country = this.countryRepository.get(updateRequest.getCountryId());
+            if(null == country)
             {
-                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
             }
 
-            boolean isUpdateRequired = false;
+            existingPlayer.setCountry(country);
+            existingPlayer.setUpdatedAt(Utils.getCurrentDate());
+            return this.playerRepository.save(existingPlayer);
+        }
 
-            if(!StringUtils.isEmpty(updateRequest.getName()) && !existingPlayer.getName().equals(updateRequest.getName()))
-            {
-                isUpdateRequired = true;
-                existingPlayer.setName(updateRequest.getName());
-            }
+        if(isUpdateRequired)
+        {
+            existingPlayer.setUpdatedAt(Utils.getCurrentDate());
+            updatedPlayer = this.playerRepository.save(existingPlayer);
+        }
 
-            if(!StringUtils.isEmpty(updateRequest.getImage()) && !existingPlayer.getImage().equals(updateRequest.getImage()))
-            {
-                isUpdateRequired = true;
-                existingPlayer.setImage(updateRequest.getImage());
-            }
-
-            if(null == updateRequest.getCountryId())
-            {
-                if(isUpdateRequired)
-                {
-                    existingPlayer.setUpdatedAt(Utils.getCurrentDate());
-                    return this.playerRepository.save(existingPlayer);
-                }
-                else
-                {
-                    return CompletableFuture.supplyAsync(() -> existingPlayer);
-                }
-            }
-            else
-            {
-                CompletionStage<Country> countryResponse = this.countryRepository.get(updateRequest.getCountryId());
-                return countryResponse.thenComposeAsync(country -> {
-
-                    if(null == country)
-                    {
-                        throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
-                    }
-
-                    existingPlayer.setCountry(country);
-                    existingPlayer.setUpdatedAt(Utils.getCurrentDate());
-                    return this.playerRepository.save(existingPlayer);
-                });
-            }
-        });
+        return updatedPlayer;
     }
 }
