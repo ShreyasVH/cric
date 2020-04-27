@@ -48,11 +48,11 @@ public class BattingScore extends Model
     @JoinColumn(name = "mode_of_dismissal")
     private DismissalMode dismissalMode;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "score_id", referencedColumnName = "id")
     private List<FielderDismissal> fielders;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "bowler_id", referencedColumnName = "id")
     private BowlerDismissal bowler;
 

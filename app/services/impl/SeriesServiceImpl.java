@@ -7,11 +7,10 @@ import exceptions.DBInteractionException;
 import exceptions.NotFoundException;
 import io.ebean.Ebean;
 import io.ebean.Transaction;
-import models.Country;
-import models.Series;
-import models.Team;
+import models.*;
 import org.springframework.util.StringUtils;
 import repositories.CountryRepository;
+import repositories.PlayerRepository;
 import repositories.SeriesRepository;
 import repositories.TeamRepository;
 import requests.series.CreateRequest;
@@ -20,14 +19,17 @@ import services.SeriesService;
 import utils.Utils;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class SeriesServiceImpl implements SeriesService
 {
     private final CountryRepository countryRepository;
+    private final PlayerRepository playerRepository;
     private final SeriesRepository seriesRepository;
     private final TeamRepository teamRepository;
 
@@ -35,11 +37,13 @@ public class SeriesServiceImpl implements SeriesService
     public SeriesServiceImpl
     (
         CountryRepository countryRepository,
+        PlayerRepository playerRepository,
         SeriesRepository seriesRepository,
         TeamRepository teamRepository
     )
     {
         this.countryRepository = countryRepository;
+        this.playerRepository = playerRepository;
         this.seriesRepository = seriesRepository;
         this.teamRepository = teamRepository;
     }
@@ -213,6 +217,38 @@ public class SeriesServiceImpl implements SeriesService
                 isUpdateRequired = true;
                 existingSeries.getTeams().clear();
                 existingSeries.getTeams().addAll(teams);
+            }
+
+            if((null != updateRequest.getManOfTheSeriesList()) && (!updateRequest.getManOfTheSeriesList().isEmpty()))
+            {
+                List<ManOfTheSeries> manOfTheSeriesList = new ArrayList<>();
+                for(Map<String, Long> manOfTheSeriesRaw: updateRequest.getManOfTheSeriesList())
+                {
+                    Long playerId = manOfTheSeriesRaw.get("playerId");
+                    Long teamId = manOfTheSeriesRaw.get("teamId");
+                    ManOfTheSeries manOfTheSeries = new ManOfTheSeries();
+
+                    Player player = this.playerRepository.get(playerId);
+                    if(null == player)
+                    {
+                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+                    }
+
+                    manOfTheSeries.setPlayer(player);
+
+                    Team team = this.teamRepository.get(teamId);
+                    if(null == team)
+                    {
+                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
+                    }
+                    manOfTheSeries.setTeam(team);
+                    manOfTheSeries.setSeries(existingSeries);
+
+                    manOfTheSeriesList.add(manOfTheSeries);
+                }
+                isUpdateRequired = true;
+                existingSeries.getManOfTheSeriesList().clear();
+                existingSeries.getManOfTheSeriesList().addAll(manOfTheSeriesList);
             }
 
             Series updatedSeries = null;

@@ -9,6 +9,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import requests.matches.CreateRequest;
+import requests.matches.UpdateRequest;
 import services.MatchService;
 import utils.Utils;
 
@@ -54,5 +55,22 @@ public class MatchController extends Controller
 
             return this.matchService.create(createRequest);
         }, this.httpExecutionContext.current()).thenApplyAsync(match -> ok(Json.toJson(match)), this.httpExecutionContext.current());
+    }
+
+    public CompletionStage<Result> update(Long id, Http.Request request)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            UpdateRequest updateRequest;
+            try
+            {
+                updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
+
+            return this.matchService.update(id, updateRequest);
+        }, this.httpExecutionContext.current()).thenApplyAsync(updatedMatch -> ok(Json.toJson(updatedMatch)), this.httpExecutionContext.current());
     }
 }

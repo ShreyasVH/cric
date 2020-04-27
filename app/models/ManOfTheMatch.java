@@ -22,9 +22,9 @@ public class ManOfTheMatch extends Model
     @Id
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private Match match;
+//    @ManyToOne
+//    @JsonBackReference
+//    private Match match;
 
     @OneToOne
     @JoinColumn(name = "player_id", referencedColumnName = "id")

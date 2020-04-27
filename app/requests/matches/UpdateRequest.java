@@ -1,0 +1,42 @@
+package requests.matches;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import enums.ResultType;
+import enums.WinMarginType;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UpdateRequest
+{
+    private Long seriesId;
+    private Long team1;
+    private Long team2;
+    private Long tossWinner;
+    private Long batFirst;
+    private ResultType result;
+    private Long winner;
+    private Integer winMargin;
+    private WinMarginType winMarginType;
+    private Long stadium;
+    private String startTime;
+    private String endTime;
+    private String tag;
+    private List<Map<String, String>> players;
+    private List<Map<String, String>> extras;
+    private List<Map<String, String>> battingScores;
+    private List<Map<String, String>> bowlingFigures;
+    private List<Long> manOfTheMatchList = new ArrayList<>();
+    private List<Map<String, Long>> manOfTheSeriesList = new ArrayList<>();
+
+    public void validate()
+    {
+
+    }
+}
