@@ -30,3 +30,4 @@ PUT     /cricbuzz/matches/:id                   controllers.MatchController.upda
 
 GET     /cricbuzz/tours/:id                     controllers.TourController.get(id: Long)
 POST    /cricbuzz/tours                         controllers.TourController.create(request: Request)
+PUT     /cricbuzz/tours/:id                     controllers.TourController.update(id: Long, request: Request)

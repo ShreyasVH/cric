@@ -9,6 +9,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import requests.tours.CreateRequest;
+import requests.tours.UpdateRequest;
 import services.TourService;
 import utils.Utils;
 
@@ -54,5 +55,22 @@ public class TourController extends Controller
 
             return this.tourService.create(createRequest);
         }, this.httpExecutionContext.current()).thenApplyAsync(tour -> ok(Json.toJson(tour)), this.httpExecutionContext.current());
+    }
+
+    public CompletionStage<Result> update(Long id, Http.Request request)
+    {
+        return CompletableFuture.supplyAsync(() -> {
+            UpdateRequest updateRequest;
+            try
+            {
+                updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
+
+            return this.tourService.update(id, updateRequest);
+        }, this.httpExecutionContext.current()).thenApplyAsync(updatedTour -> ok(Json.toJson(updatedTour)), this.httpExecutionContext.current());
     }
 }

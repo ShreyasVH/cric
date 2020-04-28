@@ -25,6 +25,7 @@ public class CreateRequest
     private GameType gameType;
     private String startTime;
     private String endTime;
+    private Long tourId;
     private List<Long> teams = new ArrayList<>();
 
     public void validate()
@@ -37,6 +38,11 @@ public class CreateRequest
         if(null == this.homeCountryId)
         {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+        }
+
+        if(null == this.tourId)
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid tour id");
         }
 
         if((null == this.teams) || (this.teams.size() < 2))

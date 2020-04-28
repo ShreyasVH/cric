@@ -2,10 +2,13 @@ package services;
 
 import models.Tour;
 import requests.tours.CreateRequest;
+import requests.tours.UpdateRequest;
 
 public interface TourService
 {
-    public Tour get(Long id);
+    Tour get(Long id);
 
-    public Tour create(CreateRequest createRequest);
+    Tour create(CreateRequest createRequest);
+
+    Tour update(Long id, UpdateRequest updateRequest);
 }

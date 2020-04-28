@@ -4,8 +4,10 @@ import com.google.inject.Inject;
 import enums.ErrorCode;
 import exceptions.BadRequestException;
 import models.Tour;
+import org.springframework.util.StringUtils;
 import repositories.TourRepository;
 import requests.tours.CreateRequest;
+import requests.tours.UpdateRequest;
 import services.TourService;
 
 import java.text.SimpleDateFormat;
@@ -60,6 +62,69 @@ public class TourServiceImpl implements TourService
         catch(Exception ex)
         {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+        }
+    }
+
+    @Override
+    public Tour update(Long id, UpdateRequest updateRequest)
+    {
+        updateRequest.validate();
+
+        Tour existingTour = this.tourRepository.get(id);
+        if(null == existingTour)
+        {
+            throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
+        }
+
+        boolean isUpdateRequired = false;
+
+        if((!StringUtils.isEmpty(updateRequest.getName())) && (!updateRequest.getName().equals(existingTour.getName())))
+        {
+            isUpdateRequired = true;
+            existingTour.setName(updateRequest.getName());
+        }
+
+        if(!StringUtils.isEmpty(updateRequest.getStartTime()))
+        {
+            try
+            {
+                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
+                if(startTime.getTime() != existingTour.getStartTime().getTime())
+                {
+                    isUpdateRequired = true;
+                    existingTour.setStartTime(startTime);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
+        }
+
+        if(!StringUtils.isEmpty(updateRequest.getEndTime()))
+        {
+            try
+            {
+                Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getEndTime()));
+                if(endTime.getTime() != existingTour.getEndTime().getTime())
+                {
+                    isUpdateRequired = true;
+                    existingTour.setEndTime(endTime);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
+        }
+
+        if(isUpdateRequired)
+        {
+            return this.tourRepository.save(existingTour);
+        }
+        else
+        {
+            return existingTour;
         }
     }
 }
