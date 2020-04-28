@@ -45,4 +45,35 @@ public class TourRepository
 
         return tour;
     }
+
+    public Tour get(String name)
+    {
+        Tour tour;
+
+        try
+        {
+            tour = this.db.find(Tour.class).where().eq("name", name).findOne();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+
+        return tour;
+    }
+
+    public Tour save(Tour tour)
+    {
+        try
+        {
+            this.db.save(tour);
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return tour;
+    }
 }
