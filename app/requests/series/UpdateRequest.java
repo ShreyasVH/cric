@@ -24,6 +24,7 @@ public class UpdateRequest
     private GameType gameType;
     private String startTime;
     private String endTime;
+    private Long tourId;
     private List<Long> teams;
     private List<Map<String, Long>> manOfTheSeriesList;
 

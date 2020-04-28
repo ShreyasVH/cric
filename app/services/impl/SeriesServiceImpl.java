@@ -9,10 +9,7 @@ import io.ebean.Ebean;
 import io.ebean.Transaction;
 import models.*;
 import org.springframework.util.StringUtils;
-import repositories.CountryRepository;
-import repositories.PlayerRepository;
-import repositories.SeriesRepository;
-import repositories.TeamRepository;
+import repositories.*;
 import requests.series.CreateRequest;
 import requests.series.UpdateRequest;
 import services.SeriesService;
@@ -32,6 +29,7 @@ public class SeriesServiceImpl implements SeriesService
     private final PlayerRepository playerRepository;
     private final SeriesRepository seriesRepository;
     private final TeamRepository teamRepository;
+    private final TourRepository tourRepository;
 
     @Inject
     public SeriesServiceImpl
@@ -39,13 +37,15 @@ public class SeriesServiceImpl implements SeriesService
         CountryRepository countryRepository,
         PlayerRepository playerRepository,
         SeriesRepository seriesRepository,
-        TeamRepository teamRepository
+        TeamRepository teamRepository,
+        TourRepository tourRepository
     )
     {
         this.countryRepository = countryRepository;
         this.playerRepository = playerRepository;
         this.seriesRepository = seriesRepository;
         this.teamRepository = teamRepository;
+        this.tourRepository = tourRepository;
     }
 
     @Override
@@ -101,6 +101,13 @@ public class SeriesServiceImpl implements SeriesService
             {
                 throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
             }
+
+            Tour tour = this.tourRepository.get(createRequest.getTourId());
+            if(null == tour)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
+            }
+            series.setTour(tour);
 
             Date now = Utils.getCurrentDate();
             series.setCreatedAt(now);
@@ -204,6 +211,17 @@ public class SeriesServiceImpl implements SeriesService
 
                 isUpdateRequired = true;
                 existingSeries.setHomeCountry(country);
+            }
+
+            if((null != updateRequest.getTourId()) && !updateRequest.getTourId().equals(existingSeries.getTour().getId()))
+            {
+                Tour tour = this.tourRepository.get(updateRequest.getTourId());
+                if(null == tour)
+                {
+                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
+                }
+                isUpdateRequired = true;
+                existingSeries.setTour(tour);
             }
 
             if((null != updateRequest.getTeams()) && (updateRequest.getTeams().size() > 0))
