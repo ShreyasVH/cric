@@ -25,7 +25,6 @@ public class Series extends Model
 {
     @Id
     @Column(name = "id", nullable = false)
-    @OneToMany(mappedBy = "matchSeries")
     private Long id;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -44,6 +43,11 @@ public class Series extends Model
     @OneToMany(mappedBy = "series", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("series")
     private List<Match> matches;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "tour_id", referencedColumnName = "id")
+    @JsonIgnoreProperties("seriesList")
+    private Tour tour;
 
     @Column(nullable = false)
     private SeriesType type;
