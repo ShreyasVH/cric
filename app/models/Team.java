@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import enums.TeamType;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.CacheQueryTuning;
 import lombok.Getter;
 import lombok.Setter;
 import requests.teams.CreateRequest;
@@ -12,6 +14,8 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
+//@Cache(enableQueryCache=true)
+//@CacheQueryTuning(maxSecsToLive = 3600)
 @Table(name = "teams")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Team

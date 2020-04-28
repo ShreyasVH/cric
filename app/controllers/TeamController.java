@@ -13,6 +13,7 @@ import requests.teams.UpdateRequest;
 import services.TeamService;
 import utils.Utils;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class TeamController extends Controller
@@ -40,41 +41,45 @@ public class TeamController extends Controller
 
     public CompletionStage<Result> get(Long id)
     {
-        return this.teamService.get(id).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
+        return CompletableFuture.supplyAsync(() -> this.teamService.get(id)).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
     }
 
     public CompletionStage<Result> getByKeyword(String keyword)
     {
-        return this.teamService.get(keyword).thenApplyAsync(list -> ok(Json.toJson(list)), this.httpExecutionContext.current());
+        return CompletableFuture.supplyAsync(() -> this.teamService.get(keyword)).thenApplyAsync(list -> ok(Json.toJson(list)), this.httpExecutionContext.current());
     }
 
     public CompletionStage<Result> create(Http.Request request)
     {
-        CreateRequest createTeamRequest = null;
-        try
-        {
-            createTeamRequest = Utils.convertObject(request.body().asJson(), CreateRequest.class);
-        }
-        catch(Exception ex)
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-        }
+        return CompletableFuture.supplyAsync(() -> {
+            CreateRequest createTeamRequest;
+            try
+            {
+                createTeamRequest = Utils.convertObject(request.body().asJson(), CreateRequest.class);
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
 
-        return this.teamService.create(createTeamRequest).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
+            return this.teamService.create(createTeamRequest);
+        }).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
     }
 
     public CompletionStage<Result> update(Long id, Http.Request request)
     {
-        UpdateRequest updateRequest = null;
-        try
-        {
-            updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
-        }
-        catch(Exception ex)
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-        }
+        return CompletableFuture.supplyAsync(() -> {
+            UpdateRequest updateRequest = null;
+            try
+            {
+                updateRequest = Utils.convertObject(request.body().asJson(), UpdateRequest.class);
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
 
-        return this.teamService.update(id, updateRequest).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
+            return this.teamService.update(id, updateRequest);
+        }).thenApplyAsync(team -> ok(Json.toJson(team)), this.httpExecutionContext.current());
     }
 }

@@ -11,6 +11,7 @@ import models.Series;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -23,7 +24,8 @@ public class UpdateRequest
     private GameType gameType;
     private String startTime;
     private String endTime;
-    private List<Long> teams = new ArrayList<>();
+    private List<Long> teams;
+    private List<Map<String, Long>> manOfTheSeriesList;
 
     public void validate(Series existingSeries)
     {

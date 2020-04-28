@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import enums.GameType;
 import enums.SeriesType;
 import io.ebean.Model;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.CacheQueryTuning;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,11 +18,14 @@ import java.util.List;
 @Setter
 @Getter
 @Table(name = "series")
+//@Cache(enableQueryCache=true)
+//@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Series extends Model
 {
     @Id
     @Column(name = "id", nullable = false)
+    @OneToMany(mappedBy = "matchSeries")
     private Long id;
 
     @Column(name = "name", nullable = false, length = 50)
@@ -36,6 +41,10 @@ public class Series extends Model
     )
     private List<Team> teams = new ArrayList<>();
 
+    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("series")
+    private List<Match> matches;
+
     @Column(nullable = false)
     private SeriesType type;
 
@@ -47,6 +56,10 @@ public class Series extends Model
 
     @Column(name = "end_time", nullable = false)
     private Date endTime;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(referencedColumnName = "id", name = "series_id")
+    private List<ManOfTheSeries> manOfTheSeriesList;
 
     @Column(name = "created_at", nullable = false)
     private Date createdAt;

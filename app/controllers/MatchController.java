@@ -8,57 +8,53 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import requests.stadiums.CreateRequest;
-import requests.stadiums.UpdateRequest;
-import services.StadiumService;
+import requests.matches.CreateRequest;
+import requests.matches.UpdateRequest;
+import services.MatchService;
 import utils.Utils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class StadiumController extends Controller
+public class MatchController extends Controller
 {
-    private final StadiumService stadiumService;
+    private final MatchService matchService;
+
     private final HttpExecutionContext httpExecutionContext;
 
     @Inject
-    public StadiumController
+    public MatchController
     (
-        StadiumService stadiumService,
+        MatchService matchService,
 
         HttpExecutionContext httpExecutionContext
     )
     {
-        this.stadiumService = stadiumService;
+        this.matchService = matchService;
 
         this.httpExecutionContext = httpExecutionContext;
     }
 
-    public CompletionStage<Result> getAll()
+    public CompletionStage<Result> get(Long id)
     {
-        return this.stadiumService.getAll().thenApplyAsync(list -> ok(Json.toJson(list)), this.httpExecutionContext.current());
+        return CompletableFuture.supplyAsync(() -> this.matchService.get(id)).thenApplyAsync(match -> ok(Json.toJson(match)), this.httpExecutionContext.current());
     }
 
-    public CompletionStage<Result> create(Http.Request request)
+    public CompletableFuture<Result> create(Http.Request request)
     {
         return CompletableFuture.supplyAsync(() -> {
-            CreateRequest createStadiumRequest;
+            CreateRequest createRequest;
             try
             {
-                createStadiumRequest = Utils.convertObject(request.body().asJson(), CreateRequest.class);
+                createRequest = Utils.convertObject(request.body().asJson(), CreateRequest.class);
             }
             catch(Exception ex)
             {
                 throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
             }
 
-            return this.stadiumService.create(createStadiumRequest);
-        }).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
-    }
-
-    public CompletionStage<Result> get(Long id)
-    {
-        return CompletableFuture.supplyAsync(() -> this.stadiumService.get(id)).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
+            return this.matchService.create(createRequest);
+        }, this.httpExecutionContext.current()).thenApplyAsync(match -> ok(Json.toJson(match)), this.httpExecutionContext.current());
     }
 
     public CompletionStage<Result> update(Long id, Http.Request request)
@@ -74,7 +70,7 @@ public class StadiumController extends Controller
                 throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
             }
 
-            return this.stadiumService.update(id, updateRequest);
-        }).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
+            return this.matchService.update(id, updateRequest);
+        }, this.httpExecutionContext.current()).thenApplyAsync(updatedMatch -> ok(Json.toJson(updatedMatch)), this.httpExecutionContext.current());
     }
 }

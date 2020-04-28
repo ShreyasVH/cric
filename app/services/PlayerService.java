@@ -10,11 +10,11 @@ import java.util.concurrent.CompletionStage;
 
 public interface PlayerService
 {
-    CompletionStage<PlayerResponse> get(Long id);
+    PlayerResponse get(Long id);
 
-    CompletionStage<List<Player>> get(String keyword);
+    List<Player> get(String keyword);
 
-    CompletionStage<Player> create(CreateRequest createRequest);
+    Player create(CreateRequest createRequest);
 
-    CompletionStage<Player> update(Long id, UpdateRequest updateRequest);
+    Player update(Long id, UpdateRequest updateRequest);
 }

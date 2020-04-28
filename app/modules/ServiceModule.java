@@ -15,5 +15,6 @@ public class ServiceModule extends AbstractModule
 		bind(TeamService.class).to(TeamServiceImpl.class).asEagerSingleton();
 		bind(PlayerService.class).to(PlayerServiceImpl.class).asEagerSingleton();
 		bind(SeriesService.class).to(SeriesServiceImpl.class).asEagerSingleton();
+		bind(MatchService.class).to(MatchServiceImpl.class).asEagerSingleton();
 	}
 }
