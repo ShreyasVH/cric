@@ -7,11 +7,13 @@ import models.Tour;
 import org.springframework.util.StringUtils;
 import repositories.TourRepository;
 import requests.tours.CreateRequest;
+import requests.tours.FilterRequest;
 import requests.tours.UpdateRequest;
 import services.TourService;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class TourServiceImpl implements TourService
 {
@@ -126,5 +128,12 @@ public class TourServiceImpl implements TourService
         {
             return existingTour;
         }
+    }
+
+    @Override
+    public List<Tour> filter(FilterRequest filterRequest)
+    {
+        filterRequest.validate();
+        return this.tourRepository.filter(filterRequest.getYear(), filterRequest.getOffset(), filterRequest.getCount());
     }
 }
