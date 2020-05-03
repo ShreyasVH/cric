@@ -87,6 +87,19 @@ public class SeriesRepository
         return series;
     }
 
+    public List<Series> get(String keyword)
+    {
+        try
+        {
+            return this.db.find(Series.class).where().icontains("name", keyword).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+    }
+
     public Series save(Series series)
     {
         try

@@ -21,6 +21,7 @@ PUT     /cricbuzz/players/:id                   controllers.PlayerController.upd
 
 GET     /cricbuzz/series                        controllers.SeriesController.getAll
 GET     /cricbuzz/series/:id                    controllers.SeriesController.get(id: Long)
+GET     /cricbuzz/series/keyword/:keyword       controllers.SeriesController.getByKeyword(keyword: String)
 POST    /cricbuzz/series                        controllers.SeriesController.create(request: Request)
 PUT     /cricbuzz/series/:id                    controllers.SeriesController.update(id: Long, request: Request)
 
