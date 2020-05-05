@@ -71,6 +71,11 @@ public class StadiumServiceImpl implements StadiumService
     }
 
     @Override
+    public List<Stadium> get(String keyword) {
+        return this.stadiumRepository.get(keyword);
+    }
+
+    @Override
     public Stadium update(Long id, UpdateRequest updateRequest)
     {
         updateRequest.validate();

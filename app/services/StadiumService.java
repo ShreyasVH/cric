@@ -15,5 +15,7 @@ public interface StadiumService
 
     Stadium get(Long id);
 
+    List<Stadium> get(String keyword);
+
     Stadium update(Long id, UpdateRequest updateRequest);
 }

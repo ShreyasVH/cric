@@ -69,9 +69,7 @@ public class MatchServiceImpl implements MatchService
         try
         {
             Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(createRequest.getStartTime());
-            Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(createRequest.getEndTime());
             match.setStartTime(startTime);
-            match.setEndTime(endTime);
         }
         catch(Exception ex)
         {
@@ -473,23 +471,6 @@ public class MatchServiceImpl implements MatchService
                 {
                     isUpdateRequired = true;
                     existingMatch.setStartTime(startTime);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
-        }
-
-        if(null != updateRequest.getEndTime())
-        {
-            try
-            {
-                Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getEndTime()));
-                if(endTime.getTime() != existingMatch.getEndTime().getTime())
-                {
-                    isUpdateRequired = true;
-                    existingMatch.setEndTime(endTime);
                 }
             }
             catch(Exception ex)

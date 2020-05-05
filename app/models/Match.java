@@ -66,9 +66,6 @@ public class Match extends Model
     @Column(name = "start_time")
     private Date startTime;
 
-    @Column(name = "end_time")
-    private Date endTime;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "match_id")
     private List<MatchPlayerMap> players;

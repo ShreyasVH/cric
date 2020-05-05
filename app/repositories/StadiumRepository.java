@@ -83,6 +83,19 @@ public class StadiumRepository
         return stadium;
     }
 
+    public List<Stadium> get(String keyword)
+    {
+        try
+        {
+            return this.db.find(Stadium.class).where().icontains("name", keyword).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+    }
+
     public Stadium get(Long id)
     {
         Stadium stadium;
