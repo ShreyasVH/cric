@@ -9,6 +9,7 @@ import exceptions.NotFoundException;
 import io.ebean.Ebean;
 import io.ebean.Transaction;
 import models.*;
+import org.springframework.util.StringUtils;
 import repositories.*;
 import requests.matches.CreateRequest;
 import requests.matches.UpdateRequest;
@@ -205,7 +206,7 @@ public class MatchServiceImpl implements MatchService
             battingScore.setFours(Integer.parseInt(battingScoreRaw.get("fours")));
             battingScore.setSixes(Integer.parseInt(battingScoreRaw.get("sixes")));
 
-            if(null != battingScoreRaw.get("dismissalMode"))
+            if(null != battingScoreRaw.get("dismissalMode") && !StringUtils.isEmpty(battingScoreRaw.get("dismissalMode")))
             {
                 DismissalMode dismissalMode = this.dismissalRepository.get(Long.parseLong(battingScoreRaw.get("dismissalMode")));
                 if(null == dismissalMode)
@@ -215,7 +216,7 @@ public class MatchServiceImpl implements MatchService
 
                 battingScore.setDismissalMode(dismissalMode);
 
-                if(null != battingScoreRaw.get("bowlerId"))
+                if(null != battingScoreRaw.get("bowlerId") && !StringUtils.isEmpty(battingScoreRaw.get("bowlerId")))
                 {
                     Long bowlerId = Long.parseLong(battingScoreRaw.get("bowlerId"));
                     BowlerDismissal bowlerDismissal = new BowlerDismissal();
@@ -225,7 +226,7 @@ public class MatchServiceImpl implements MatchService
                     battingScore.setBowler(bowlerDismissal);
                 }
 
-                if(null != battingScoreRaw.get("fielders"))
+                if(null != battingScoreRaw.get("fielders") && !StringUtils.isEmpty(battingScoreRaw.get("fielders")))
                 {
                     String[] fielderIds = battingScoreRaw.get("fielders").split(", ");
                     List<FielderDismissal> fielders = new ArrayList<>();
