@@ -67,6 +67,11 @@ public class SeriesServiceImpl implements SeriesService
     }
 
     @Override
+    public List<Series> get(String keyword) {
+        return this.seriesRepository.get(keyword);
+    }
+
+    @Override
     public Series create(CreateRequest createRequest)
     {
         createRequest.validate();

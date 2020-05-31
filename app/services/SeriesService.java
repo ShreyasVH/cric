@@ -13,6 +13,8 @@ public interface SeriesService
 
     Series get(Long id);
 
+    List<Series> get(String keyword);
+
     Series create(CreateRequest createRequest);
 
     Series update(Long id, UpdateRequest updateRequest);

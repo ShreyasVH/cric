@@ -45,6 +45,11 @@ public class SeriesController extends Controller
         return CompletableFuture.supplyAsync(() -> this.seriesService.get(id)).thenApplyAsync(series -> ok(Json.toJson(series)), this.httpExecutionContext.current());
     }
 
+    public CompletionStage<Result> getByKeyword(String keyword)
+    {
+        return CompletableFuture.supplyAsync(() -> this.seriesService.get(keyword)).thenApplyAsync(seriesList -> ok(Json.toJson(seriesList)), this.httpExecutionContext.current());
+    }
+
     public CompletionStage<Result> create(Http.Request request)
     {
         return CompletableFuture.supplyAsync(() -> {

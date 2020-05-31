@@ -61,6 +61,11 @@ public class StadiumController extends Controller
         return CompletableFuture.supplyAsync(() -> this.stadiumService.get(id)).thenApplyAsync(stadium -> ok(Json.toJson(stadium)), this.httpExecutionContext.current());
     }
 
+    public CompletionStage<Result> getByKeyword(String keyword)
+    {
+        return CompletableFuture.supplyAsync(() -> this.stadiumService.get(keyword)).thenApplyAsync(stadiumList -> ok(Json.toJson(stadiumList)), this.httpExecutionContext.current());
+    }
+
     public CompletionStage<Result> update(Long id, Http.Request request)
     {
         return CompletableFuture.supplyAsync(() -> {

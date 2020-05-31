@@ -6,5 +6,6 @@ public enum ResultType
     TIE,
     DRAW,
     SUPER_OVER,
-    WASHED_OUT
+    WASHED_OUT,
+    BOWL_OUT
 }

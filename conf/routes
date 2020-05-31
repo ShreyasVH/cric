@@ -6,6 +6,7 @@ PUT     /cricbuzz/countries/:id                 controllers.CountryController.up
 GET		/cricbuzz/stadiums			            controllers.StadiumController.getAll
 POST    /cricbuzz/stadiums                      controllers.StadiumController.create(request: Request)
 GET		/cricbuzz/stadiums/:id		            controllers.StadiumController.get(id: Long)
+GET		/cricbuzz/stadiums/keyword/:keyword		controllers.StadiumController.getByKeyword(keyword: String)
 PUT     /cricbuzz/stadiums/:id                  controllers.StadiumController.update(id: Long, request: Request)
 
 GET     /cricbuzz/teams                         controllers.TeamController.getAll
@@ -21,6 +22,7 @@ PUT     /cricbuzz/players/:id                   controllers.PlayerController.upd
 
 GET     /cricbuzz/series                        controllers.SeriesController.getAll
 GET     /cricbuzz/series/:id                    controllers.SeriesController.get(id: Long)
+GET     /cricbuzz/series/keyword/:keyword       controllers.SeriesController.getByKeyword(keyword: String)
 POST    /cricbuzz/series                        controllers.SeriesController.create(request: Request)
 PUT     /cricbuzz/series/:id                    controllers.SeriesController.update(id: Long, request: Request)
 
