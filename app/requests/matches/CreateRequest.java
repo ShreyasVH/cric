@@ -28,6 +28,7 @@ public class CreateRequest
     private String startTime;
     private String tag;
     private List<Map<String, String>> players;
+    private List<Map<String, String>> bench;
     private List<Map<String, String>> extras = new ArrayList<>();
     private List<Map<String, String>> battingScores = new ArrayList<>();
     private List<Map<String, String>> bowlingFigures = new ArrayList<>();
