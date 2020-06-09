@@ -209,4 +209,10 @@ public class PlayerServiceImpl implements PlayerService
 
         return updatedPlayer;
     }
+
+    @Override
+    public List<Player> getAll(int offset, int count)
+    {
+        return this.playerRepository.getAll(offset, count);
+    }
 }
