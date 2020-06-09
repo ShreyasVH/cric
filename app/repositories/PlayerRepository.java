@@ -255,4 +255,21 @@ public class PlayerRepository
         }
         return player;
     }
+
+    public List<Player> getAll(int offset, int count)
+    {
+        List<Player> players;
+
+        try
+        {
+            players = this.db.find(Player.class).setMaxRows(count).setFirstRow(offset).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+
+        return players;
+    }
 }

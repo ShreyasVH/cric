@@ -78,4 +78,9 @@ public class PlayerController extends Controller
             return this.playerService.update(id, updateRequest);
         }).thenApplyAsync(player -> ok(Json.toJson(player)), this.httpExecutionContext.current());
     }
+
+    public CompletionStage<Result> getAll(Integer offset, Integer count)
+    {
+        return CompletableFuture.supplyAsync(() -> this.playerService.getAll(offset, count)).thenApplyAsync(players -> ok(Json.toJson(players)), this.httpExecutionContext.current());
+    }
 }

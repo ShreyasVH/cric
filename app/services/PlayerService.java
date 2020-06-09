@@ -17,4 +17,6 @@ public interface PlayerService
     Player create(CreateRequest createRequest);
 
     Player update(Long id, UpdateRequest updateRequest);
+
+    List<Player> getAll(int offset, int count);
 }
