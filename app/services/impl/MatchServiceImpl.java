@@ -100,12 +100,15 @@ public class MatchServiceImpl implements MatchService
         }
         match.setTeam2(team2);
 
-        Team tossWinner = this.teamRepository.get(createRequest.getTossWinner());
-        if(null == tossWinner)
+        if(null != createRequest.getTossWinner())
         {
-            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Toss Winner Team"));
+            Team tossWinner = this.teamRepository.get(createRequest.getTossWinner());
+            if(null == tossWinner)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Toss Winner Team"));
+            }
+            match.setTossWinner(tossWinner);
         }
-        match.setTossWinner(tossWinner);
 
         Team battingFirst = this.teamRepository.get(createRequest.getBatFirst());
         if(null == battingFirst)
@@ -114,12 +117,15 @@ public class MatchServiceImpl implements MatchService
         }
         match.setBattingFirst(battingFirst);
 
-        Team winner = this.teamRepository.get(createRequest.getWinner());
-        if(null == winner)
+        if(null != createRequest.getWinner())
         {
-            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Winner Team"));
+            Team winner = this.teamRepository.get(createRequest.getWinner());
+            if(null == winner)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Winner Team"));
+            }
+            match.setWinner(winner);
         }
-        match.setWinner(winner);
 
         Stadium stadium = this.stadiumRepository.get(createRequest.getStadium());
         if(null == stadium)
