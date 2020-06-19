@@ -15,6 +15,8 @@ import utils.Utils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.Map;
+import java.util.HashMap;
 
 public class MatchController extends Controller
 {
@@ -72,5 +74,14 @@ public class MatchController extends Controller
 
             return this.matchService.update(id, updateRequest);
         }, this.httpExecutionContext.current()).thenApplyAsync(updatedMatch -> ok(Json.toJson(updatedMatch)), this.httpExecutionContext.current());
+    }
+
+    public CompletionStage<Result> delete(Long id)
+    {
+        return CompletableFuture.supplyAsync(() -> this.matchService.delete(id)).thenApplyAsync(isSuccess -> {
+            Map<String, Boolean> response = new HashMap<>();
+            response.put("success", isSuccess);
+            return ok(Json.toJson(response));
+        }, this.httpExecutionContext.current());
     }
 }

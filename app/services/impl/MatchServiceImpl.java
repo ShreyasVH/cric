@@ -740,4 +740,16 @@ public class MatchServiceImpl implements MatchService
             return existingMatch;
         }
     }
+
+    @Override
+    public boolean delete(Long id)
+    {
+        Match existingMatch = this.matchRepository.get(id);
+        if(null == existingMatch)
+        {
+            throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Match"));
+        }
+
+        return this.matchRepository.delete(existingMatch);
+    }
 }
