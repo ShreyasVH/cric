@@ -63,4 +63,21 @@ public class MatchRepository
         }
         return match;
     }
+
+    public Match get(Long stadiumId, String startDate)
+    {
+        Match match = null;
+
+        try
+        {
+            match = this.db.find(Match.class).where().eq("stadium.id", stadiumId).eq("startTime", startDate).findOne();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+
+        return match;
+    }
 }
