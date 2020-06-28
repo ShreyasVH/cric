@@ -62,6 +62,12 @@ public class MatchServiceImpl implements MatchService
     {
         createRequest.validate();
 
+        Match existingMatch = this.matchRepository.get(createRequest.getStadium(), createRequest.getStartTime());
+        if(null != existingMatch)
+        {
+            throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
+        }
+
         Match match = new Match();
         match.setResult(createRequest.getResult());
         match.setWinMargin(createRequest.getWinMargin());
