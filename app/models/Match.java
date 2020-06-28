@@ -26,7 +26,7 @@ public class Match extends Model
     @Id
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "series", referencedColumnName = "id")
     @JsonIgnoreProperties("matches")
     private Series series;
