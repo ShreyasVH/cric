@@ -12,4 +12,6 @@ public interface MatchService
     Match create(CreateRequest createRequest);
 
     Match update(Long id, UpdateRequest updateRequest);
+
+    boolean delete(Long id);
 }

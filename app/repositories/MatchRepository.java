@@ -64,6 +64,23 @@ public class MatchRepository
         return match;
     }
 
+    public boolean delete(Match match)
+    {
+        boolean success = false;
+
+        try
+        {
+            this.db.delete(match);
+            success = true;
+        }
+        catch (Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return success;
+    }
+
     public Match get(Long stadiumId, String startDate)
     {
         Match match = null;

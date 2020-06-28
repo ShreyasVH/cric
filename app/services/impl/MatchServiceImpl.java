@@ -114,14 +114,14 @@ public class MatchServiceImpl implements MatchService
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Toss Winner Team"));
             }
             match.setTossWinner(tossWinner);
-        }
 
-        Team battingFirst = this.teamRepository.get(createRequest.getBatFirst());
-        if(null == battingFirst)
-        {
-            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Batting First Team"));
+            Team battingFirst = this.teamRepository.get(createRequest.getBatFirst());
+            if(null == battingFirst)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Batting First Team"));
+            }
+            match.setBattingFirst(battingFirst);
         }
-        match.setBattingFirst(battingFirst);
 
         if(null != createRequest.getWinner())
         {
@@ -745,5 +745,17 @@ public class MatchServiceImpl implements MatchService
         {
             return existingMatch;
         }
+    }
+
+    @Override
+    public boolean delete(Long id)
+    {
+        Match existingMatch = this.matchRepository.get(id);
+        if(null == existingMatch)
+        {
+            throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Match"));
+        }
+
+        return this.matchRepository.delete(existingMatch);
     }
 }
