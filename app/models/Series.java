@@ -40,6 +40,7 @@ public class Series extends Model
     )
     private List<Team> teams = new ArrayList<>();
 
+    @OrderBy("startTime asc")
     @OneToMany(mappedBy = "series", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("series")
     private List<Match> matches;
