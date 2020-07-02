@@ -104,7 +104,9 @@ public class TourRepository
             Date endDate = calendar.getTime();
             String endDateString = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(endDate);
 
-            tours = this.db.find(Tour.class).where()
+            tours = this.db.find(Tour.class)
+                    .setDisableLazyLoading(true)
+                    .where()
                     .ge("startTime", startDateString)
                     .lt("startTime", endDateString)
                     .setMaxRows(count)
