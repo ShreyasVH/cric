@@ -41,7 +41,7 @@ public class SeriesRepository
 
             try
             {
-                series = this.db.find(Series.class).findList();
+                series = this.db.find(Series.class).setDisableLazyLoading(true).findList();
             }
             catch(Exception ex)
             {
