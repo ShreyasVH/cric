@@ -69,9 +69,6 @@ public class MatchServiceImpl implements MatchService
         }
 
         Match match = new Match();
-        match.setResult(createRequest.getResult());
-        match.setWinMargin(createRequest.getWinMargin());
-        match.setWinMarginType(createRequest.getWinMarginType());
 
         try
         {
@@ -106,6 +103,13 @@ public class MatchServiceImpl implements MatchService
         }
         match.setTeam2(team2);
 
+        Stadium stadium = this.stadiumRepository.get(createRequest.getStadium());
+        if(null == stadium)
+        {
+            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Stadium"));
+        }
+        match.setStadium(stadium);
+
         if(null != createRequest.getTossWinner())
         {
             Team tossWinner = this.teamRepository.get(createRequest.getTossWinner());
@@ -121,77 +125,221 @@ public class MatchServiceImpl implements MatchService
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Batting First Team"));
             }
             match.setBattingFirst(battingFirst);
-        }
 
-        if(null != createRequest.getWinner())
-        {
-            Team winner = this.teamRepository.get(createRequest.getWinner());
-            if(null == winner)
+            match.setResult(createRequest.getResult());
+
+            if(null != createRequest.getWinner())
             {
-                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Winner Team"));
-            }
-            match.setWinner(winner);
-        }
-
-        Stadium stadium = this.stadiumRepository.get(createRequest.getStadium());
-        if(null == stadium)
-        {
-            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Stadium"));
-        }
-        match.setStadium(stadium);
-
-        Map<Long, Player> playerIdPlayerMap = new HashMap<>();
-        Map<Long, Team> playerIdTeamMap = new HashMap<>();
-
-        if(null != createRequest.getPlayers())
-        {
-            List<MatchPlayerMap> matchPlayerMaps = new ArrayList<>();
-            for(Map<String, String> matchPlayerMapRaw: createRequest.getPlayers())
-            {
-                MatchPlayerMap matchPlayerMap = new MatchPlayerMap();
-
-                matchPlayerMap.setMatch(match);
-
-                Team team = this.teamRepository.get(Long.parseLong(matchPlayerMapRaw.get("teamId")));
-                if(null == team)
+                Team winner = this.teamRepository.get(createRequest.getWinner());
+                if(null == winner)
                 {
-                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player's Team"));
+                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Winner Team"));
                 }
-                matchPlayerMap.setTeam(team);
+                match.setWinner(winner);
 
-                Player player = this.playerRepository.get(Long.parseLong(matchPlayerMapRaw.get("playerId")));
-                if(null == player)
-                {
-                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
-                }
-                matchPlayerMap.setPlayer(player);
-
-                playerIdPlayerMap.put(player.getId(), player);
-                playerIdTeamMap.put(player.getId(), team);
-
-                matchPlayerMaps.add(matchPlayerMap);
+                match.setWinMargin(createRequest.getWinMargin());
+                match.setWinMarginType(createRequest.getWinMarginType());
             }
-            match.setPlayers(matchPlayerMaps);
 
-            if(null != createRequest.getBench())
+            Map<Long, Player> playerIdPlayerMap = new HashMap<>();
+            Map<Long, Team> playerIdTeamMap = new HashMap<>();
+
+            if(null != createRequest.getPlayers())
             {
-                for(Map<String, String> matchPlayerMapRaw: createRequest.getBench())
+                List<MatchPlayerMap> matchPlayerMaps = new ArrayList<>();
+                for(Map<String, String> matchPlayerMapRaw: createRequest.getPlayers())
                 {
+                    MatchPlayerMap matchPlayerMap = new MatchPlayerMap();
+
+                    matchPlayerMap.setMatch(match);
+
                     Team team = this.teamRepository.get(Long.parseLong(matchPlayerMapRaw.get("teamId")));
                     if(null == team)
                     {
                         throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player's Team"));
                     }
+                    matchPlayerMap.setTeam(team);
 
                     Player player = this.playerRepository.get(Long.parseLong(matchPlayerMapRaw.get("playerId")));
                     if(null == player)
                     {
                         throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
                     }
+                    matchPlayerMap.setPlayer(player);
 
                     playerIdPlayerMap.put(player.getId(), player);
                     playerIdTeamMap.put(player.getId(), team);
+
+                    matchPlayerMaps.add(matchPlayerMap);
                 }
+                match.setPlayers(matchPlayerMaps);
+
+                if(null != createRequest.getBench())
+                {
+                    for(Map<String, String> matchPlayerMapRaw: createRequest.getBench())
+                    {
+                        Team team = this.teamRepository.get(Long.parseLong(matchPlayerMapRaw.get("teamId")));
+                        if(null == team)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player's Team"));
+                        }
+
+                        Player player = this.playerRepository.get(Long.parseLong(matchPlayerMapRaw.get("playerId")));
+                        if(null == player)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+                        }
+
+                        playerIdPlayerMap.put(player.getId(), player);
+                        playerIdTeamMap.put(player.getId(), team);
+                    }
+                }
+
+                List<BattingScore> battingScores = new ArrayList<>();
+                for(Map<String, String> battingScoreRaw: createRequest.getBattingScores())
+                {
+                    BattingScore battingScore = new BattingScore();
+
+                    battingScore.setMatch(match);
+                    battingScore.setPlayer(playerIdPlayerMap.get(Long.parseLong(battingScoreRaw.get("playerId"))));
+                    battingScore.setTeam(playerIdTeamMap.get(Long.parseLong(battingScoreRaw.get("playerId"))));
+                    battingScore.setRuns(Integer.parseInt(battingScoreRaw.get("runs")));
+                    battingScore.setBalls(Integer.parseInt(battingScoreRaw.get("balls")));
+                    battingScore.setFours(Integer.parseInt(battingScoreRaw.get("fours")));
+                    battingScore.setSixes(Integer.parseInt(battingScoreRaw.get("sixes")));
+
+                    if(null != battingScoreRaw.get("dismissalMode") && !StringUtils.isEmpty(battingScoreRaw.get("dismissalMode")))
+                    {
+                        DismissalMode dismissalMode = this.dismissalRepository.get(Long.parseLong(battingScoreRaw.get("dismissalMode")));
+                        if(null == dismissalMode)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Dismissal Mode"));
+                        }
+
+                        battingScore.setDismissalMode(dismissalMode);
+
+                        if(null != battingScoreRaw.get("bowlerId") && !StringUtils.isEmpty(battingScoreRaw.get("bowlerId")))
+                        {
+                            Long bowlerId = Long.parseLong(battingScoreRaw.get("bowlerId"));
+                            BowlerDismissal bowlerDismissal = new BowlerDismissal();
+                            bowlerDismissal.setPlayer(playerIdPlayerMap.get(bowlerId));
+                            bowlerDismissal.setTeam(playerIdTeamMap.get(bowlerId));
+
+                            battingScore.setBowler(bowlerDismissal);
+                        }
+
+                        if(null != battingScoreRaw.get("fielders") && !StringUtils.isEmpty(battingScoreRaw.get("fielders")))
+                        {
+                            String[] fielderIds = battingScoreRaw.get("fielders").split(", ");
+                            List<FielderDismissal> fielders = new ArrayList<>();
+                            for(String fielderIdString: fielderIds)
+                            {
+                                Long fielderId = Long.parseLong(fielderIdString);
+                                FielderDismissal fielderDismissal = new FielderDismissal();
+                                fielderDismissal.setScore(battingScore);
+                                fielderDismissal.setPlayer(playerIdPlayerMap.get(fielderId));
+                                fielderDismissal.setTeam(playerIdTeamMap.get(fielderId));
+
+                                fielders.add(fielderDismissal);
+                            }
+
+                            battingScore.setFielders(fielders);
+                        }
+                    }
+
+                    battingScore.setInnings(Integer.parseInt(battingScoreRaw.get("innings")));
+                    battingScore.setTeamInnings(Integer.parseInt(battingScoreRaw.get("teamInnings")));
+
+                    battingScores.add(battingScore);
+                }
+                match.setBattingScores(battingScores);
+
+                List<BowlingFigure> bowlingFigures = new ArrayList<>();
+                for(Map<String, String> bowlingFigureRaw: createRequest.getBowlingFigures())
+                {
+                    BowlingFigure bowlingFigure = new BowlingFigure();
+                    bowlingFigure.setMatch(match);
+
+                    Player player = playerIdPlayerMap.get(Long.parseLong(bowlingFigureRaw.get("playerId")));
+                    if(null == player)
+                    {
+                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler"));
+                    }
+                    bowlingFigure.setPlayer(player);
+
+                    Team team = playerIdTeamMap.get(Long.parseLong(bowlingFigureRaw.get("playerId")));
+                    if(null == team)
+                    {
+                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler's Team"));
+                    }
+                    bowlingFigure.setTeam(team);
+
+                    bowlingFigure.setBalls(Integer.parseInt(bowlingFigureRaw.get("balls")));
+                    bowlingFigure.setMaidens(Integer.parseInt(bowlingFigureRaw.get("maidens")));
+                    bowlingFigure.setRuns(Integer.parseInt(bowlingFigureRaw.get("runs")));
+                    bowlingFigure.setWickets(Integer.parseInt(bowlingFigureRaw.get("wickets")));
+                    bowlingFigure.setInnings(Integer.parseInt(bowlingFigureRaw.get("innings")));
+                    bowlingFigure.setTeamInnings(Integer.parseInt(bowlingFigureRaw.get("teamInnings")));
+
+                    bowlingFigures.add(bowlingFigure);
+                }
+
+                match.setBowlingFigures(bowlingFigures);
+
+                List<ManOfTheMatch> manOfTheMatchList = new ArrayList<>();
+                for(Long playerId: createRequest.getManOfTheMatchList())
+                {
+                    ManOfTheMatch manOfTheMatch = new ManOfTheMatch();
+//            manOfTheMatch.setMatch(match);
+                    manOfTheMatch.setPlayer(playerIdPlayerMap.get(playerId));
+                    manOfTheMatch.setTeam(playerIdTeamMap.get(playerId));
+
+                    manOfTheMatchList.add(manOfTheMatch);
+                }
+                match.setManOfTheMatchList(manOfTheMatchList);
+
+                List<ManOfTheSeries> manOfTheSeriesList = new ArrayList<>();
+                for(Map<String, Long> manOfTheSeriesRaw: createRequest.getManOfTheSeriesList())
+                {
+                    Long playerId = manOfTheSeriesRaw.get("playerId");
+                    Long teamId = manOfTheSeriesRaw.get("teamId");
+                    ManOfTheSeries manOfTheSeries = new ManOfTheSeries();
+
+                    Player player;
+                    if(playerIdPlayerMap.containsKey(playerId))
+                    {
+                        player = playerIdPlayerMap.get(playerId);
+                    }
+                    else
+                    {
+                        player = this.playerRepository.get(playerId);
+                        if(null == player)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+                        }
+                    }
+                    manOfTheSeries.setPlayer(player);
+
+                    Team team;
+                    if(playerIdTeamMap.containsKey(playerId))
+                    {
+                        team = playerIdTeamMap.get(playerId);
+                    }
+                    else
+                    {
+                        team = this.teamRepository.get(teamId);
+                        if(null == team)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
+                        }
+                    }
+                    manOfTheSeries.setTeam(team);
+                    manOfTheSeries.setSeries(series);
+
+                    manOfTheSeriesList.add(manOfTheSeries);
+                }
+                series.getManOfTheSeriesList().clear();
+                series.getManOfTheSeriesList().addAll(manOfTheSeriesList);
             }
 
             List<Extras> extras = new ArrayList<>();
@@ -226,152 +374,6 @@ public class MatchServiceImpl implements MatchService
 
             }
             match.setExtras(extras);
-
-            List<BattingScore> battingScores = new ArrayList<>();
-            for(Map<String, String> battingScoreRaw: createRequest.getBattingScores())
-            {
-                BattingScore battingScore = new BattingScore();
-
-                battingScore.setMatch(match);
-                battingScore.setPlayer(playerIdPlayerMap.get(Long.parseLong(battingScoreRaw.get("playerId"))));
-                battingScore.setTeam(playerIdTeamMap.get(Long.parseLong(battingScoreRaw.get("playerId"))));
-                battingScore.setRuns(Integer.parseInt(battingScoreRaw.get("runs")));
-                battingScore.setBalls(Integer.parseInt(battingScoreRaw.get("balls")));
-                battingScore.setFours(Integer.parseInt(battingScoreRaw.get("fours")));
-                battingScore.setSixes(Integer.parseInt(battingScoreRaw.get("sixes")));
-
-                if(null != battingScoreRaw.get("dismissalMode") && !StringUtils.isEmpty(battingScoreRaw.get("dismissalMode")))
-                {
-                    DismissalMode dismissalMode = this.dismissalRepository.get(Long.parseLong(battingScoreRaw.get("dismissalMode")));
-                    if(null == dismissalMode)
-                    {
-                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Dismissal Mode"));
-                    }
-
-                    battingScore.setDismissalMode(dismissalMode);
-
-                    if(null != battingScoreRaw.get("bowlerId") && !StringUtils.isEmpty(battingScoreRaw.get("bowlerId")))
-                    {
-                        Long bowlerId = Long.parseLong(battingScoreRaw.get("bowlerId"));
-                        BowlerDismissal bowlerDismissal = new BowlerDismissal();
-                        bowlerDismissal.setPlayer(playerIdPlayerMap.get(bowlerId));
-                        bowlerDismissal.setTeam(playerIdTeamMap.get(bowlerId));
-
-                        battingScore.setBowler(bowlerDismissal);
-                    }
-
-                    if(null != battingScoreRaw.get("fielders") && !StringUtils.isEmpty(battingScoreRaw.get("fielders")))
-                    {
-                        String[] fielderIds = battingScoreRaw.get("fielders").split(", ");
-                        List<FielderDismissal> fielders = new ArrayList<>();
-                        for(String fielderIdString: fielderIds)
-                        {
-                            Long fielderId = Long.parseLong(fielderIdString);
-                            FielderDismissal fielderDismissal = new FielderDismissal();
-                            fielderDismissal.setScore(battingScore);
-                            fielderDismissal.setPlayer(playerIdPlayerMap.get(fielderId));
-                            fielderDismissal.setTeam(playerIdTeamMap.get(fielderId));
-
-                            fielders.add(fielderDismissal);
-                        }
-
-                        battingScore.setFielders(fielders);
-                    }
-                }
-
-                battingScore.setInnings(Integer.parseInt(battingScoreRaw.get("innings")));
-                battingScore.setTeamInnings(Integer.parseInt(battingScoreRaw.get("teamInnings")));
-
-                battingScores.add(battingScore);
-            }
-            match.setBattingScores(battingScores);
-
-            List<BowlingFigure> bowlingFigures = new ArrayList<>();
-            for(Map<String, String> bowlingFigureRaw: createRequest.getBowlingFigures())
-            {
-                BowlingFigure bowlingFigure = new BowlingFigure();
-                bowlingFigure.setMatch(match);
-
-                Player player = playerIdPlayerMap.get(Long.parseLong(bowlingFigureRaw.get("playerId")));
-                if(null == player)
-                {
-                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler"));
-                }
-                bowlingFigure.setPlayer(player);
-
-                Team team = playerIdTeamMap.get(Long.parseLong(bowlingFigureRaw.get("playerId")));
-                if(null == team)
-                {
-                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler's Team"));
-                }
-                bowlingFigure.setTeam(team);
-
-                bowlingFigure.setBalls(Integer.parseInt(bowlingFigureRaw.get("balls")));
-                bowlingFigure.setMaidens(Integer.parseInt(bowlingFigureRaw.get("maidens")));
-                bowlingFigure.setRuns(Integer.parseInt(bowlingFigureRaw.get("runs")));
-                bowlingFigure.setWickets(Integer.parseInt(bowlingFigureRaw.get("wickets")));
-                bowlingFigure.setInnings(Integer.parseInt(bowlingFigureRaw.get("innings")));
-                bowlingFigure.setTeamInnings(Integer.parseInt(bowlingFigureRaw.get("teamInnings")));
-
-                bowlingFigures.add(bowlingFigure);
-            }
-
-            match.setBowlingFigures(bowlingFigures);
-
-            List<ManOfTheMatch> manOfTheMatchList = new ArrayList<>();
-            for(Long playerId: createRequest.getManOfTheMatchList())
-            {
-                ManOfTheMatch manOfTheMatch = new ManOfTheMatch();
-//            manOfTheMatch.setMatch(match);
-                manOfTheMatch.setPlayer(playerIdPlayerMap.get(playerId));
-                manOfTheMatch.setTeam(playerIdTeamMap.get(playerId));
-
-                manOfTheMatchList.add(manOfTheMatch);
-            }
-            match.setManOfTheMatchList(manOfTheMatchList);
-
-            List<ManOfTheSeries> manOfTheSeriesList = new ArrayList<>();
-            for(Map<String, Long> manOfTheSeriesRaw: createRequest.getManOfTheSeriesList())
-            {
-                Long playerId = manOfTheSeriesRaw.get("playerId");
-                Long teamId = manOfTheSeriesRaw.get("teamId");
-                ManOfTheSeries manOfTheSeries = new ManOfTheSeries();
-
-                Player player;
-                if(playerIdPlayerMap.containsKey(playerId))
-                {
-                    player = playerIdPlayerMap.get(playerId);
-                }
-                else
-                {
-                    player = this.playerRepository.get(playerId);
-                    if(null == player)
-                    {
-                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
-                    }
-                }
-                manOfTheSeries.setPlayer(player);
-
-                Team team;
-                if(playerIdTeamMap.containsKey(playerId))
-                {
-                    team = playerIdTeamMap.get(playerId);
-                }
-                else
-                {
-                    team = this.teamRepository.get(teamId);
-                    if(null == team)
-                    {
-                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
-                    }
-                }
-                manOfTheSeries.setTeam(team);
-                manOfTheSeries.setSeries(series);
-
-                manOfTheSeriesList.add(manOfTheSeries);
-            }
-            series.getManOfTheSeriesList().clear();
-            series.getManOfTheSeriesList().addAll(manOfTheSeriesList);
         }
 
         Transaction transaction = Ebean.beginTransaction();
@@ -402,6 +404,29 @@ public class MatchServiceImpl implements MatchService
         }
 
         boolean isUpdateRequired = false;
+
+        if(null != updateRequest.getStartTime())
+        {
+            try
+            {
+                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
+                if(startTime.getTime() != existingMatch.getStartTime().getTime())
+                {
+                    isUpdateRequired = true;
+                    existingMatch.setStartTime(startTime);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+            }
+        }
+
+        if(null != updateRequest.getTag() && (!existingMatch.getTag().equals(updateRequest.getTag())))
+        {
+            isUpdateRequired = true;
+            existingMatch.setTag(updateRequest.getTag());
+        }
 
         if((null != updateRequest.getSeriesId()) && (!updateRequest.getSeriesId().equals(existingMatch.getSeries().getId())))
         {
@@ -441,6 +466,18 @@ public class MatchServiceImpl implements MatchService
             existingMatch.setTeam2(team2);
         }
 
+        if((null != updateRequest.getStadium()) && (!updateRequest.getStadium().equals(existingMatch.getStadium().getId())))
+        {
+            Stadium stadium = this.stadiumRepository.get(updateRequest.getStadium());
+            if(null == stadium)
+            {
+                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Stadium"));
+            }
+
+            isUpdateRequired = true;
+            existingMatch.setStadium(stadium);
+        }
+
         if((null != updateRequest.getTossWinner()) && (!updateRequest.getTossWinner().equals(existingMatch.getTossWinner().getId())))
         {
             isUpdateRequired = true;
@@ -467,6 +504,12 @@ public class MatchServiceImpl implements MatchService
             existingMatch.setTeam1(battingFirst);
         }
 
+        if((null != updateRequest.getResult()) && (!updateRequest.getResult().equals(existingMatch.getResult())))
+        {
+            isUpdateRequired = true;
+            existingMatch.setResult(updateRequest.getResult());
+        }
+
         if((null != updateRequest.getWinner()) && (!updateRequest.getWinner().equals(existingMatch.getWinner().getId())))
         {
             isUpdateRequired = true;
@@ -490,41 +533,6 @@ public class MatchServiceImpl implements MatchService
         {
             isUpdateRequired = true;
             existingMatch.setWinMarginType(updateRequest.getWinMarginType());
-        }
-
-        if((null != updateRequest.getResult()) && (!updateRequest.getResult().equals(existingMatch.getResult())))
-        {
-            isUpdateRequired = true;
-            existingMatch.setResult(updateRequest.getResult());
-        }
-
-        if(null != updateRequest.getStartTime())
-        {
-            try
-            {
-                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
-                if(startTime.getTime() != existingMatch.getStartTime().getTime())
-                {
-                    isUpdateRequired = true;
-                    existingMatch.setStartTime(startTime);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
-        }
-
-        if((null != updateRequest.getStadium()) && (!updateRequest.getStadium().equals(existingMatch.getStadium().getId())))
-        {
-            Stadium stadium = this.stadiumRepository.get(updateRequest.getStadium());
-            if(null == stadium)
-            {
-                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Stadium"));
-            }
-
-            isUpdateRequired = true;
-            existingMatch.setStadium(stadium);
         }
 
         if((null != updateRequest.getExtras()) && (!updateRequest.getExtras().isEmpty()))
@@ -568,10 +576,8 @@ public class MatchServiceImpl implements MatchService
         Map<Long, Player> playerIdPlayerMap = new HashMap<>();
         Map<Long, Team> playerIdTeamMap = new HashMap<>();
 
-        if((null != updateRequest.getPlayers()) && (!updateRequest.getPlayers().isEmpty()))
+        if((null != updateRequest.getPlayers()))
         {
-
-
             List<MatchPlayerMap> matchPlayerMaps = new ArrayList<>();
             for(Map<String, String> matchPlayerMapRaw: updateRequest.getPlayers())
             {
@@ -599,12 +605,32 @@ public class MatchServiceImpl implements MatchService
                 matchPlayerMaps.add(matchPlayerMap);
             }
 
+            if(null != updateRequest.getBench())
+            {
+                for(Map<String, String> matchPlayerMapRaw: updateRequest.getBench())
+                {
+                    Team team = this.teamRepository.get(Long.parseLong(matchPlayerMapRaw.get("teamId")));
+                    if(null == team)
+                    {
+                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player's Team"));
+                    }
+
+                    Player player = this.playerRepository.get(Long.parseLong(matchPlayerMapRaw.get("playerId")));
+                    if(null == player)
+                    {
+                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+                    }
+
+                    playerIdPlayerMap.put(player.getId(), player);
+                    playerIdTeamMap.put(player.getId(), team);
+                }
+            }
+
             isUpdateRequired = true;
             existingMatch.getPlayers().clear();
             existingMatch.getPlayers().addAll(matchPlayerMaps);
 
-
-            if((null != updateRequest.getBattingScores()) && (!updateRequest.getBattingScores().isEmpty()))
+            if(null != updateRequest.getBattingScores())
             {
                 List<BattingScore> battingScores = new ArrayList<>();
                 for(Map<String, String> battingScoreRaw: updateRequest.getBattingScores())
@@ -669,7 +695,7 @@ public class MatchServiceImpl implements MatchService
                 existingMatch.getBattingScores().addAll(battingScores);
             }
 
-            if((null != updateRequest.getBowlingFigures()) && (!updateRequest.getBowlingFigures().isEmpty()))
+            if(null != updateRequest.getBowlingFigures())
             {
                 List<BowlingFigure> bowlingFigures = new ArrayList<>();
                 for(Map<String, String> bowlingFigureRaw: updateRequest.getBowlingFigures())
@@ -706,7 +732,7 @@ public class MatchServiceImpl implements MatchService
                 existingMatch.getBowlingFigures().addAll(bowlingFigures);
             }
 
-            if((null != updateRequest.getManOfTheMatchList()) && (!updateRequest.getManOfTheMatchList().isEmpty()))
+            if(null != updateRequest.getManOfTheMatchList())
             {
                 List<ManOfTheMatch> manOfTheMatchList = new ArrayList<>();
                 for(Long playerId: updateRequest.getManOfTheMatchList())
@@ -722,7 +748,6 @@ public class MatchServiceImpl implements MatchService
                 existingMatch.getManOfTheMatchList().addAll(manOfTheMatchList);
             }
         }
-
 
         if(isUpdateRequired)
         {
