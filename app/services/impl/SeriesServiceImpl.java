@@ -99,7 +99,6 @@ public class SeriesServiceImpl implements SeriesService
             {
 
                 series.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getStartTime()));
-                series.setEndTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getEndTime()));
 
             }
             catch(Exception ex)
@@ -181,23 +180,6 @@ public class SeriesServiceImpl implements SeriesService
                     {
                         isUpdateRequired = true;
                         existingSeries.setStartTime(startTime);
-                    }
-                }
-                catch(Exception ex)
-                {
-                    throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-                }
-            }
-
-            if(!StringUtils.isEmpty(updateRequest.getEndTime()))
-            {
-                try
-                {
-                    Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getEndTime()));
-                    if(endTime.getTime() != existingSeries.getEndTime().getTime())
-                    {
-                        isUpdateRequired = true;
-                        existingSeries.setStartTime(endTime);
                     }
                 }
                 catch(Exception ex)
