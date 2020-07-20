@@ -54,10 +54,8 @@ public class TourServiceImpl implements TourService
         try
         {
             Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getStartTime()));
-            Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getEndTime()));
 
             tour.setStartTime(startTime);
-            tour.setEndTime(endTime);
 
             return this.tourRepository.save(tour);
         }
@@ -95,23 +93,6 @@ public class TourServiceImpl implements TourService
                 {
                     isUpdateRequired = true;
                     existingTour.setStartTime(startTime);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
-        }
-
-        if(!StringUtils.isEmpty(updateRequest.getEndTime()))
-        {
-            try
-            {
-                Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getEndTime()));
-                if(endTime.getTime() != existingTour.getEndTime().getTime())
-                {
-                    isUpdateRequired = true;
-                    existingTour.setEndTime(endTime);
                 }
             }
             catch(Exception ex)

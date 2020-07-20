@@ -24,7 +24,6 @@ public class CreateRequest
     private SeriesType type;
     private GameType gameType;
     private String startTime;
-    private String endTime;
     private Long tourId;
     private List<Long> teams = new ArrayList<>();
 
@@ -84,22 +83,6 @@ public class CreateRequest
             catch(Exception ex)
             {
                 throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Series Start Time");
-            }
-        }
-
-        if(StringUtils.isEmpty(this.endTime))
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Series End Time");
-        }
-        else
-        {
-            try
-            {
-                Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(this.endTime));
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Series End Time");
             }
         }
     }

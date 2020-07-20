@@ -59,9 +59,6 @@ public class Series extends Model
     @Column(name = "start_time", nullable = false)
     private Date startTime;
 
-    @Column(name = "end_time", nullable = false)
-    private Date endTime;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "series_id")
     private List<ManOfTheSeries> manOfTheSeriesList;
