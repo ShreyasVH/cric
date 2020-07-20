@@ -23,9 +23,6 @@ public class Tour
     @Column(name = "start_time")
     private Date startTime;
 
-    @Column(name = "end_time")
-    private Date endTime;
-
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("tour")
     private List<Series> seriesList;

@@ -17,7 +17,6 @@ public class CreateRequest
 {
     private String name;
     private String startTime;
-    private String endTime;
 
     public void validate()
     {
@@ -39,22 +38,6 @@ public class CreateRequest
             catch(Exception ex)
             {
                 throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Tour Start Time");
-            }
-        }
-
-        if(StringUtils.isEmpty(this.endTime))
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Tour End Time");
-        }
-        else
-        {
-            try
-            {
-                Date endTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(this.endTime));
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Tour End Time");
             }
         }
     }
