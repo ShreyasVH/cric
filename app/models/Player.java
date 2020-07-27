@@ -35,12 +35,6 @@ public class Player extends Model
     @Column(name = "image", nullable = false, length = 255)
     private String image;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
-    private Date createdAt;
-
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP", nullable = false)
-    private Date updatedAt;
-
     public Player(CreateRequest createRequest)
     {
         this.name = createRequest.getName();

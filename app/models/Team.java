@@ -33,12 +33,6 @@ public class Team
     @Column(name = "team_type_id", nullable = false)
     private TeamType teamType;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
-    private Date createdAt;
-
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP", nullable = false)
-    private Date updatedAt;
-
     public Team(CreateRequest createRequest)
     {
         this.name = createRequest.getName();

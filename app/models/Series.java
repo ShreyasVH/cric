@@ -62,10 +62,4 @@ public class Series extends Model
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "series_id")
     private List<ManOfTheSeries> manOfTheSeriesList;
-
-    @Column(name = "created_at", nullable = false)
-    private Date createdAt;
-
-    @Column(name = "updated_at", nullable = false, columnDefinition = "ON UPDATE CURRENT_TIMESTAMP")
-    private Date updatedAt;
 }
