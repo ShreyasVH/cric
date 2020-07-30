@@ -61,8 +61,6 @@ public class CountryServiceImpl implements CountryService
 		}
 
 		Country country = new Country(createCountryRequest);
-		country.setCreatedAt(Utils.getCurrentDate());
-		country.setUpdatedAt(Utils.getCurrentDate());
 		return this.countryRepository.save(country);
 	}
 
@@ -87,7 +85,6 @@ public class CountryServiceImpl implements CountryService
 
 		if(isUpdateRequired)
 		{
-			existingCountry.setUpdatedAt(Utils.getCurrentDate());
 			existingCountry = this.countryRepository.save(existingCountry);
 		}
 
