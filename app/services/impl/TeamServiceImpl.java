@@ -74,8 +74,6 @@ public class TeamServiceImpl implements TeamService
 
         Team team = new Team(createRequest);
         team.setCountry(country);
-        team.setCreatedAt(Utils.getCurrentDate());
-        team.setUpdatedAt(Utils.getCurrentDate());
         return this.teamRepository.save(team);
     }
 
@@ -90,7 +88,6 @@ public class TeamServiceImpl implements TeamService
         }
 
         boolean isUpdateRequired = false;
-        existingTeam.setUpdatedAt(Utils.getCurrentDate());
 
         if(!StringUtils.isEmpty(updateRequest.getName()) && (!existingTeam.getName().equals(updateRequest.getName())))
         {
@@ -119,7 +116,6 @@ public class TeamServiceImpl implements TeamService
 
         if(isUpdateRequired)
         {
-            existingTeam.setUpdatedAt(Utils.getCurrentDate());
             return this.teamRepository.save(existingTeam);
         }
         else

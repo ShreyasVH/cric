@@ -114,8 +114,6 @@ public class SeriesServiceImpl implements SeriesService
             series.setTour(tour);
 
             Date now = Utils.getCurrentDate();
-            series.setCreatedAt(now);
-            series.setUpdatedAt(now);
 
             List<Team> teams = this.teamRepository.get(createRequest.getTeams());
             if(createRequest.getTeams().size() != teams.size())
@@ -151,7 +149,6 @@ public class SeriesServiceImpl implements SeriesService
         try
         {
             boolean isUpdateRequired = false;
-            existingSeries.setUpdatedAt(Utils.getCurrentDate());
 
             if(!StringUtils.isEmpty(updateRequest.getName()) && !existingSeries.getName().equals(updateRequest.getName()))
             {

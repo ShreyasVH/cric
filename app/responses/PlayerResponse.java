@@ -18,8 +18,6 @@ public class PlayerResponse
     private String name;
     private Country country;
     private String image;
-    private Date createdAt;
-    private Date updatedAt;
     private Map<GameType, Map<String, Integer>> dismissalStats = new HashMap<>();
     private Map<GameType, BattingStats> battingStats = new HashMap<>();
     private Map<GameType, FieldingStats> fieldingStats = new HashMap<>();
@@ -31,7 +29,5 @@ public class PlayerResponse
         this.name = player.getName();
         this.country = player.getCountry();
         this.image = player.getImage();
-        this.createdAt = player.getCreatedAt();
-        this.updatedAt = player.getUpdatedAt();
     }
 }

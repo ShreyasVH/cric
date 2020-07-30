@@ -156,8 +156,6 @@ public class PlayerServiceImpl implements PlayerService
         Player player = new Player(createRequest);
 
         player.setCountry(country);
-        player.setCreatedAt(Utils.getCurrentDate());
-        player.setUpdatedAt(Utils.getCurrentDate());
 
         return this.playerRepository.save(player);
     }
@@ -197,13 +195,11 @@ public class PlayerServiceImpl implements PlayerService
             }
 
             existingPlayer.setCountry(country);
-            existingPlayer.setUpdatedAt(Utils.getCurrentDate());
             return this.playerRepository.save(existingPlayer);
         }
 
         if(isUpdateRequired)
         {
-            existingPlayer.setUpdatedAt(Utils.getCurrentDate());
             updatedPlayer = this.playerRepository.save(existingPlayer);
         }
 
