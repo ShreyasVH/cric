@@ -34,5 +34,10 @@ public class BattingStats
         this.fours = basicStats.getOrDefault("fours", 0);
         this.sixes = basicStats.getOrDefault("sixes", 0);
         this.highest = basicStats.get("highest");
+        this.fifties = basicStats.get("fifties");
+        this.hundreds = basicStats.get("hundreds");
+        this.twoHundreds = basicStats.get("twoHundreds");
+        this.threeHundreds = basicStats.get("threeHundreds");
+        this.fourHundreds = basicStats.get("fourHundreds");
     }
 }

@@ -134,7 +134,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "SELECT COUNT(*) AS innings, SUM(runs) AS runs, SUM(balls) AS balls, SUM(fours) AS fours, SUM(sixes) AS sixes, MAX(runs) AS highest, s.game_type as gameType FROM `batting_scores` bs inner join matches m on player_id = " + playerId + " and m.id = bs.match_id inner join series s on s.id = m.series group by s.game_type";
+            String query = "SELECT COUNT(*) AS innings, SUM(runs) AS runs, SUM(balls) AS balls, SUM(fours) AS fours, SUM(sixes) AS sixes, MAX(runs) AS highest, s.game_type as gameType, count(CASE WHEN (bs.runs >= 50 and bs.runs < 100) then 1 end) as fifties, count(CASE WHEN (bs.runs >= 100 and bs.runs < 200) then 1 end) as hundreds, count(CASE WHEN (bs.runs >= 200 and bs.runs < 300) then 1 end) as twoHundreds, count(CASE WHEN (bs.runs >= 300 and bs.runs < 400) then 1 end) as threeHundreds, count(CASE WHEN (bs.runs >= 400 and bs.runs < 500) then 1 end) as fourHundreds FROM `batting_scores` bs inner join matches m on player_id = " + playerId + " and m.id = bs.match_id inner join series s on s.id = m.series group by s.game_type";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 
@@ -153,6 +153,11 @@ public class PlayerRepository
                     stats.put("fours", row.getInteger("fours"));
                     stats.put("sixes", row.getInteger("sixes"));
                     stats.put("highest", row.getInteger("highest"));
+                    stats.put("fifties", row.getInteger("fifties"));
+                    stats.put("hundreds", row.getInteger("hundreds"));
+                    stats.put("twoHundreds", row.getInteger("twoHundreds"));
+                    stats.put("threeHundreds", row.getInteger("threeHundreds"));
+                    stats.put("fourHundreds", row.getInteger("fourHundreds"));
 
                     statsFinal.put(gameType, stats);
                 }
@@ -210,7 +215,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "SELECT COUNT(*) AS innings, SUM(balls) AS balls, SUM(maidens) AS maidens, SUM(runs) AS runs, SUM(wickets) AS wickets, s.game_type AS gameType FROM bowling_figures bf INNER JOIN matches m ON bf.player_id = " + playerId + " and m.id = bf.match_id INNER JOIN series s ON s.id = m.series GROUP BY s.game_type";
+            String query = "SELECT COUNT(*) AS innings, SUM(balls) AS balls, SUM(maidens) AS maidens, SUM(runs) AS runs, SUM(wickets) AS wickets, s.game_type AS gameType, COUNT(CASE WHEN (bf.wickets >= 5 and bf.wickets < 10) then 1 end) as fifers,  COUNT(CASE WHEN (bf.wickets = 10) then 1 end) as tenWickets FROM bowling_figures bf INNER JOIN matches m ON bf.player_id = " + playerId + " and m.id = bf.match_id INNER JOIN series s ON s.id = m.series GROUP BY s.game_type";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 
@@ -228,6 +233,8 @@ public class PlayerRepository
                     stats.put("balls", row.getInteger("balls"));
                     stats.put("maidens", row.getInteger("maidens"));
                     stats.put("wickets", row.getInteger("wickets"));
+                    stats.put("fifers", row.getInteger("fifers"));
+                    stats.put("tenWickets", row.getInteger("tenWickets"));
 
                     statsFinal.put(gameType, stats);
                 }
