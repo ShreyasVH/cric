@@ -27,5 +27,7 @@ public class BowlingStats
         this.maidens = basicStats.getOrDefault("maidens", 0);
         this.runs = basicStats.getOrDefault("runs", 0);
         this.wickets = basicStats.getOrDefault("wickets", 0);
+        this.fifers = basicStats.get("fifers");
+        this.tenWickets = basicStats.get("tenWickets");
     }
 }
