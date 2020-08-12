@@ -15,8 +15,8 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "extras")
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Extras extends Model
 {

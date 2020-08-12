@@ -15,8 +15,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @Table(name = "stadiums")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Stadium extends Model

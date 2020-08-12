@@ -13,8 +13,8 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "bowler_dismissals")
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BowlerDismissal extends Model
 {

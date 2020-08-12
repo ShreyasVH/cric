@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import lombok.Getter;
 import lombok.Setter;
+import io.ebean.annotation.Cache;
+import io.ebean.annotation.CacheQueryTuning;
 
 import javax.persistence.*;
 
@@ -12,6 +14,8 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "match_player_map")
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MatchPlayerMap extends Model
 {

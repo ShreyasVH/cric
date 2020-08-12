@@ -15,8 +15,8 @@ import javax.persistence.Table;
 @Setter
 @Entity
 @Table(name = "dismissal_modes")
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DismissalMode extends Model
 {

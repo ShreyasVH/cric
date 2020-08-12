@@ -14,8 +14,8 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @Table(name = "teams")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Team

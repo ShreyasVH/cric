@@ -15,8 +15,8 @@ import java.util.Date;
 @Setter
 @Entity
 @Table(name = "bowling_figures")
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BowlingFigure extends Model
 {

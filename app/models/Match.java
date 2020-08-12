@@ -18,8 +18,8 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "matches")
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Match extends Model
 {

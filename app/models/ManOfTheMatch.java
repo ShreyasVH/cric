@@ -14,17 +14,13 @@ import javax.persistence.*;
 @Setter
 @Entity
 @Table(name = "man_of_the_match")
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ManOfTheMatch extends Model
 {
     @Id
     private Long id;
-
-//    @ManyToOne
-//    @JsonBackReference
-//    private Match match;
 
     @OneToOne
     @JoinColumn(name = "player_id", referencedColumnName = "id")

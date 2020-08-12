@@ -21,8 +21,8 @@ import java.util.List;
 @Table(name = "countries")
 @Getter
 @Setter
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Country extends Model

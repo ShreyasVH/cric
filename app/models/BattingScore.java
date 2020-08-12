@@ -16,8 +16,8 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "batting_scores")
-//@Cache(enableQueryCache=true)
-//@CacheQueryTuning(maxSecsToLive = 3600)
+@Cache(enableQueryCache=true)
+@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BattingScore extends Model
 {
