@@ -1,0 +1,1 @@
+web: target/universal/stage/bin/cric -Dhttp.port=${PORT} -jvm-debug "8059"

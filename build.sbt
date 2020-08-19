@@ -1,4 +1,4 @@
-name := "cricbuzz"
+name := "cric"
 
 version := "1.0.0"
 
