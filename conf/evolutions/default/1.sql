@@ -18,7 +18,7 @@ CREATE TABLE `batting_scores` (
   KEY `bowler` (`bowler_id`),
   KEY `player` (`player_id`),
   UNIQUE KEY `uk_bs_match_player_team_innings` (`match_id`, `player_id`, `team_id`, `innings_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `bowler_dismissals` (
    `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE `bowler_dismissals` (
     PRIMARY KEY (`id`),
     KEY `bowler` (`player_id`),
     KEY `team` (`team_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `bowling_figures` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -45,21 +45,21 @@ CREATE TABLE `bowling_figures` (
     KEY `team` (`team_id`),
     KEY `match` (`match_id`),
     UNIQUE KEY `uk_bf_match_player_team_innings` (`match_id`, `player_id`, `team_id`, `innings_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `countries` (
    `id`                          int unsigned AUTO_INCREMENT NOT NULL,
    `name`                        varchar(100) NOT NULL,
    PRIMARY KEY (`id`),
    UNIQUE KEY `uk_cc_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `dismissal_modes` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
     `name`                          varchar(30),
     PRIMARY KEY (`id`),
     UNIQUE KEY `uk_dm_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `extras` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE `extras` (
     KEY `bowling_team` (`bowling_team`),
     KEY `match` (`match_id`),
     UNIQUE KEY `uk_e_match_type_batting_innings` (`match_id`, `type`, `batting_team`, `innings_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 create table fielder_dismissals (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -87,7 +87,7 @@ create table fielder_dismissals (
     KEY `player` (`player_id`),
     KEY `team` (`team_id`),
     UNIQUE KEY `uk_fd_score_player_team` (`score_id`, `player_id`, `team_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `man_of_the_match` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE `man_of_the_match` (
     KEY `player` (`player_id`),
     KEY `team` (`team_id`),
     UNIQUE KEY `uk_motm_match_player_team` (`match_id`, `player_id`, `team_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `man_of_the_series` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -113,7 +113,7 @@ CREATE TABLE `man_of_the_series` (
     KEY `player` (`player_id`),
     KEY `team` (`team_id`),
     UNIQUE KEY `uk_mots_match_player_series` (`series_id`, `player_id`, `team_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `matches` (
      `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE `matches` (
      KEY `winner` (`winner`),
      KEY `stadium` (`stadium`),
      UNIQUE KEY `uk_m_stadium_start` (`stadium`, `start_time`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `match_player_map` (
       `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -150,7 +150,7 @@ CREATE TABLE `match_player_map` (
       KEY `team` (`team_id`),
       KEY `player` (`player_id`),
       UNIQUE KEY `uk_mpm_match_player_team` (`match_id`, `player_id`, `team_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `players` (
      `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -160,7 +160,7 @@ CREATE TABLE `players` (
      PRIMARY KEY (`id`),
      KEY `country` (`country_id`),
      UNIQUE KEY `uk_p_name_country` (`country_id`, `name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `series` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -174,7 +174,7 @@ CREATE TABLE `series` (
     KEY `home_country` (`home_country_id`),
     KEY `tour` (`tour_id`),
     UNIQUE KEY `uk_s_name_tour_game_type` (`name`, `tour_id`, `game_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `series_teams_map` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -184,7 +184,7 @@ CREATE TABLE `series_teams_map` (
     UNIQUE KEY `uk` (`series_id`,`team_id`),
     KEY `series` (`series_id`),
     KEY `teams` (`team_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `stadiums` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -195,7 +195,7 @@ CREATE TABLE `stadiums` (
     PRIMARY KEY (`id`),
     KEY `country` (`country_id`),
     UNIQUE KEY `uk_s_name_country` (`name`, `country_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `teams` (
     `id`                            int unsigned AUTO_INCREMENT NOT NULL,
@@ -205,7 +205,7 @@ CREATE TABLE `teams` (
     PRIMARY KEY (`id`),
     KEY `country` (`country_id`),
     UNIQUE KEY `uk_t_name_country_type` (`name`, `country_id`, `team_type_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `tours` (
    `id`                            int unsigned AUTO_INCREMENT NOT NULL,
