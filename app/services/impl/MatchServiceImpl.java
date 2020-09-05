@@ -109,6 +109,7 @@ public class MatchServiceImpl implements MatchService
             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Stadium"));
         }
         match.setStadium(stadium);
+        match.setResult(createRequest.getResult());
 
         if(null != createRequest.getTossWinner())
         {
@@ -125,8 +126,6 @@ public class MatchServiceImpl implements MatchService
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Batting First Team"));
             }
             match.setBattingFirst(battingFirst);
-
-            match.setResult(createRequest.getResult());
 
             if(null != createRequest.getWinner())
             {
