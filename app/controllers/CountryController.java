@@ -5,6 +5,7 @@ import exceptions.BadRequestException;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.libs.Json;
+import java.net.URLDecoder;
 
 import com.google.inject.Inject;
 
@@ -46,7 +47,7 @@ public class CountryController extends BaseController
 
     public CompletionStage<Result> getByName(String name)
     {
-        return CompletableFuture.supplyAsync(() -> this.countryService.get(name)).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
+        return CompletableFuture.supplyAsync(() -> this.countryService.get(URLDecoder.decode(name))).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
     }
 
 	public CompletionStage<Result> create(Http.Request request)
