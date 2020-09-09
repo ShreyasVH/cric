@@ -50,6 +50,18 @@ public class CountryServiceImpl implements CountryService
     }
 
 	@Override
+	public Country get(String name)
+	{
+		Country country = this.countryRepository.get(name);
+		if(null == country)
+		{
+			throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+		}
+
+		return country;
+	}
+
+	@Override
 	public Country create(CreateCountryRequest createCountryRequest)
 	{
 		createCountryRequest.validate();
