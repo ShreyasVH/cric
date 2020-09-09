@@ -44,6 +44,11 @@ public class CountryController extends BaseController
 		return CompletableFuture.supplyAsync(() -> this.countryService.get(id)).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
 	}
 
+    public CompletionStage<Result> getByName(String name)
+    {
+        return CompletableFuture.supplyAsync(() -> this.countryService.get(name)).thenApplyAsync(country -> ok(Json.toJson(country)), this.httpExecutionContext.current());
+    }
+
 	public CompletionStage<Result> create(Http.Request request)
     {
         return CompletableFuture.supplyAsync(() -> {

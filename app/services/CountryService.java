@@ -14,6 +14,8 @@ public interface CountryService
 
 	Country get(Long id);
 
+	Country get(String name);
+
 	Country create(CreateCountryRequest createCountryRequest);
 
 	Country update(Long id, UpdateCountryRequest updateCountryRequest);
