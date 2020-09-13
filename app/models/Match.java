@@ -68,16 +68,19 @@ public class Match extends Model
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "match_id")
+    @OrderBy("id asc")
     private List<MatchPlayerMap> players;
 
     private String tag;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "match_id")
+    @OrderBy("id asc")
     private List<BattingScore> battingScores;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "match_id")
+    @OrderBy("id asc")
     private List<BowlingFigure> bowlingFigures;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -86,5 +89,6 @@ public class Match extends Model
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "match_id", referencedColumnName = "id")
+    @OrderBy("id asc")
     private List<Extras> extras;
 }
