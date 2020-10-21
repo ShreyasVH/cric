@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import enums.ErrorCode;
 import enums.GameType;
 import exceptions.BadRequestException;
+import exceptions.InternalServerError;
 import models.Country;
 import models.Player;
 import org.springframework.util.StringUtils;
@@ -16,11 +17,13 @@ import responses.BowlingStats;
 import responses.FieldingStats;
 import responses.PlayerResponse;
 import services.PlayerService;
-import utils.Utils;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class PlayerServiceImpl implements PlayerService
 {
@@ -141,23 +144,31 @@ public class PlayerServiceImpl implements PlayerService
     {
         createRequest.validate();
 
-        Player existingPlayer = this.playerRepository.get(createRequest.getName(), createRequest.getCountryId());
-        if(null != existingPlayer)
+        try
         {
-            throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
-        }
+            Date dateOfBirth = ((new SimpleDateFormat("yyyy-MM-dd")).parse(createRequest.getDateOfBirth()));
+            Player existingPlayer = this.playerRepository.get(createRequest.getName(), createRequest.getCountryId(), dateOfBirth);
+            if(null != existingPlayer)
+            {
+                throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
+            }
 
-        Country country = this.countryRepository.get(createRequest.getCountryId());
-        if(null == country)
+            Country country = this.countryRepository.get(createRequest.getCountryId());
+            if(null == country)
+            {
+                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+            }
+
+            Player player = new Player(createRequest);
+
+            player.setCountry(country);
+
+            return this.playerRepository.save(player);
+        }
+        catch(ParseException ex)
         {
-            throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
+            throw new InternalServerError(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), ErrorCode.INTERNAL_SERVER_ERROR.getDescription());
         }
-
-        Player player = new Player(createRequest);
-
-        player.setCountry(country);
-
-        return this.playerRepository.save(player);
     }
 
     @Override
@@ -194,8 +205,22 @@ public class PlayerServiceImpl implements PlayerService
                 throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
             }
 
+            isUpdateRequired = true;
             existingPlayer.setCountry(country);
-            return this.playerRepository.save(existingPlayer);
+        }
+
+        if(!StringUtils.isEmpty(updateRequest.getDateOfBirth()) && !((new SimpleDateFormat("yyyy-MM-dd")).format(existingPlayer.getDateOfBirth())).equals(updateRequest.getDateOfBirth()))
+        {
+            isUpdateRequired = true;
+            try
+            {
+                Date dateOfBirth = (new SimpleDateFormat("yyyy-MM-dd")).parse(updateRequest.getDateOfBirth());
+                existingPlayer.setDateOfBirth(dateOfBirth);
+            }
+            catch(ParseException exception)
+            {
+                throw new InternalServerError(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), ErrorCode.INTERNAL_SERVER_ERROR.getDescription());
+            }
         }
 
         if(isUpdateRequired)

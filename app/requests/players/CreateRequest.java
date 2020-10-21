@@ -6,6 +6,9 @@ import exceptions.BadRequestException;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.util.StringUtils;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -14,6 +17,7 @@ public class CreateRequest
 {
     private String name;
     private Long countryId;
+    private String dateOfBirth;
     private String image;
 
     public void validate()
@@ -31,6 +35,22 @@ public class CreateRequest
         if(StringUtils.isEmpty(this.image))
         {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
+        }
+
+        if(StringUtils.isEmpty(this.dateOfBirth))
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Date of Birth cannot be empty");
+        }
+        else
+        {
+            try
+            {
+                Date dateOfBirth = (new SimpleDateFormat("yyyy-MM-dd").parse(this.dateOfBirth));
+            }
+            catch(ParseException ex)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid date of birth");
+            }
         }
     }
 }

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class PlayerRepository
 {
@@ -73,13 +75,13 @@ public class PlayerRepository
         return players;
     }
 
-    public Player get(String name, Long countryId)
+    public Player get(String name, Long countryId, Date dateOfBirth)
     {
         Player player;
-
+        String dateOfBirthString = (new SimpleDateFormat("yyyy-MM-dd")).format(dateOfBirth);
         try
         {
-            player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).findOne();
+            player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).eq("dateOfBirth", dateOfBirthString).findOne();
         }
         catch(Exception ex)
         {

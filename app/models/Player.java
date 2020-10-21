@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import requests.players.CreateRequest;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import javax.persistence.*;
 import java.util.Date;
 
@@ -32,12 +34,16 @@ public class Player extends Model
     @ManyToOne
     private Country country;
 
+    @Column(name = "date_of_birth", columnDefinition = "date")
+    private Date dateOfBirth;
+
     @Column(name = "image", nullable = false, length = 255)
     private String image;
 
-    public Player(CreateRequest createRequest)
+    public Player(CreateRequest createRequest) throws ParseException
     {
         this.name = createRequest.getName();
+        this.dateOfBirth = ((new SimpleDateFormat("yyyy-MM-dd")).parse(createRequest.getDateOfBirth()));
         this.image = createRequest.getImage();
     }
 }
