@@ -1,0 +1,1 @@
+ALTER TABLE `tours` CHANGE `start_time` `start_time` BIGINT NOT NULL;

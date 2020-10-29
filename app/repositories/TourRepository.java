@@ -52,13 +52,13 @@ public class TourRepository
         return tour;
     }
 
-    public Tour get(String name)
+    public Tour get(String name, Long startTime)
     {
         Tour tour;
 
         try
         {
-            tour = this.db.find(Tour.class).where().eq("name", name).findOne();
+            tour = this.db.find(Tour.class).where().eq("name", name).eq("startTime", startTime).findOne();
         }
         catch(Exception ex)
         {
