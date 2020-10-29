@@ -70,13 +70,13 @@ public class SeriesRepository
         return series;
     }
 
-    public Series get(String name, GameType gameType)
+    public Series get(String name, GameType gameType, Long startTime)
     {
         Series series;
 
         try
         {
-            series = this.db.find(Series.class).where().eq("name", name).eq("gameType", gameType).findOne();
+            series = this.db.find(Series.class).where().eq("name", name).eq("gameType", gameType).eq("startTime", startTime).findOne();
         }
         catch(Exception ex)
         {
