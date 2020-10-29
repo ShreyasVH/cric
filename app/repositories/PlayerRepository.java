@@ -75,13 +75,12 @@ public class PlayerRepository
         return players;
     }
 
-    public Player get(String name, Long countryId, Date dateOfBirth)
+    public Player get(String name, Long countryId, Long dateOfBirth)
     {
         Player player;
-        String dateOfBirthString = (new SimpleDateFormat("yyyy-MM-dd")).format(dateOfBirth);
         try
         {
-            player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).eq("dateOfBirth", dateOfBirthString).findOne();
+            player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).eq("dateOfBirth", dateOfBirth).findOne();
         }
         catch(Exception ex)
         {
