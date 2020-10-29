@@ -28,7 +28,7 @@ public class UpdateRequest
     private Integer winMargin;
     private WinMarginType winMarginType;
     private Long stadium;
-    private String startTime;
+    private Long startTime;
     private String tag;
     private List<Map<String, String>> players;
     private List<Map<String, String>> bench;
