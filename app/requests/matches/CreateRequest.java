@@ -1,6 +1,7 @@
 package requests.matches;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import enums.DismissalMode;
 import enums.ResultType;
 import enums.WinMarginType;
 import lombok.Getter;
@@ -49,6 +50,11 @@ public class CreateRequest
                     throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid batsman");
                 }
 
+                if(battingScore.containsKey("bowlerId") && (StringUtils.isEmpty(battingScore.get("bowlerId"))))
+                {
+                    throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid bowler");
+                }
+
                 if(battingScore.containsKey("fielders"))
                 {
                     String fieldersString = battingScore.get("fielders");
@@ -64,6 +70,51 @@ public class CreateRequest
                         {
                             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid fielder");
                         }
+                    }
+                }
+
+                if(battingScore.containsKey("dismissalMode") && (null != battingScore.get("dismissalMode")))
+                {
+                    DismissalMode dismissalMode = DismissalMode.getById(Integer.parseInt(battingScore.get("dismissalMode")));
+                    String bowler = "";
+                    if(battingScore.containsKey("bowlerId"))
+                    {
+                        bowler = battingScore.get("bowlerId");
+                    }
+
+                    String fielders = "";
+                    if(battingScore.containsKey("fielders"))
+                    {
+                        fielders = battingScore.get("fielders");
+                    }
+
+                    boolean isBowlerRequired = false;
+                    boolean isFielderRequired = false;
+
+                    switch(dismissalMode)
+                    {
+                        case BOWLED:
+                        case LBW:
+                        case HIT_WICKET:
+                            isBowlerRequired = true;
+                            break;
+                        case CAUGHT:
+                        case STUMPED:
+                            isFielderRequired = true;
+                            isBowlerRequired = true;
+                            break;
+                        case RUN_OUT:
+                            isFielderRequired = true;
+                    }
+
+                    if(isBowlerRequired && StringUtils.isEmpty(bowler))
+                    {
+                        throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid bowler for dismissal");
+                    }
+
+                    if(isFielderRequired && StringUtils.isEmpty(fielders))
+                    {
+                        throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid fielders for dismissal");
                     }
                 }
             }
