@@ -17,7 +17,7 @@ public class PlayerResponse
     private Long id;
     private String name;
     private Country country;
-    private Date dateOfBirth;
+    private Long dateOfBirth;
     private String image;
     private Map<GameType, Map<String, Integer>> dismissalStats = new HashMap<>();
     private Map<GameType, BattingStats> battingStats = new HashMap<>();
