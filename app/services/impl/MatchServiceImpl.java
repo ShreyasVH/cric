@@ -396,7 +396,7 @@ public class MatchServiceImpl implements MatchService
 
         boolean isUpdateRequired = false;
 
-        if(null != updateRequest.getStartTime())
+        if((null != updateRequest.getStartTime()) && (!existingMatch.getStartTime().equals(updateRequest.getStartTime())))
         {
             isUpdateRequired = true;
             existingMatch.setStartTime(updateRequest.getStartTime());

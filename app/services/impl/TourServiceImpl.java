@@ -83,20 +83,10 @@ public class TourServiceImpl implements TourService
             existingTour.setName(updateRequest.getName());
         }
 
-        if(updateRequest.getStartTime() != null)
+        if((updateRequest.getStartTime() != null) && !updateRequest.getStartTime().equals(existingTour.getStartTime()))
         {
-            try
-            {
-                if(!updateRequest.getStartTime().equals(existingTour.getStartTime()))
-                {
-                    isUpdateRequired = true;
-                    existingTour.setStartTime(updateRequest.getStartTime());
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
+            isUpdateRequired = true;
+            existingTour.setStartTime(updateRequest.getStartTime());
         }
 
         if(isUpdateRequired)

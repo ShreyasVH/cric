@@ -157,13 +157,10 @@ public class SeriesServiceImpl implements SeriesService
                 existingSeries.setGameType(updateRequest.getGameType());
             }
 
-            if(null != updateRequest.getStartTime())
+            if((null != updateRequest.getStartTime()) && !updateRequest.getStartTime().equals(existingSeries.getStartTime()))
             {
-                if(!updateRequest.getStartTime().equals(existingSeries.getStartTime()))
-                {
-                    isUpdateRequired = true;
-                    existingSeries.setStartTime(updateRequest.getStartTime());
-                }
+                isUpdateRequired = true;
+                existingSeries.setStartTime(updateRequest.getStartTime());
             }
 
             if((null != updateRequest.getHomeCountryId()) && (!updateRequest.getHomeCountryId().equals(existingSeries.getHomeCountry().getId())))
