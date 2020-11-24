@@ -4,11 +4,9 @@ import com.google.inject.Inject;
 import enums.ErrorCode;
 import enums.GameType;
 import exceptions.BadRequestException;
-import exceptions.InternalServerError;
 import models.Country;
 import models.Player;
 import org.springframework.util.StringUtils;
-import repositories.CountryRepository;
 import repositories.PlayerRepository;
 import requests.players.CreateRequest;
 import requests.players.UpdateRequest;
@@ -16,28 +14,29 @@ import responses.BattingStats;
 import responses.BowlingStats;
 import responses.FieldingStats;
 import responses.PlayerResponse;
+import services.CountryService;
 import services.PlayerService;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
-import java.text.SimpleDateFormat;
 
 public class PlayerServiceImpl implements PlayerService
 {
-    private final CountryRepository countryRepository;
+    private final CountryService countryService;
+
     private final PlayerRepository playerRepository;
 
     @Inject
     public PlayerServiceImpl
     (
-        CountryRepository countryRepository,
+        CountryService countryService,
+
         PlayerRepository playerRepository
     )
     {
-        this.countryRepository = countryRepository;
+        this.countryService = countryService;
+
         this.playerRepository = playerRepository;
     }
 
@@ -47,6 +46,8 @@ public class PlayerServiceImpl implements PlayerService
     {
         Player basicDetails = this.playerRepository.get(id);
         PlayerResponse playerResponse = new PlayerResponse(basicDetails);
+
+        playerResponse.setCountry(this.countryService.get(basicDetails.getCountryId()));
 
         Map<GameType, Map<String, Integer>> dismissalStats = this.playerRepository.getDismissalStats(id);
         playerResponse.setDismissalStats(dismissalStats);
@@ -150,17 +151,13 @@ public class PlayerServiceImpl implements PlayerService
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
         }
 
-        Country country = this.countryRepository.get(createRequest.getCountryId());
+        Country country = this.countryService.get(createRequest.getCountryId());
         if(null == country)
         {
             throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
         }
 
-        Player player = new Player(createRequest);
-
-        player.setCountry(country);
-
-        return this.playerRepository.save(player);
+        return this.playerRepository.save(new Player(createRequest));
     }
 
     @Override
@@ -189,16 +186,16 @@ public class PlayerServiceImpl implements PlayerService
             existingPlayer.setImage(updateRequest.getImage());
         }
 
-        if((null != updateRequest.getCountryId()) && (!updateRequest.getCountryId().equals(existingPlayer.getCountry().getId())))
+        if((null != updateRequest.getCountryId()) && (!updateRequest.getCountryId().equals(existingPlayer.getCountryId())))
         {
-            Country country = this.countryRepository.get(updateRequest.getCountryId());
+            Country country = this.countryService.get(updateRequest.getCountryId());
             if(null == country)
             {
                 throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
             }
 
             isUpdateRequired = true;
-            existingPlayer.setCountry(country);
+            existingPlayer.setCountryId(country.getId());
         }
 
         if(null != updateRequest.getDateOfBirth() && !updatedPlayer.getDateOfBirth().equals(updateRequest.getDateOfBirth()))

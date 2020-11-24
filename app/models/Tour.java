@@ -25,6 +25,5 @@ public class Tour
     @Column
     private String name;
 
-    @Column(name = "start_time")
     private Long startTime;
 }

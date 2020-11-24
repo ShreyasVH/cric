@@ -80,7 +80,7 @@ public class PlayerRepository
         Player player;
         try
         {
-            player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).eq("dateOfBirth", dateOfBirth).findOne();
+            player = this.db.find(Player.class).where().eq("name", name).eq("countryId", countryId).eq("dateOfBirth", dateOfBirth).findOne();
         }
         catch(Exception ex)
         {

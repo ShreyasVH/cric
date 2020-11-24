@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import requests.players.CreateRequest;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Getter
 @Setter
@@ -25,24 +25,25 @@ import java.util.Date;
 public class Player extends Model
 {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 50)
+    @Column
     private String name;
 
-    @ManyToOne
-    private Country country;
+    @Column
+    private Long countryId;
 
-    @Column(name = "date_of_birth")
+    @Column
     private Long dateOfBirth;
 
-    @Column(name = "image", nullable = false, length = 255)
+    @Column
     private String image;
 
     public Player(CreateRequest createRequest)
     {
         this.name = createRequest.getName();
+        this.countryId = createRequest.getCountryId();
         this.dateOfBirth = createRequest.getDateOfBirth();
         this.image = createRequest.getImage();
     }
