@@ -9,7 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 import requests.stadiums.CreateRequest;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 
 @Getter
@@ -22,36 +25,26 @@ import javax.persistence.*;
 public class Stadium extends Model
 {
     @Id
-    @Column(name = "id")
+    @Column
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 200)
+    @Column
     private String name;
 
-    @Column(name = "city", nullable = false, length = 100)
+    @Column
     private String city;
 
-    @Column(name = "state", length = 100)
+    @Column
     private String state;
 
-    @ManyToOne
-    private Country country;
+    @Column
+    private Long countryId;
 
     public Stadium(CreateRequest createRequest)
     {
         this.name = createRequest.getName();
         this.city = createRequest.getCity();
         this.state = createRequest.getState();
-    }
-
-    public static final Finder<Long, Stadium> find = new Finder<>(Stadium.class);
-
-    public Stadium findOne()
-    {
-        Stadium stadium = null;
-
-        String sh = "sh";
-
-        return stadium;
+        this.countryId = createRequest.getCountryId();
     }
 }

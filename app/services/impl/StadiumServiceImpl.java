@@ -7,10 +7,11 @@ import exceptions.NotFoundException;
 import models.Country;
 import models.Stadium;
 import org.springframework.util.StringUtils;
-import repositories.CountryRepository;
 import repositories.StadiumRepository;
 import requests.stadiums.CreateRequest;
 import requests.stadiums.UpdateRequest;
+import responses.StadiumResponse;
+import services.CountryService;
 import services.StadiumService;
 
 import java.util.List;
@@ -18,18 +19,29 @@ import java.util.concurrent.CompletionStage;
 
 public class StadiumServiceImpl implements StadiumService
 {
-    private final CountryRepository countryRepository;
+    private final CountryService countryService;
+
     private final StadiumRepository stadiumRepository;
 
     @Inject
     public StadiumServiceImpl
     (
-        CountryRepository countryRepository,
+        CountryService countryService,
+
         StadiumRepository stadiumRepository
     )
     {
-        this.countryRepository = countryRepository;
+        this.countryService = countryService;
+
         this.stadiumRepository = stadiumRepository;
+    }
+
+    public StadiumResponse stadiumResponse(Stadium stadium)
+    {
+        StadiumResponse stadiumResponse = new StadiumResponse(stadium);
+        stadiumResponse.setCountry(this.countryService.get(stadium.getCountryId()));
+
+        return stadiumResponse;
     }
 
     public CompletionStage<List<Stadium>> getAll()
@@ -48,18 +60,16 @@ public class StadiumServiceImpl implements StadiumService
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
         }
 
-        Country country = this.countryRepository.get(createRequest.getCountryId());
+        Country country = this.countryService.get(createRequest.getCountryId());
         if(null == country)
         {
             throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
         }
 
-        Stadium stadium = new Stadium(createRequest);
-        stadium.setCountry(country);
-        return this.stadiumRepository.save(stadium);
+        return this.stadiumRepository.save(new Stadium(createRequest));
     }
 
-    public Stadium get(Long id)
+    public StadiumResponse get(Long id)
     {
         Stadium stadium = this.stadiumRepository.get(id);
         if(null == stadium)
@@ -67,7 +77,7 @@ public class StadiumServiceImpl implements StadiumService
             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Stadium"));
         }
 
-        return stadium;
+        return stadiumResponse(stadium);
     }
 
     @Override
@@ -106,16 +116,16 @@ public class StadiumServiceImpl implements StadiumService
             isUpdateRequired = true;
         }
 
-        if(null != updateRequest.getCountryId() && (!updateRequest.getCountryId().equals(existingStadium.getCountry().getId())))
+        if(null != updateRequest.getCountryId() && (!updateRequest.getCountryId().equals(existingStadium.getCountryId())))
         {
             isUpdateRequired = true;
-            Country country = this.countryRepository.get(updateRequest.getCountryId());
+            Country country = this.countryService.get(updateRequest.getCountryId());
             if(null == country)
             {
                 throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
             }
 
-            existingStadium.setCountry(country);
+            existingStadium.setCountryId(country.getId());
         }
 
         if(isUpdateRequired)
