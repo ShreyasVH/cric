@@ -34,16 +34,16 @@ public class Player extends Model
     @ManyToOne
     private Country country;
 
-    @Column(name = "date_of_birth", columnDefinition = "date")
-    private Date dateOfBirth;
+    @Column(name = "date_of_birth")
+    private Long dateOfBirth;
 
     @Column(name = "image", nullable = false, length = 255)
     private String image;
 
-    public Player(CreateRequest createRequest) throws ParseException
+    public Player(CreateRequest createRequest)
     {
         this.name = createRequest.getName();
-        this.dateOfBirth = ((new SimpleDateFormat("yyyy-MM-dd")).parse(createRequest.getDateOfBirth()));
+        this.dateOfBirth = createRequest.getDateOfBirth();
         this.image = createRequest.getImage();
     }
 }

@@ -70,15 +70,7 @@ public class MatchServiceImpl implements MatchService
 
         Match match = new Match();
 
-        try
-        {
-            Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).parse(createRequest.getStartTime());
-            match.setStartTime(startTime);
-        }
-        catch(Exception ex)
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-        }
+        match.setStartTime(createRequest.getStartTime());
 
         match.setTag(createRequest.getTag());
 
@@ -404,21 +396,10 @@ public class MatchServiceImpl implements MatchService
 
         boolean isUpdateRequired = false;
 
-        if(null != updateRequest.getStartTime())
+        if((null != updateRequest.getStartTime()) && (!existingMatch.getStartTime().equals(updateRequest.getStartTime())))
         {
-            try
-            {
-                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
-                if(startTime.getTime() != existingMatch.getStartTime().getTime())
-                {
-                    isUpdateRequired = true;
-                    existingMatch.setStartTime(startTime);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
+            isUpdateRequired = true;
+            existingMatch.setStartTime(updateRequest.getStartTime());
         }
 
         if(null != updateRequest.getTag() && (!existingMatch.getTag().equals(updateRequest.getTag())))

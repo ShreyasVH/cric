@@ -52,13 +52,13 @@ public class TourRepository
         return tour;
     }
 
-    public Tour get(String name)
+    public Tour get(String name, Long startTime)
     {
         Tour tour;
 
         try
         {
-            tour = this.db.find(Tour.class).where().eq("name", name).findOne();
+            tour = this.db.find(Tour.class).where().eq("name", name).eq("startTime", startTime).findOne();
         }
         catch(Exception ex)
         {
@@ -97,18 +97,16 @@ public class TourRepository
             calendar.set(Calendar.MINUTE, 0);
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
-            Date startDate = calendar.getTime();
-            String startDateString = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(startDate);
+            Date startTime = calendar.getTime();
 
             calendar.set(Calendar.YEAR, year + 1);
-            Date endDate = calendar.getTime();
-            String endDateString = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(endDate);
+            Date endTime = calendar.getTime();
 
             tours = this.db.find(Tour.class)
                     .setDisableLazyLoading(true)
                     .where()
-                    .ge("startTime", startDateString)
-                    .lt("startTime", endDateString)
+                    .ge("startTime", startTime.getTime())
+                    .lt("startTime", endTime.getTime())
                     .setMaxRows(count)
                     .setFirstRow(offset)
                     .order("startTime DESC")

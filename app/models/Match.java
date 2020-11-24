@@ -64,7 +64,7 @@ public class Match extends Model
     private Stadium stadium;
 
     @Column(name = "start_time")
-    private Date startTime;
+    private Long startTime;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "match_id")

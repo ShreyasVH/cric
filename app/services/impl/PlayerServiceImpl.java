@@ -144,31 +144,23 @@ public class PlayerServiceImpl implements PlayerService
     {
         createRequest.validate();
 
-        try
+        Player existingPlayer = this.playerRepository.get(createRequest.getName(), createRequest.getCountryId(), createRequest.getDateOfBirth());
+        if(null != existingPlayer)
         {
-            Date dateOfBirth = ((new SimpleDateFormat("yyyy-MM-dd")).parse(createRequest.getDateOfBirth()));
-            Player existingPlayer = this.playerRepository.get(createRequest.getName(), createRequest.getCountryId(), dateOfBirth);
-            if(null != existingPlayer)
-            {
-                throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
-            }
-
-            Country country = this.countryRepository.get(createRequest.getCountryId());
-            if(null == country)
-            {
-                throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
-            }
-
-            Player player = new Player(createRequest);
-
-            player.setCountry(country);
-
-            return this.playerRepository.save(player);
+            throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
         }
-        catch(ParseException ex)
+
+        Country country = this.countryRepository.get(createRequest.getCountryId());
+        if(null == country)
         {
-            throw new InternalServerError(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), ErrorCode.INTERNAL_SERVER_ERROR.getDescription());
+            throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
         }
+
+        Player player = new Player(createRequest);
+
+        player.setCountry(country);
+
+        return this.playerRepository.save(player);
     }
 
     @Override
@@ -209,18 +201,10 @@ public class PlayerServiceImpl implements PlayerService
             existingPlayer.setCountry(country);
         }
 
-        if(!StringUtils.isEmpty(updateRequest.getDateOfBirth()) && !((new SimpleDateFormat("yyyy-MM-dd")).format(existingPlayer.getDateOfBirth())).equals(updateRequest.getDateOfBirth()))
+        if(null != updateRequest.getDateOfBirth() && !updatedPlayer.getDateOfBirth().equals(updateRequest.getDateOfBirth()))
         {
             isUpdateRequired = true;
-            try
-            {
-                Date dateOfBirth = (new SimpleDateFormat("yyyy-MM-dd")).parse(updateRequest.getDateOfBirth());
-                existingPlayer.setDateOfBirth(dateOfBirth);
-            }
-            catch(ParseException exception)
-            {
-                throw new InternalServerError(ErrorCode.INTERNAL_SERVER_ERROR.getCode(), ErrorCode.INTERNAL_SERVER_ERROR.getDescription());
-            }
+            existingPlayer.setDateOfBirth(updateRequest.getDateOfBirth());
         }
 
         if(isUpdateRequired)

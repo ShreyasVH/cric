@@ -75,7 +75,7 @@ public class SeriesServiceImpl implements SeriesService
     public Series create(CreateRequest createRequest)
     {
         createRequest.validate();
-        Series existingSeries = this.seriesRepository.get(createRequest.getName(), createRequest.getGameType());
+        Series existingSeries = this.seriesRepository.get(createRequest.getName(), createRequest.getGameType(), createRequest.getStartTime());
         if(null != existingSeries)
         {
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
@@ -103,8 +103,6 @@ public class SeriesServiceImpl implements SeriesService
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
             }
             series.setTourId(tour.getId());
-
-            Date now = Utils.getCurrentDate();
 
             List<Team> teams = this.teamRepository.get(createRequest.getTeams());
             if(createRequest.getTeams().size() != teams.size())
@@ -239,6 +237,10 @@ public class SeriesServiceImpl implements SeriesService
                 updatedSeries = this.seriesRepository.save(existingSeries);
                 transaction.commit();
                 transaction.end();
+            }
+            else
+            {
+                updatedSeries = existingSeries;
             }
             return updatedSeries;
         }

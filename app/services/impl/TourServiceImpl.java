@@ -59,7 +59,7 @@ public class TourServiceImpl implements TourService
     public Tour create(CreateRequest createRequest) {
         createRequest.validate();
 
-        Tour existingTour = this.tourRepository.get(createRequest.getName());
+        Tour existingTour = this.tourRepository.get(createRequest.getName(), createRequest.getStartTime());
         if(null != existingTour)
         {
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());

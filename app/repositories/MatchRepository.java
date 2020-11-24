@@ -81,13 +81,13 @@ public class MatchRepository
         return success;
     }
 
-    public Match get(Long stadiumId, String startDate)
+    public Match get(Long stadiumId, Long startTime)
     {
         Match match = null;
 
         try
         {
-            match = this.db.find(Match.class).where().eq("stadium.id", stadiumId).eq("startTime", startDate).findOne();
+            match = this.db.find(Match.class).where().eq("stadium.id", stadiumId).eq("startTime", startTime).findOne();
         }
         catch(Exception ex)
         {
