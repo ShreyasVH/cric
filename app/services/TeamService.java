@@ -3,6 +3,7 @@ package services;
 import models.Team;
 import requests.teams.CreateRequest;
 import requests.teams.UpdateRequest;
+import responses.TeamResponse;
 
 import java.util.List;
 import java.util.concurrent.CompletionStage;
@@ -11,7 +12,7 @@ public interface TeamService
 {
     CompletionStage<List<Team>> getAll();
 
-    Team get(Long id);
+    TeamResponse get(Long id);
 
     List<Team> get(String keyword);
 

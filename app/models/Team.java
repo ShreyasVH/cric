@@ -21,21 +21,22 @@ import java.util.Date;
 public class Team
 {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column
     private String name;
 
-    @ManyToOne
-    private Country country;
+    @Column
+    private Long countryId;
 
-    @Column(name = "team_type_id", nullable = false)
+    @Column(name = "team_type_id")
     private TeamType teamType;
 
     public Team(CreateRequest createRequest)
     {
         this.name = createRequest.getName();
         this.teamType = createRequest.getTeamType();
+        this.countryId = createRequest.getCountryId();
     }
 }
