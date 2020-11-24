@@ -75,13 +75,12 @@ public class PlayerRepository
         return players;
     }
 
-    public Player get(String name, Long countryId, Date dateOfBirth)
+    public Player get(String name, Long countryId, Long dateOfBirth)
     {
         Player player;
-        String dateOfBirthString = (new SimpleDateFormat("yyyy-MM-dd")).format(dateOfBirth);
         try
         {
-            player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).eq("dateOfBirth", dateOfBirthString).findOne();
+            player = this.db.find(Player.class).where().eq("name", name).eq("country.id", countryId).eq("dateOfBirth", dateOfBirth).findOne();
         }
         catch(Exception ex)
         {
@@ -98,7 +97,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN dismissal_modes dm ON bs.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL and dm.id = bs.mode_of_dismissal inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series GROUP BY s.game_type, bs.mode_of_dismissal";
+            String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN dismissal_modes dm ON bs.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL and dm.id = bs.mode_of_dismissal and dm.name != 'Retired Hurt' inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series GROUP BY s.game_type, bs.mode_of_dismissal";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 

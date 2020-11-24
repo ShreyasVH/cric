@@ -16,21 +16,10 @@ import java.util.Date;
 public class UpdateRequest
 {
     private String name;
-    private String startTime;
+    private Long startTime;
 
     public void validate()
     {
 
-        if(!StringUtils.isEmpty(this.startTime))
-        {
-            try
-            {
-                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(this.startTime));
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Tour Start Time");
-            }
-        }
     }
 }

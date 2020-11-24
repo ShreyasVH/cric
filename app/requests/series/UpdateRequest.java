@@ -22,7 +22,7 @@ public class UpdateRequest
     private Long homeCountryId;
     private SeriesType type;
     private GameType gameType;
-    private String startTime;
+    private Long startTime;
     private Long tourId;
     private List<Long> teams;
     private List<Map<String, Long>> manOfTheSeriesList;

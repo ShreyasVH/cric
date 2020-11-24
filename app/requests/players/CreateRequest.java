@@ -17,7 +17,7 @@ public class CreateRequest
 {
     private String name;
     private Long countryId;
-    private String dateOfBirth;
+    private Long dateOfBirth;
     private String image;
 
     public void validate()
@@ -37,20 +37,9 @@ public class CreateRequest
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
         }
 
-        if(StringUtils.isEmpty(this.dateOfBirth))
+        if(this.dateOfBirth == null)
         {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Date of Birth cannot be empty");
-        }
-        else
-        {
-            try
-            {
-                Date dateOfBirth = (new SimpleDateFormat("yyyy-MM-dd").parse(this.dateOfBirth));
-            }
-            catch(ParseException ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid date of birth");
-            }
         }
     }
 }

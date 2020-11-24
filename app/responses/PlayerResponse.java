@@ -17,6 +17,7 @@ public class PlayerResponse
     private Long id;
     private String name;
     private Country country;
+    private Long dateOfBirth;
     private String image;
     private Map<GameType, Map<String, Integer>> dismissalStats = new HashMap<>();
     private Map<GameType, BattingStats> battingStats = new HashMap<>();
@@ -28,6 +29,7 @@ public class PlayerResponse
         this.id = player.getId();
         this.name = player.getName();
         this.country = player.getCountry();
+        this.dateOfBirth = player.getDateOfBirth();
         this.image = player.getImage();
     }
 }

@@ -16,7 +16,7 @@ import java.util.Date;
 public class CreateRequest
 {
     private String name;
-    private String startTime;
+    private Long startTime;
 
     public void validate()
     {
@@ -25,20 +25,9 @@ public class CreateRequest
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
         }
 
-        if(StringUtils.isEmpty(this.startTime))
+        if(null == this.startTime)
         {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Tour Start Time");
-        }
-        else
-        {
-            try
-            {
-                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(this.startTime));
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Tour Start Time");
-            }
         }
     }
 }

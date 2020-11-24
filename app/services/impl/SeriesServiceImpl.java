@@ -75,7 +75,7 @@ public class SeriesServiceImpl implements SeriesService
     public Series create(CreateRequest createRequest)
     {
         createRequest.validate();
-        Series existingSeries = this.seriesRepository.get(createRequest.getName(), createRequest.getGameType());
+        Series existingSeries = this.seriesRepository.get(createRequest.getName(), createRequest.getGameType(), createRequest.getStartTime());
         if(null != existingSeries)
         {
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
@@ -95,16 +95,7 @@ public class SeriesServiceImpl implements SeriesService
             series.setName(createRequest.getName());
             series.setType(createRequest.getType());
             series.setGameType(createRequest.getGameType());
-            try
-            {
-
-                series.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getStartTime()));
-
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
+            series.setStartTime(createRequest.getStartTime());
 
             Tour tour = this.tourRepository.get(createRequest.getTourId());
             if(null == tour)
@@ -112,8 +103,6 @@ public class SeriesServiceImpl implements SeriesService
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
             }
             series.setTour(tour);
-
-            Date now = Utils.getCurrentDate();
 
             List<Team> teams = this.teamRepository.get(createRequest.getTeams());
             if(createRequest.getTeams().size() != teams.size())
@@ -168,21 +157,10 @@ public class SeriesServiceImpl implements SeriesService
                 existingSeries.setGameType(updateRequest.getGameType());
             }
 
-            if(!StringUtils.isEmpty(updateRequest.getStartTime()))
+            if((null != updateRequest.getStartTime()) && !updateRequest.getStartTime().equals(existingSeries.getStartTime()))
             {
-                try
-                {
-                    Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
-                    if(startTime.getTime() != existingSeries.getStartTime().getTime())
-                    {
-                        isUpdateRequired = true;
-                        existingSeries.setStartTime(startTime);
-                    }
-                }
-                catch(Exception ex)
-                {
-                    throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-                }
+                isUpdateRequired = true;
+                existingSeries.setStartTime(updateRequest.getStartTime());
             }
 
             if((null != updateRequest.getHomeCountryId()) && (!updateRequest.getHomeCountryId().equals(existingSeries.getHomeCountry().getId())))
@@ -259,6 +237,10 @@ public class SeriesServiceImpl implements SeriesService
                 updatedSeries = this.seriesRepository.save(existingSeries);
                 transaction.commit();
                 transaction.end();
+            }
+            else
+            {
+                updatedSeries = existingSeries;
             }
             return updatedSeries;
         }

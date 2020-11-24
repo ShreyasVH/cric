@@ -25,7 +25,7 @@ public class Tour
     private String name;
 
     @Column(name = "start_time")
-    private Date startTime;
+    private Long startTime;
 
     @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("tour")

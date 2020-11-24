@@ -57,7 +57,7 @@ public class Series extends Model
     private GameType gameType;
 
     @Column(name = "start_time", nullable = false)
-    private Date startTime;
+    private Long startTime;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(referencedColumnName = "id", name = "series_id")

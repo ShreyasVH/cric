@@ -43,19 +43,18 @@ public class TourServiceImpl implements TourService
     public Tour create(CreateRequest createRequest) {
         createRequest.validate();
 
-        Tour existingTour = this.tourRepository.get(createRequest.getName());
+        Tour existingTour = this.tourRepository.get(createRequest.getName(), createRequest.getStartTime());
         if(null != existingTour)
         {
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
         }
 
-        Tour tour = new Tour();
-        tour.setName(createRequest.getName());
         try
         {
-            Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getStartTime()));
+            Tour tour = new Tour();
+            tour.setName(createRequest.getName());
 
-            tour.setStartTime(startTime);
+            tour.setStartTime(createRequest.getStartTime());
 
             return this.tourRepository.save(tour);
         }
@@ -84,21 +83,10 @@ public class TourServiceImpl implements TourService
             existingTour.setName(updateRequest.getName());
         }
 
-        if(!StringUtils.isEmpty(updateRequest.getStartTime()))
+        if((updateRequest.getStartTime() != null) && !updateRequest.getStartTime().equals(existingTour.getStartTime()))
         {
-            try
-            {
-                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
-                if(startTime.getTime() != existingTour.getStartTime().getTime())
-                {
-                    isUpdateRequired = true;
-                    existingTour.setStartTime(startTime);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
+            isUpdateRequired = true;
+            existingTour.setStartTime(updateRequest.getStartTime());
         }
 
         if(isUpdateRequired)
