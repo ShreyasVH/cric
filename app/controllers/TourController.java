@@ -11,11 +11,13 @@ import play.mvc.Result;
 import requests.tours.CreateRequest;
 import requests.tours.FilterRequest;
 import requests.tours.UpdateRequest;
+import responses.TourResponse;
 import services.TourService;
 import utils.Utils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Supplier;
 
 public class TourController extends Controller
 {

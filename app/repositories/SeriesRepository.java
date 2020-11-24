@@ -113,4 +113,9 @@ public class SeriesRepository
         }
         return series;
     }
+
+    public List<Series> getSeriesListForTour(Long tourId)
+    {
+        return this.db.find(Series.class).where().eq("tourId", tourId).findList();
+    }
 }

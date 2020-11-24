@@ -9,6 +9,8 @@ import repositories.TourRepository;
 import requests.tours.CreateRequest;
 import requests.tours.FilterRequest;
 import requests.tours.UpdateRequest;
+import responses.TourResponse;
+import services.SeriesService;
 import services.TourService;
 
 import java.text.SimpleDateFormat;
@@ -19,24 +21,38 @@ public class TourServiceImpl implements TourService
 {
     private final TourRepository tourRepository;
 
+    private final SeriesService seriesService;
+
     @Inject
     public TourServiceImpl
     (
+        SeriesService seriesService,
+
         TourRepository tourRepository
     )
     {
+        this.seriesService = seriesService;
+
         this.tourRepository = tourRepository;
     }
 
+    public TourResponse tourResponse(Tour tour)
+    {
+        TourResponse tourResponse = new TourResponse(tour);
+        tourResponse.setSeriesList(this.seriesService.getSeriesForTour(tour.getId()));
+
+        return tourResponse;
+    }
+
     @Override
-    public Tour get(Long id)
+    public TourResponse get(Long id)
     {
         Tour tour = this.tourRepository.get(id);
         if(null == tour)
         {
             throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
         }
-        return tour;
+        return tourResponse(tour);
     }
 
     @Override
@@ -51,18 +67,9 @@ public class TourServiceImpl implements TourService
 
         Tour tour = new Tour();
         tour.setName(createRequest.getName());
-        try
-        {
-            Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getStartTime()));
+        tour.setStartTime(createRequest.getStartTime());
 
-            tour.setStartTime(startTime);
-
-            return this.tourRepository.save(tour);
-        }
-        catch(Exception ex)
-        {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-        }
+        return this.tourRepository.save(tour);
     }
 
     @Override
@@ -84,21 +91,10 @@ public class TourServiceImpl implements TourService
             existingTour.setName(updateRequest.getName());
         }
 
-        if(!StringUtils.isEmpty(updateRequest.getStartTime()))
+        if((null != updateRequest.getStartTime()) && !existingTour.getStartTime().equals(updateRequest.getStartTime()))
         {
-            try
-            {
-                Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
-                if(startTime.getTime() != existingTour.getStartTime().getTime())
-                {
-                    isUpdateRequired = true;
-                    existingTour.setStartTime(startTime);
-                }
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
+            isUpdateRequired = true;
+            existingTour.setStartTime(updateRequest.getStartTime());
         }
 
         if(isUpdateRequired)

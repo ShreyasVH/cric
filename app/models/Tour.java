@@ -22,12 +22,9 @@ public class Tour
     @Id
     private Long id;
 
+    @Column
     private String name;
 
     @Column(name = "start_time")
-    private Date startTime;
-
-    @OneToMany(mappedBy = "tour", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("tour")
-    private List<Series> seriesList;
+    private Long startTime;
 }

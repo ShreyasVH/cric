@@ -4,12 +4,13 @@ import models.Tour;
 import requests.tours.CreateRequest;
 import requests.tours.FilterRequest;
 import requests.tours.UpdateRequest;
+import responses.TourResponse;
 
 import java.util.List;
 
 public interface TourService
 {
-    Tour get(Long id);
+    TourResponse get(Long id);
 
     Tour create(CreateRequest createRequest);
 

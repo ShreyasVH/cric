@@ -18,4 +18,6 @@ public interface SeriesService
     Series create(CreateRequest createRequest);
 
     Series update(Long id, UpdateRequest updateRequest);
+
+    List<Series> getSeriesForTour(Long tourId);
 }

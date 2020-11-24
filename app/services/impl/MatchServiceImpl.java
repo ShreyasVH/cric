@@ -337,8 +337,8 @@ public class MatchServiceImpl implements MatchService
 
                     manOfTheSeriesList.add(manOfTheSeries);
                 }
-                series.getManOfTheSeriesList().clear();
-                series.getManOfTheSeriesList().addAll(manOfTheSeriesList);
+//                series.getManOfTheSeriesList().clear();
+//                series.getManOfTheSeriesList().addAll(manOfTheSeriesList);
             }
 
             List<Extras> extras = new ArrayList<>();

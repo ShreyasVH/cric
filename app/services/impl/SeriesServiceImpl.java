@@ -91,27 +91,18 @@ public class SeriesServiceImpl implements SeriesService
         try
         {
             Series series = new Series();
-            series.setHomeCountry(homeCountry);
+            series.setHomeCountryId(homeCountry.getId());
             series.setName(createRequest.getName());
             series.setType(createRequest.getType());
             series.setGameType(createRequest.getGameType());
-            try
-            {
-
-                series.setStartTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(createRequest.getStartTime()));
-
-            }
-            catch(Exception ex)
-            {
-                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-            }
+            series.setStartTime(createRequest.getStartTime());
 
             Tour tour = this.tourRepository.get(createRequest.getTourId());
             if(null == tour)
             {
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
             }
-            series.setTour(tour);
+            series.setTourId(tour.getId());
 
             Date now = Utils.getCurrentDate();
 
@@ -121,7 +112,7 @@ public class SeriesServiceImpl implements SeriesService
                 throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
             }
 
-            series.setTeams(teams);
+//            series.setTeams(teams);
             Series createdSeries = this.seriesRepository.save(series);
             transaction.commit();
             transaction.end();
@@ -168,24 +159,13 @@ public class SeriesServiceImpl implements SeriesService
                 existingSeries.setGameType(updateRequest.getGameType());
             }
 
-            if(!StringUtils.isEmpty(updateRequest.getStartTime()))
+            if((null != updateRequest.getStartTime()) && !existingSeries.getStartTime().equals(updateRequest.getStartTime()))
             {
-                try
-                {
-                    Date startTime = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(updateRequest.getStartTime()));
-                    if(startTime.getTime() != existingSeries.getStartTime().getTime())
-                    {
-                        isUpdateRequired = true;
-                        existingSeries.setStartTime(startTime);
-                    }
-                }
-                catch(Exception ex)
-                {
-                    throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
-                }
+                isUpdateRequired = true;
+                existingSeries.setStartTime(updateRequest.getStartTime());
             }
 
-            if((null != updateRequest.getHomeCountryId()) && (!updateRequest.getHomeCountryId().equals(existingSeries.getHomeCountry().getId())))
+            if((null != updateRequest.getHomeCountryId()) && (!updateRequest.getHomeCountryId().equals(existingSeries.getHomeCountryId())))
             {
                 Country country = this.countryRepository.get(updateRequest.getHomeCountryId());
                 if(null == country)
@@ -194,10 +174,10 @@ public class SeriesServiceImpl implements SeriesService
                 }
 
                 isUpdateRequired = true;
-                existingSeries.setHomeCountry(country);
+                existingSeries.setHomeCountryId(country.getId());
             }
 
-            if((null != updateRequest.getTourId()) && !updateRequest.getTourId().equals(existingSeries.getTour().getId()))
+            if((null != updateRequest.getTourId()) && !updateRequest.getTourId().equals(existingSeries.getTourId()))
             {
                 Tour tour = this.tourRepository.get(updateRequest.getTourId());
                 if(null == tour)
@@ -205,7 +185,7 @@ public class SeriesServiceImpl implements SeriesService
                     throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
                 }
                 isUpdateRequired = true;
-                existingSeries.setTour(tour);
+                existingSeries.setTourId(tour.getId());
             }
 
             if((null != updateRequest.getTeams()) && (updateRequest.getTeams().size() > 0))
@@ -217,8 +197,8 @@ public class SeriesServiceImpl implements SeriesService
                 }
 
                 isUpdateRequired = true;
-                existingSeries.getTeams().clear();
-                existingSeries.getTeams().addAll(teams);
+//                existingSeries.getTeams().clear();
+//                existingSeries.getTeams().addAll(teams);
             }
 
             if((null != updateRequest.getManOfTheSeriesList()) && (!updateRequest.getManOfTheSeriesList().isEmpty()))
@@ -249,8 +229,8 @@ public class SeriesServiceImpl implements SeriesService
                     manOfTheSeriesList.add(manOfTheSeries);
                 }
                 isUpdateRequired = true;
-                existingSeries.getManOfTheSeriesList().clear();
-                existingSeries.getManOfTheSeriesList().addAll(manOfTheSeriesList);
+//                existingSeries.getManOfTheSeriesList().clear();
+//                existingSeries.getManOfTheSeriesList().addAll(manOfTheSeriesList);
             }
 
             Series updatedSeries = null;
@@ -268,5 +248,11 @@ public class SeriesServiceImpl implements SeriesService
             transaction.end();
             throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), ErrorCode.DB_INTERACTION_FAILED.getDescription());
         }
+    }
+
+    @Override
+    public List<Series> getSeriesForTour(Long tourId)
+    {
+        return this.seriesRepository.getSeriesListForTour(tourId);
     }
 }
