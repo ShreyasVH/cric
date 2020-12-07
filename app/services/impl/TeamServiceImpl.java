@@ -51,12 +51,24 @@ public class TeamServiceImpl implements TeamService
 
     public TeamResponse get(Long id)
     {
-        Team team = this.teamRepository.get(id);
+        Team team = this.getRaw(id);
         if(null == team)
         {
             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
         }
         return teamResponse(team);
+    }
+
+    @Override
+    public Team getRaw(Long id)
+    {
+        return this.teamRepository.get(id);
+    }
+
+    @Override
+    public List<Team> get(List<Long> ids)
+    {
+        return this.teamRepository.get(ids);
     }
 
     public List<Team> get(String keyword)

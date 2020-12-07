@@ -8,6 +8,7 @@ import exceptions.BadRequestException;
 import lombok.Getter;
 import lombok.Setter;
 import models.Series;
+import models.SeriesTeamsMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class UpdateRequest
     private List<Long> teams;
     private List<Map<String, Long>> manOfTheSeriesList;
 
-    public void validate(Series existingSeries)
+    public void validate(Series existingSeries, List<SeriesTeamsMap> existingTeams)
     {
         SeriesType seriesType = existingSeries.getType();
         if(null != this.type)
@@ -35,23 +36,23 @@ public class UpdateRequest
             seriesType = this.type;
         }
 
-//        int teamSize = existingSeries.getTeams().size();
-//        if(null != this.getTeams())
-//        {
-//            teamSize = this.teams.size();
-//            if(this.teams.size() < 2)
-//            {
-//                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Teams");
-//            }
-//        }
-//
-//        if((SeriesType.BI_LATERAL == seriesType) && (teamSize != 2))
-//        {
-//            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Teams");
-//        }
-//        else if((SeriesType.TRI_SERIES == seriesType) && (teamSize != 3))
-//        {
-//            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Teams");
-//        }
+        int teamSize = existingTeams.size();
+        if(null != this.getTeams())
+        {
+            teamSize = this.teams.size();
+            if(this.teams.size() < 2)
+            {
+                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Teams");
+            }
+        }
+
+        if((SeriesType.BI_LATERAL == seriesType) && (teamSize != 2))
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Teams");
+        }
+        else if((SeriesType.TRI_SERIES == seriesType) && (teamSize != 3))
+        {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid Teams");
+        }
     }
 }

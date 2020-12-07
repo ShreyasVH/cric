@@ -24,24 +24,24 @@ import java.util.List;
 public class Series extends Model
 {
     @Id
-    @Column(name = "id")
+    @Column
     private Long id;
 
-    @Column(name = "name")
+    @Column
     private String name;
 
-    @Column(name = "home_country_id")
+    @Column
     private Long homeCountryId;
 
-    @Column(name = "tour_id")
+    @Column
     private Long tourId;
 
     @Column
     private SeriesType type;
 
-    @Column(name = "game_type")
+    @Column
     private GameType gameType;
 
-    @Column(name = "start_time")
+    @Column
     private Long startTime;
 }

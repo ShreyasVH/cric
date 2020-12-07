@@ -44,7 +44,7 @@ public class PlayerServiceImpl implements PlayerService
     @Override
     public PlayerResponse get(Long id)
     {
-        Player basicDetails = this.playerRepository.get(id);
+        Player basicDetails = this.getRaw(id);
         PlayerResponse playerResponse = new PlayerResponse(basicDetails);
 
         playerResponse.setCountry(this.countryService.get(basicDetails.getCountryId()));
@@ -132,6 +132,12 @@ public class PlayerServiceImpl implements PlayerService
             playerResponse.setFieldingStats(fieldingStatsMapFinal);
         }
         return playerResponse;
+    }
+
+    @Override
+    public Player getRaw(Long id)
+    {
+        return this.playerRepository.get(id);
     }
 
     @Override

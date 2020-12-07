@@ -14,6 +14,10 @@ public interface TeamService
 
     TeamResponse get(Long id);
 
+    Team getRaw(Long id);
+
+    List<Team> get(List<Long> ids);
+
     List<Team> get(String keyword);
 
     Team create(CreateRequest createRequest);

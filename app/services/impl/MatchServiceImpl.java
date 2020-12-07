@@ -309,7 +309,7 @@ public class MatchServiceImpl implements MatchService
                             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
                         }
                     }
-                    manOfTheSeries.setPlayer(player);
+                    manOfTheSeries.setPlayerId(player.getId());
 
                     Team team;
                     if(playerIdTeamMap.containsKey(playerId))
@@ -324,8 +324,8 @@ public class MatchServiceImpl implements MatchService
                             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
                         }
                     }
-                    manOfTheSeries.setTeam(team);
-                    manOfTheSeries.setSeries(series);
+                    manOfTheSeries.setTeamId(team.getId());
+                    manOfTheSeries.setSeriesId(series.getId());
 
                     manOfTheSeriesList.add(manOfTheSeries);
                 }
