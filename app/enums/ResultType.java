@@ -7,5 +7,6 @@ public enum ResultType
     DRAW,
     SUPER_OVER,
     WASHED_OUT,
-    BOWL_OUT
+    BOWL_OUT,
+    FORFEIT
 }
