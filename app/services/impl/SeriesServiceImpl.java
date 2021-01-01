@@ -199,7 +199,7 @@ public class SeriesServiceImpl implements SeriesService
                 existingSeries.getTeams().addAll(teams);
             }
 
-            if((null != updateRequest.getManOfTheSeriesList()) && (!updateRequest.getManOfTheSeriesList().isEmpty()))
+            if(null != updateRequest.getManOfTheSeriesList())
             {
                 List<ManOfTheSeries> manOfTheSeriesList = new ArrayList<>();
                 for(Map<String, Long> manOfTheSeriesRaw: updateRequest.getManOfTheSeriesList())
