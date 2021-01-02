@@ -466,4 +466,21 @@ public class MatchRepository
         }
     }
 
+    public List<Match> getMatchesForSeries(Long seriesId)
+    {
+        List<Match> matches = new ArrayList<>();
+
+        try
+        {
+            matches = this.db.find(Match.class).where().eq("series", seriesId).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+
+        return matches;
+    }
+
 }

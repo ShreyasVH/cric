@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import models.Country;
-import models.ManOfTheSeries;
+import models.Match;
 import models.Series;
 import models.Team;
 
@@ -29,6 +29,7 @@ public class SeriesResponse
     private Long startTime;
     private List<Team> teams = new ArrayList<>();
     private List<ManOfTheSeriesResponse> manOfTheSeriesList = new ArrayList<>();
+    List<Match> matches = new ArrayList<>();
 
     public SeriesResponse(Series series)
     {

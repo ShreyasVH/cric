@@ -36,6 +36,7 @@ public class SeriesServiceImpl implements SeriesService
     private final PlayerService playerService;
     private final TeamService teamService;
 
+    private final MatchRepository matchRepository;
     private final PlayerRepository playerRepository;
     private final SeriesRepository seriesRepository;
     private final TourRepository tourRepository;
@@ -47,6 +48,7 @@ public class SeriesServiceImpl implements SeriesService
         PlayerService playerService,
         TeamService teamService,
 
+        MatchRepository matchRepository,
         PlayerRepository playerRepository,
         SeriesRepository seriesRepository,
         TourRepository tourRepository
@@ -56,6 +58,7 @@ public class SeriesServiceImpl implements SeriesService
         this.playerService = playerService;
         this.teamService = teamService;
 
+        this.matchRepository = matchRepository;
         this.playerRepository = playerRepository;
         this.seriesRepository = seriesRepository;
         this.tourRepository = tourRepository;
@@ -83,6 +86,8 @@ public class SeriesServiceImpl implements SeriesService
 
             seriesResponse.getManOfTheSeriesList().add(motsResponse);
         }
+
+        seriesResponse.setMatches(this.matchRepository.getMatchesForSeries(series.getId()));
 
         return seriesResponse;
     }
