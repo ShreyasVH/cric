@@ -133,6 +133,23 @@ public class MatchRepository
         return bowlerDismissals;
     }
 
+    public BowlerDismissal getBowlingDismissal(Long id)
+    {
+        BowlerDismissal bowlerDismissal = null;
+
+        try
+        {
+            bowlerDismissal = this.db.find(BowlerDismissal.class).where().eq("id", id).findOne();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+
+        return bowlerDismissal;
+    }
+
     public List<FielderDismissal> getFielderDismissals(List<Long> ids)
     {
         List<FielderDismissal> fielderDismissals = new ArrayList<>();
@@ -220,53 +237,113 @@ public class MatchRepository
 
     public void addPlayersForMatch(List<MatchPlayerMap> players)
     {
-        try
+        if(!players.isEmpty())
         {
-            this.db.saveAll(players);
-        }
-        catch(Exception ex)
-        {
-            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            try
+            {
+                this.db.saveAll(players);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
     }
 
     public void addExtrasForMatch(List<Extras> extras)
     {
-        try
+        if(!extras.isEmpty())
         {
-            this.db.saveAll(extras);
+            try
+            {
+                this.db.saveAll(extras);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
-        catch(Exception ex)
+    }
+
+    public void removeExtrasForMatch(List<Extras> extras)
+    {
+        if(!extras.isEmpty())
         {
-            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            try
+            {
+                this.db.deleteAll(extras);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
     }
 
     public void addBowlingFigures(List<BowlingFigure> bowlingFigures)
     {
-        try
+        if(!bowlingFigures.isEmpty())
         {
-            this.db.saveAll(bowlingFigures);
+            try
+            {
+                this.db.saveAll(bowlingFigures);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
-        catch(Exception ex)
+    }
+
+    public void removeBowlingFigures(List<BowlingFigure> bowlingFigures)
+    {
+        if(!bowlingFigures.isEmpty())
         {
-            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            try
+            {
+                this.db.deleteAll(bowlingFigures);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
     }
 
     public void addManOfTheMatchList(List<ManOfTheMatch> manOfTheMatchList)
     {
-        try
+        if(!manOfTheMatchList.isEmpty())
         {
-            this.db.saveAll(manOfTheMatchList);
+            try
+            {
+                this.db.saveAll(manOfTheMatchList);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
-        catch(Exception ex)
+    }
+
+    public void removeManOfTheMatchList(List<ManOfTheMatch> manOfTheMatchList)
+    {
+        if(!manOfTheMatchList.isEmpty())
         {
-            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
-            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            try
+            {
+                this.db.deleteAll(manOfTheMatchList);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
     }
 
@@ -283,6 +360,22 @@ public class MatchRepository
         }
     }
 
+    public void removeBattingScores(List<BattingScore> battingScores)
+    {
+        if(!battingScores.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(battingScores);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
     public void addBowlerDismissal(BowlerDismissal bowlerDismissal)
     {
         try
@@ -296,16 +389,80 @@ public class MatchRepository
         }
     }
 
-    public void addFielderDismissals(List<FielderDismissal> fielderDismissals)
+    public void removeBowlerDismissal(BowlerDismissal bowlerDismissal)
     {
         try
         {
-            this.db.saveAll(fielderDismissals);
+            this.db.delete(bowlerDismissal);
         }
         catch(Exception ex)
         {
             String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
             throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+    }
+
+    public void removeBowlerDismissals(List<BowlerDismissal> bowlerDismissals)
+    {
+        if(!bowlerDismissals.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(bowlerDismissals);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public void addFielderDismissals(List<FielderDismissal> fielderDismissals)
+    {
+        if(!fielderDismissals.isEmpty())
+        {
+            try
+            {
+                this.db.saveAll(fielderDismissals);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public void removeFielderDismissals(List<FielderDismissal> fielderDismissals)
+    {
+        if(!fielderDismissals.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(fielderDismissals);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public void removePlayers(List<MatchPlayerMap> players)
+    {
+        if(!players.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(players);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
         }
     }
 
