@@ -22,15 +22,12 @@ public class MatchPlayerMap extends Model
     @Id
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private Match match;
+    @Column
+    private Long matchId;
 
-    @OneToOne
-    @JoinColumn(name = "player_id")
-    private Player player;
+    @Column
+    private Long playerId;
 
-    @OneToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @Column
+    private Long teamId;
 }

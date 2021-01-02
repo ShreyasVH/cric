@@ -22,13 +22,12 @@ public class FielderDismissal extends Model
     @Id
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private BattingScore score;
+    @Column
+    private Long scoreId;
 
-    @OneToOne
-    private Player player;
+    @Column
+    private Long playerId;
 
-    @OneToOne
-    private Team team;
+    @Column
+    private Long teamId;
 }

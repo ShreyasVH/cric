@@ -20,13 +20,15 @@ import javax.persistence.*;
 public class ManOfTheMatch extends Model
 {
     @Id
+    @Column
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "player_id", referencedColumnName = "id")
-    private Player player;
+    @Column
+    private Long matchId;
 
-    @OneToOne
-    @JoinColumn(name = "team_id", referencedColumnName = "id")
-    private Team team;
+    @Column
+    private Long playerId;
+
+    @Column
+    private Long teamId;
 }

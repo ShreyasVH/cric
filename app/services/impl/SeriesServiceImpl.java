@@ -65,7 +65,7 @@ public class SeriesServiceImpl implements SeriesService
     {
         SeriesResponse seriesResponse = new SeriesResponse(series);
 
-        seriesResponse.setHomeCountryId(this.countryService.get(series.getHomeCountryId()));
+        seriesResponse.setHomeCountry(this.countryService.get(series.getHomeCountryId()));
         seriesResponse.setTeams(this.teamService.get(this.seriesRepository.getTeamsForSeries(series.getId()).stream().map(SeriesTeamsMap::getTeamId).collect(Collectors.toList())));
         List<ManOfTheSeries> manOfTheSeriesList = this.seriesRepository.getManOfTheSeriesForSeries(series.getId());
         for(ManOfTheSeries mots: manOfTheSeriesList)
@@ -81,7 +81,7 @@ public class SeriesServiceImpl implements SeriesService
             Player player = this.playerService.getRaw(mots.getPlayerId());
             motsResponse.setPlayerName(player.getName());
 
-            seriesResponse.getManOfTheSeries().add(motsResponse);
+            seriesResponse.getManOfTheSeriesList().add(motsResponse);
         }
 
         return seriesResponse;

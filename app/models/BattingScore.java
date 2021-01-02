@@ -22,39 +22,35 @@ import java.util.List;
 public class BattingScore extends Model
 {
     @Id
+    @Column
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private Match match;
+    @Column
+    private Long matchId;
 
-    @OneToOne
-    @JoinColumn(name = "player_id")
-    private Player player;
+    @Column
+    private Long playerId;
 
-    @OneToOne
-    @JoinColumn(name = "team_id")
-    private Team team;
+    @Column
+    private Long teamId;
 
+    @Column
     private int runs;
 
+    @Column
     private int balls;
 
+    @Column
     private int fours;
 
+    @Column
     private int sixes;
 
-    @OneToOne
-    @JoinColumn(name = "mode_of_dismissal")
-    private DismissalMode dismissalMode;
+    @Column(name = "mode_of_dismissal")
+    private Integer dismissalMode;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "score_id", referencedColumnName = "id")
-    private List<FielderDismissal> fielders;
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "bowler_id", referencedColumnName = "id")
-    private BowlerDismissal bowler;
+    @Column(name = "bowler_id")
+    private Long bowlerDismissalId;
 
     @Column(name = "innings_id")
     private int innings;

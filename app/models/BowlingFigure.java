@@ -21,24 +21,28 @@ import java.util.Date;
 public class BowlingFigure extends Model
 {
     @Id
+    @Column
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private Match match;
+    @Column
+    private Long matchId;
 
-    @ManyToOne
-    private Player player;
+    @Column
+    private Long playerId;
 
-    @ManyToOne
-    private Team team;
+    @Column
+    private Long teamId;
 
+    @Column
     private int balls;
 
+    @Column
     private int maidens;
 
+    @Column
     private int runs;
 
+    @Column
     private int wickets;
 
     @Column(name = "innings_id")

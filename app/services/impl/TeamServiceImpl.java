@@ -40,7 +40,7 @@ public class TeamServiceImpl implements TeamService
     public TeamResponse teamResponse(Team team)
     {
         TeamResponse teamResponse = new TeamResponse(team);
-        teamResponse.setCountryId(this.countryService.get(team.getCountryId()));
+        teamResponse.setCountry(this.countryService.get(team.getCountryId()));
         return teamResponse;
     }
 

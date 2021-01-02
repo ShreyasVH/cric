@@ -23,21 +23,20 @@ public class Extras extends Model
     @Id
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private Match match;
+    @Column
+    private Long matchId;
 
+    @Column
     private ExtrasType type;
 
+    @Column
     private int runs;
 
-    @OneToOne
-    @JoinColumn(name = "batting_team")
-    private Team battingTeam;
+    @Column
+    private Long battingTeam;
 
-    @OneToOne
-    @JoinColumn(name = "bowling_team")
-    private Team bowlingTeam;
+    @Column
+    private Long bowlingTeam;
 
     @Column(name = "innings_id")
     private int innings;

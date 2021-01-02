@@ -14,7 +14,7 @@ public class TeamResponse
 {
     private Long id;
     private String name;
-    private Country countryId;
+    private Country country;
     private TeamType teamType;
 
     public TeamResponse(Team team)

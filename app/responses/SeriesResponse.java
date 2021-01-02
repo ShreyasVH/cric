@@ -20,7 +20,7 @@ public class SeriesResponse
 {
     private Long id;
     private String name;
-    private Country homeCountryId;
+    private Country homeCountry;
     private Long tourId;
     //TODO: see if tourname is required
 //    private String tourName;
@@ -28,7 +28,7 @@ public class SeriesResponse
     private GameType gameType;
     private Long startTime;
     private List<Team> teams = new ArrayList<>();
-    private List<ManOfTheSeriesResponse> manOfTheSeries = new ArrayList<>();
+    private List<ManOfTheSeriesResponse> manOfTheSeriesList = new ArrayList<>();
 
     public SeriesResponse(Series series)
     {

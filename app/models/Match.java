@@ -24,71 +24,42 @@ import java.util.List;
 public class Match extends Model
 {
     @Id
+    @Column
     private Long id;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "series", referencedColumnName = "id")
-    @JsonIgnoreProperties("matches")
-    private Series series;
+    @Column
+    private Long series;
 
-    @OneToOne
-    @JoinColumn(name = "team_1")
-    private Team team1;
+    @Column(name = "team_1")
+    private Long team1;
 
-    @OneToOne
-    @JoinColumn(name = "team_2")
-    private Team team2;
+    @Column(name = "team_2")
+    private Long team2;
 
-    @OneToOne
-    @JoinColumn(name = "toss_winner")
-    private Team tossWinner;
+    @Column
+    private Long tossWinner;
 
-    @OneToOne
-    @JoinColumn(name = "bat_first")
-    private Team battingFirst;
+    @Column
+    private Long batFirst;
 
+    @Column
     private ResultType result;
 
-    @OneToOne
-    @JoinColumn(name = "winner")
-    private Team winner;
+    @Column
+    private Long winner;
 
-    @Column(name = "win_margin")
+    @Column
     private Integer winMargin;
 
-    @Column(name = "win_margin_type")
+    @Column
     private WinMarginType winMarginType;
 
-    @OneToOne
-    @JoinColumn(name = "stadium")
-    private Stadium stadium;
+    @Column
+    private Long stadium;
 
-    @Column(name = "start_time")
+    @Column
     private Long startTime;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(referencedColumnName = "id", name = "match_id")
-    @OrderBy("id asc")
-    private List<MatchPlayerMap> players;
-
+    @Column
     private String tag;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(referencedColumnName = "id", name = "match_id")
-    @OrderBy("id asc")
-    private List<BattingScore> battingScores;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(referencedColumnName = "id", name = "match_id")
-    @OrderBy("id asc")
-    private List<BowlingFigure> bowlingFigures;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(referencedColumnName = "id", name = "match_id")
-    private List<ManOfTheMatch> manOfTheMatchList = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "match_id", referencedColumnName = "id")
-    @OrderBy("id asc")
-    private List<Extras> extras;
 }

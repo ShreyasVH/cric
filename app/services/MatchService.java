@@ -3,11 +3,12 @@ package services;
 import models.Match;
 import requests.matches.CreateRequest;
 import requests.matches.UpdateRequest;
+import responses.MatchResponse;
 
 
 public interface MatchService
 {
-    Match get(Long id);
+    MatchResponse get(Long id);
 
     Match create(CreateRequest createRequest);
 
