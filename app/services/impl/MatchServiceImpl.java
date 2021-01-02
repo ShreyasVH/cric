@@ -1065,6 +1065,30 @@ public class MatchServiceImpl implements MatchService
             throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Match"));
         }
 
-        return this.matchRepository.delete(existingMatch);
+        Transaction transaction = Ebean.beginTransaction();
+        try
+        {
+
+            this.matchRepository.removeExtrasForMatch(this.matchRepository.getExtras(id));
+            this.matchRepository.removeManOfTheMatchList(this.matchRepository.getManOfTheMatchList(id));
+            this.matchRepository.removeBowlingFigures(this.matchRepository.getBowlingFigures(id));
+
+            List<BattingScore> battingScores = this.matchRepository.getBattingScores(id);
+
+            this.matchRepository.removeFielderDismissals(this.matchRepository.getFielderDismissals(battingScores.stream().map(BattingScore::getId).collect(Collectors.toList())));
+            this.matchRepository.removeBattingScores(battingScores);
+            this.matchRepository.removeBowlerDismissals(this.matchRepository.getBowlingDismissals(battingScores.stream().filter(battingScore -> (null != battingScore.getBowlerDismissalId())).map(BattingScore::getBowlerDismissalId).collect(Collectors.toList())));
+            this.matchRepository.removePlayers(this.matchRepository.getPlayers(id));
+            this.matchRepository.delete(existingMatch);
+            transaction.commit();
+            transaction.end();
+            return true;
+        }
+        catch(Exception ex)
+        {
+            transaction.rollback();
+            transaction.end();
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), ErrorCode.DB_INTERACTION_FAILED.getDescription());
+        }
     }
 }
