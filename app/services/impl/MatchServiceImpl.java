@@ -230,12 +230,6 @@ public class MatchServiceImpl implements MatchService
                 {
                     for (Map<String, String> matchPlayerMapRaw : createRequest.getBench())
                     {
-                        Team team = this.teamRepository.get(Long.parseLong(matchPlayerMapRaw.get("teamId")));
-                        if (null == team)
-                        {
-                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player's Team"));
-                        }
-
                         Player player = this.playerRepository.get(Long.parseLong(matchPlayerMapRaw.get("playerId")));
                         if (null == player)
                         {
@@ -243,7 +237,6 @@ public class MatchServiceImpl implements MatchService
                         }
 
                         playerIdPlayerMap.put(player.getId(), player);
-                        playerIdTeamMap.put(player.getId(), team);
                     }
                 }
             }
@@ -345,7 +338,9 @@ public class MatchServiceImpl implements MatchService
                     battingScore.setBowlerDismissalId(bowlerDismissal.getId());
                 }
                 battingScore.setPlayerId(Long.parseLong(battingScoreRaw.get("playerId")));
-                battingScore.setTeamId(playerIdTeamMap.get(Long.parseLong(battingScoreRaw.get("playerId"))).getId());
+                Long battingTeamId = playerIdTeamMap.get(Long.parseLong(battingScoreRaw.get("playerId"))).getId();
+                Long bowlingTeamId = ((battingTeamId.equals(createRequest.getTeam1())) ? createRequest.getTeam2() : createRequest.getTeam1());
+                battingScore.setTeamId(battingTeamId);
                 battingScore.setRuns(Integer.parseInt(battingScoreRaw.get("runs")));
                 battingScore.setBalls(Integer.parseInt(battingScoreRaw.get("balls")));
                 battingScore.setFours(Integer.parseInt(battingScoreRaw.get("fours")));
@@ -376,7 +371,7 @@ public class MatchServiceImpl implements MatchService
                         FielderDismissal fielderDismissal = new FielderDismissal();
                         fielderDismissal.setScoreId(battingScore.getId());
                         fielderDismissal.setPlayerId(fielderId);
-                        fielderDismissal.setTeamId(playerIdTeamMap.get(fielderId).getId());
+                        fielderDismissal.setTeamId(bowlingTeamId);
 
                         fielders.add(fielderDismissal);
                     }
