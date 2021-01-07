@@ -104,13 +104,13 @@ public class StadiumServiceImpl implements StadiumService
             isUpdateRequired = true;
         }
 
-        if((!StringUtils.isEmpty(updateRequest.getCity())) && (!existingStadium.getCity().equals(updateRequest.getCity())))
+        if((null != updateRequest.getCity()) && (!updateRequest.getCity().equals(existingStadium.getCity())))
         {
             existingStadium.setCity(updateRequest.getCity());
             isUpdateRequired = true;
         }
 
-        if((!StringUtils.isEmpty(updateRequest.getState())) && (!existingStadium.getState().equals(updateRequest.getState())))
+        if((null != updateRequest.getState()) && (!updateRequest.getState().equals(existingStadium.getState())))
         {
             existingStadium.setState(updateRequest.getState());
             isUpdateRequired = true;
