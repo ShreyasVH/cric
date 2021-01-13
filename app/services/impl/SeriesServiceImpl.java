@@ -267,7 +267,7 @@ public class SeriesServiceImpl implements SeriesService
                 isUpdateRequired = ((!teamsToAdd.isEmpty()) || (!teamsToDelete.isEmpty()));
             }
 
-            if((null != updateRequest.getManOfTheSeriesList()) && (!updateRequest.getManOfTheSeriesList().isEmpty()))
+            if(null != updateRequest.getManOfTheSeriesList())
             {
                 List<ManOfTheSeries> manOfTheSeriesToAdd = new ArrayList<>();
                 List<ManOfTheSeries> existingManOfTheSeriesList = this.seriesRepository.getManOfTheSeriesForSeries(id);
