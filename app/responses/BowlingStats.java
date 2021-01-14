@@ -11,6 +11,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class BowlingStats
 {
+    private Integer innings = 0;
     private Integer balls = 0;
     private Integer maidens = 0;
     private Integer runs = 0;
@@ -23,6 +24,7 @@ public class BowlingStats
 
     public BowlingStats(Map<String, Integer> basicStats)
     {
+        this.innings = basicStats.getOrDefault("innings", 0);
         this.balls = basicStats.getOrDefault("balls", 0);
         this.maidens = basicStats.getOrDefault("maidens", 0);
         this.runs = basicStats.getOrDefault("runs", 0);
