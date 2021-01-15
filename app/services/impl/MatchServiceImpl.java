@@ -18,9 +18,7 @@ import responses.MatchResponse;
 import services.MatchService;
 import services.TeamService;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 public class MatchServiceImpl implements MatchService
@@ -719,313 +717,314 @@ public class MatchServiceImpl implements MatchService
 //                    playerIdTeamMap.put(player.getId(), team);
 //                }
 //            }
+        }
 
-            if(null != updateRequest.getBattingScores())
+        if(null != updateRequest.getBattingScores())
+        {
+            List<BattingScore> existingBattingScores = this.matchRepository.getBattingScores(id);
+            Map<String, BattingScore> existingScoresMap = existingBattingScores.stream().collect(Collectors.toMap(battingScore -> (battingScore.getPlayerId() + "_" + battingScore.getInnings()), battingScore -> battingScore));
+            List<String> processedScores = new ArrayList<>();
+            for(Map<String, String> battingScoreRaw: updateRequest.getBattingScores())
             {
-                List<BattingScore> existingBattingScores = this.matchRepository.getBattingScores(id);
-                Map<Long, BattingScore> existingScoresMap = existingBattingScores.stream().collect(Collectors.toMap(BattingScore::getPlayerId, battingScore -> battingScore));
-                List<Long> processedScores = new ArrayList<>();
-                for(Map<String, String> battingScoreRaw: updateRequest.getBattingScores())
+                BattingScore battingScore = new BattingScore();
+
+                Long playerId = Long.parseLong(battingScoreRaw.get("playerId"));
+
+                Long teamId = existingPlayerMap.get(playerId).getTeamId();
+                int runs = Integer.parseInt(battingScoreRaw.get("runs"));
+                int balls = Integer.parseInt(battingScoreRaw.get("balls"));
+                int fours = Integer.parseInt(battingScoreRaw.get("fours"));
+                int sixes = Integer.parseInt(battingScoreRaw.get("sixes"));
+                int innings = Integer.parseInt(battingScoreRaw.get("innings"));
+                int teamInnings = Integer.parseInt(battingScoreRaw.get("teamInnings"));
+                String key = playerId + "_" + innings;
+
+                if(processedScores.contains(key))
                 {
-                    BattingScore battingScore = new BattingScore();
+                    continue;
+                }
+                processedScores.add(key);
 
-                    Long playerId = Long.parseLong(battingScoreRaw.get("playerId"));
-                    if(processedScores.contains(playerId))
+                boolean isAddRequired = !(
+                    existingScoresMap.containsKey(key)
+                    &&
+                    teamId.equals(existingScoresMap.get(key).getTeamId())
+                    &&
+                    (existingScoresMap.get(key).getRuns() == runs)
+                    &&
+                    (existingScoresMap.get(key).getBalls() == balls)
+                    &&
+                    (existingScoresMap.get(key).getFours() == fours)
+                    &&
+                    (existingScoresMap.get(key).getSixes() == sixes)
+                    &&
+                    (existingScoresMap.get(key).getInnings() == innings)
+                    &&
+                    (existingScoresMap.get(key).getTeamInnings() == teamInnings)
+                );
+
+                if(existingScoresMap.containsKey(key))
+                {
+                    battingScore = existingScoresMap.get(key);
+                }
+
+                battingScore.setMatchId(id);
+                battingScore.setPlayerId(playerId);
+                battingScore.setTeamId(teamId);
+                battingScore.setRuns(runs);
+                battingScore.setBalls(balls);
+                battingScore.setFours(fours);
+                battingScore.setSixes(sixes);
+
+                if(null != battingScoreRaw.get("dismissalMode"))
+                {
+                    DismissalMode dismissalMode = this.dismissalRepository.get(Long.parseLong(battingScoreRaw.get("dismissalMode")));
+                    if(null == dismissalMode)
                     {
-                        continue;
-                    }
-                    processedScores.add(playerId);
-
-                    Long teamId = existingPlayerMap.get(playerId).getTeamId();
-                    int runs = Integer.parseInt(battingScoreRaw.get("runs"));
-                    int balls = Integer.parseInt(battingScoreRaw.get("balls"));
-                    int fours = Integer.parseInt(battingScoreRaw.get("fours"));
-                    int sixes = Integer.parseInt(battingScoreRaw.get("sixes"));
-                    int innings = Integer.parseInt(battingScoreRaw.get("innings"));
-                    int teamInnings = Integer.parseInt(battingScoreRaw.get("teamInnings"));
-
-                    boolean isAddRequired = !(
-                        existingScoresMap.containsKey(playerId)
-                            &&
-                        teamId.equals(existingScoresMap.get(playerId).getTeamId())
-                            &&
-                        (existingScoresMap.get(playerId).getRuns() == runs)
-                            &&
-                        (existingScoresMap.get(playerId).getBalls() == balls)
-                            &&
-                        (existingScoresMap.get(playerId).getFours() == fours)
-                            &&
-                        (existingScoresMap.get(playerId).getSixes() == sixes)
-                            &&
-                        (existingScoresMap.get(playerId).getInnings() == innings)
-                            &&
-                        (existingScoresMap.get(playerId).getTeamInnings() == teamInnings)
-                    );
-
-                    if(existingScoresMap.containsKey(playerId))
-                    {
-                        battingScore = existingScoresMap.get(playerId);
-                    }
-
-                    battingScore.setMatchId(id);
-                    battingScore.setPlayerId(playerId);
-                    battingScore.setTeamId(teamId);
-                    battingScore.setRuns(runs);
-                    battingScore.setBalls(balls);
-                    battingScore.setFours(fours);
-                    battingScore.setSixes(sixes);
-
-                    if(null != battingScoreRaw.get("dismissalMode"))
-                    {
-                        DismissalMode dismissalMode = this.dismissalRepository.get(Long.parseLong(battingScoreRaw.get("dismissalMode")));
-                        if(null == dismissalMode)
-                        {
-                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Dismissal Mode"));
-                        }
-
-                        isAddRequired = (isAddRequired || (dismissalMode.getId().intValue() != battingScore.getDismissalMode()));
-                        battingScore.setDismissalMode(dismissalMode.getId().intValue());
-
-                        if(null != battingScoreRaw.get("bowlerId"))
-                        {
-                            Long bowlerId = Long.parseLong(battingScoreRaw.get("bowlerId"));
-                            if(!existingPlayerMap.containsKey(bowlerId))
-                            {
-                                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid bowler");
-                            }
-                            Long bowlerTeamId = existingPlayerMap.get(bowlerId).getTeamId();
-
-                            BowlerDismissal bowlerDismissal = new BowlerDismissal();
-
-                            if(null != battingScore.getBowlerDismissalId())
-                            {
-                                bowlerDismissal = this.matchRepository.getBowlingDismissal(battingScore.getBowlerDismissalId());
-                            }
-
-                            boolean isBowlerAddRequired = (
-                                    (bowlerDismissal.getId() == null)
-                                    ||
-                                    (
-                                        !bowlerId.equals(bowlerDismissal.getPlayerId())
-                                            ||
-                                        !bowlerTeamId.equals(bowlerDismissal.getTeamId())
-                                    )
-                            );
-
-                            if(isBowlerAddRequired)
-                            {
-                                bowlerDismissal.setPlayerId(bowlerId);
-                                bowlerDismissal.setTeamId(bowlerTeamId);
-
-
-                                this.matchRepository.addBowlerDismissal(bowlerDismissal);
-
-                                battingScore.setBowlerDismissalId(bowlerDismissal.getId());
-                                isAddRequired = true;
-                            }
-                        }
-                        else
-                        {
-                            if(null != battingScore.getBowlerDismissalId())
-                            {
-                                this.matchRepository.removeBowlerDismissal(this.matchRepository.getBowlingDismissal(battingScore.getBowlerDismissalId()));
-                                battingScore.setBowlerDismissalId(null);
-                                isAddRequired = true;
-                            }
-                        }
-
-
+                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Dismissal Mode"));
                     }
 
-                    battingScore.setInnings(innings);
-                    battingScore.setTeamInnings(teamInnings);
+                    isAddRequired = (isAddRequired || (dismissalMode.getId().intValue() != battingScore.getDismissalMode()));
+                    battingScore.setDismissalMode(dismissalMode.getId().intValue());
 
-                    if(isAddRequired)
+                    if(null != battingScoreRaw.get("bowlerId"))
                     {
-                        this.matchRepository.addBattingScore(battingScore);
-                    }
-
-                    if((null != battingScoreRaw.get("fielders")) && !StringUtils.isEmpty(battingScoreRaw.get("fielders")))
-                    {
-                        List<FielderDismissal> existingFielders = this.matchRepository.getFielderDismissals(Collections.singletonList(battingScore.getId()));
-                        Map<Long, FielderDismissal> existingFielderMap = existingFielders.stream().collect(Collectors.toMap(FielderDismissal::getPlayerId, fielderDismissal -> fielderDismissal));
-
-                        String[] fielderIds = battingScoreRaw.get("fielders").split(", ");
-                        List<FielderDismissal> fieldersToAdd = new ArrayList<>();
-                        List<Long> processedFielders = new ArrayList<>();
-                        for(String fielderIdString: fielderIds)
+                        Long bowlerId = Long.parseLong(battingScoreRaw.get("bowlerId"));
+                        if(!existingPlayerMap.containsKey(bowlerId))
                         {
-                            Long fielderId = Long.parseLong(fielderIdString);
-                            if(processedFielders.contains(fielderId))
-                            {
-                                continue;
-                            }
-                            processedFielders.add(fielderId);
+                            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid bowler");
+                        }
+                        Long bowlerTeamId = existingPlayerMap.get(bowlerId).getTeamId();
 
-                            if(!existingPlayerMap.containsKey(fielderId))
-                            {
-                                throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid player for fielder");
-                            }
+                        BowlerDismissal bowlerDismissal = new BowlerDismissal();
 
-                            Long fielderTeamId = existingPlayerMap.get(fielderId).getTeamId();
-
-                            if(existingFielderMap.containsKey(fielderId) && existingFielderMap.get(fielderId).getTeamId().equals(fielderTeamId))
-                            {
-                                continue;
-                            }
-
-                            FielderDismissal fielderDismissal = new FielderDismissal();
-                            if(existingFielderMap.containsKey(fielderId))
-                            {
-                                fielderDismissal = existingFielderMap.get(fielderId);
-                            }
-
-
-                            fielderDismissal.setScoreId(battingScore.getId());
-                            fielderDismissal.setPlayerId(fielderId);
-                            fielderDismissal.setTeamId(fielderTeamId);
-
-                            fieldersToAdd.add(fielderDismissal);
+                        if(null != battingScore.getBowlerDismissalId())
+                        {
+                            bowlerDismissal = this.matchRepository.getBowlingDismissal(battingScore.getBowlerDismissalId());
                         }
 
-                        this.matchRepository.addFielderDismissals(fieldersToAdd);
+                        boolean isBowlerAddRequired = (
+                            (bowlerDismissal.getId() == null)
+                            ||
+                            (
+                                !bowlerId.equals(bowlerDismissal.getPlayerId())
+                                ||
+                                !bowlerTeamId.equals(bowlerDismissal.getTeamId())
+                            )
+                        );
 
-                        List<FielderDismissal> fieldersToDelete = existingFielders.stream().filter(fielderDismissal -> !processedFielders.contains(fielderDismissal.getId())).collect(Collectors.toList());
-                        this.matchRepository.removeFielderDismissals(fieldersToDelete);
+                        if(isBowlerAddRequired)
+                        {
+                            bowlerDismissal.setPlayerId(bowlerId);
+                            bowlerDismissal.setTeamId(bowlerTeamId);
+
+
+                            this.matchRepository.addBowlerDismissal(bowlerDismissal);
+
+                            battingScore.setBowlerDismissalId(bowlerDismissal.getId());
+                            isAddRequired = true;
+                        }
                     }
                     else
                     {
-                        this.matchRepository.removeFielderDismissals(this.matchRepository.getFielderDismissals(Collections.singletonList(battingScore.getId())));
-
+                        if(null != battingScore.getBowlerDismissalId())
+                        {
+                            this.matchRepository.removeBowlerDismissal(this.matchRepository.getBowlingDismissal(battingScore.getBowlerDismissalId()));
+                            battingScore.setBowlerDismissalId(null);
+                            isAddRequired = true;
+                        }
                     }
                 }
 
-                List<BattingScore> scoresToDelete = existingBattingScores.stream().filter(battingScore -> !processedScores.contains(battingScore.getPlayerId())).collect(Collectors.toList());
-                List<Long> scoreIdsToDelete = scoresToDelete.stream().map(BattingScore::getId).collect(Collectors.toList());
-                List<Long> bowlerIdsToDelete = scoresToDelete.stream().filter(battingScore -> (null != battingScore.getBowlerDismissalId())).map(BattingScore::getBowlerDismissalId).collect(Collectors.toList());
+                battingScore.setInnings(innings);
+                battingScore.setTeamInnings(teamInnings);
 
-                this.matchRepository.removeFielderDismissals(this.matchRepository.getFielderDismissals(scoreIdsToDelete));
-                this.matchRepository.removeBattingScores(scoresToDelete);
-                this.matchRepository.removeBowlerDismissals(this.matchRepository.getBowlingDismissals(bowlerIdsToDelete));
-            }
-
-            if(null != updateRequest.getBowlingFigures())
-            {
-                List<BowlingFigure> existingBowlingFigures = this.matchRepository.getBowlingFigures(id);
-                Map<Long, BowlingFigure> existingFigureMap = existingBowlingFigures.stream().collect(Collectors.toMap(BowlingFigure::getPlayerId, bowlingFigure -> bowlingFigure));
-
-                List<BowlingFigure> figuresToAdd = new ArrayList<>();
-                List<Long> processedFigures = new ArrayList<>();
-                for(Map<String, String> bowlingFigureRaw: updateRequest.getBowlingFigures())
+                if(isAddRequired)
                 {
-                    Long playerId = Long.parseLong(bowlingFigureRaw.get("playerId"));
-                    int balls = Integer.parseInt(bowlingFigureRaw.get("balls"));
-                    int maidens = Integer.parseInt(bowlingFigureRaw.get("maidens"));
-                    int runs = Integer.parseInt(bowlingFigureRaw.get("runs"));
-                    int wickets = Integer.parseInt(bowlingFigureRaw.get("wickets"));
-                    int innings = Integer.parseInt(bowlingFigureRaw.get("innings"));
-                    int teamInnings = Integer.parseInt(bowlingFigureRaw.get("teamInnings"));
-                    BowlingFigure bowlingFigure = new BowlingFigure();
-
-                    if(processedFigures.contains(playerId))
-                    {
-                        continue;
-                    }
-                    processedFigures.add(playerId);
-
-                    if(
-                        existingFigureMap.containsKey(playerId)
-                            &&
-                        (existingFigureMap.get(playerId).getBalls() == balls)
-                            &&
-                        (existingFigureMap.get(playerId).getRuns() == runs)
-                            &&
-                        (existingFigureMap.get(playerId).getMaidens() == maidens)
-                            &&
-                        (existingFigureMap.get(playerId).getWickets() == wickets)
-                            &&
-                        (existingFigureMap.get(playerId).getInnings() == innings)
-                            &&
-                        (existingFigureMap.get(playerId).getTeamInnings() == teamInnings)
-                    )
-                    {
-                        continue;
-                    }
-
-                    if(existingFigureMap.containsKey(playerId))
-                    {
-                        bowlingFigure = existingFigureMap.get(playerId);
-                    }
-
-                    bowlingFigure.setMatchId(id);
-
-                    Player player = this.playerRepository.get(playerId);
-                    if(null == player)
-                    {
-                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler"));
-                    }
-                    bowlingFigure.setPlayerId(playerId);
-
-                    Long teamId = existingPlayerMap.get(playerId).getTeamId();
-                    Team team = this.teamService.getRaw(teamId);
-                    if(null == team)
-                    {
-                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler's Team"));
-                    }
-                    bowlingFigure.setTeamId(teamId);
-
-                    bowlingFigure.setBalls(balls);
-                    bowlingFigure.setMaidens(maidens);
-                    bowlingFigure.setRuns(runs);
-                    bowlingFigure.setWickets(wickets);
-                    bowlingFigure.setInnings(innings);
-                    bowlingFigure.setTeamInnings(teamInnings);
-
-                    figuresToAdd.add(bowlingFigure);
+                    this.matchRepository.addBattingScore(battingScore);
                 }
 
-                this.matchRepository.addBowlingFigures(figuresToAdd);
-
-                List<BowlingFigure> figuresToDelete = existingBowlingFigures.stream().filter(bowlingFigure -> !processedFigures.contains(bowlingFigure.getPlayerId())).collect(Collectors.toList());
-                this.matchRepository.removeBowlingFigures(figuresToDelete);
-            }
-
-                if(null != updateRequest.getManOfTheMatchList())
-            {
-                List<ManOfTheMatch> existingMOTS = this.matchRepository.getManOfTheMatchList(id);
-                Map<Long, ManOfTheMatch> existingMOTSMap = existingMOTS.stream().collect(Collectors.toMap(ManOfTheMatch::getPlayerId, manOfTheMatch -> manOfTheMatch));
-
-                List<ManOfTheMatch> motsToAdd = new ArrayList<>();
-                List<Long> processedMOTS = new ArrayList<>();
-                for(Long playerId: updateRequest.getManOfTheMatchList())
+                if((null != battingScoreRaw.get("fielders")) && !StringUtils.isEmpty(battingScoreRaw.get("fielders")))
                 {
-                    if(!existingPlayerMap.containsKey(playerId))
+                    List<FielderDismissal> existingFielders = this.matchRepository.getFielderDismissals(Collections.singletonList(battingScore.getId()));
+                    Map<Long, FielderDismissal> existingFielderMap = existingFielders.stream().collect(Collectors.toMap(FielderDismissal::getPlayerId, fielderDismissal -> fielderDismissal));
+
+                    String[] fielderIds = battingScoreRaw.get("fielders").split(", ");
+                    List<FielderDismissal> fieldersToAdd = new ArrayList<>();
+                    List<Long> processedFielders = new ArrayList<>();
+                    for(String fielderIdString: fielderIds)
                     {
-                        throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid player for man of the match");
+                        Long fielderId = Long.parseLong(fielderIdString);
+                        if(processedFielders.contains(fielderId))
+                        {
+                            continue;
+                        }
+                        processedFielders.add(fielderId);
+
+                        if(!existingPlayerMap.containsKey(fielderId))
+                        {
+                            throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid player for fielder");
+                        }
+
+                        Long fielderTeamId = existingPlayerMap.get(fielderId).getTeamId();
+
+                        if(existingFielderMap.containsKey(fielderId) && existingFielderMap.get(fielderId).getTeamId().equals(fielderTeamId))
+                        {
+                            continue;
+                        }
+
+                        FielderDismissal fielderDismissal = new FielderDismissal();
+                        if(existingFielderMap.containsKey(fielderId))
+                        {
+                            fielderDismissal = existingFielderMap.get(fielderId);
+                        }
+
+
+                        fielderDismissal.setScoreId(battingScore.getId());
+                        fielderDismissal.setPlayerId(fielderId);
+                        fielderDismissal.setTeamId(fielderTeamId);
+
+                        fieldersToAdd.add(fielderDismissal);
                     }
 
-                    if(processedMOTS.contains(playerId))
-                    {
-                        continue;
-                    }
-                    processedMOTS.add(playerId);
+                    this.matchRepository.addFielderDismissals(fieldersToAdd);
 
-                    if(!existingMOTSMap.containsKey(playerId))
-                    {
-                        ManOfTheMatch manOfTheMatch = new ManOfTheMatch();
-                        manOfTheMatch.setMatchId(id);
-                        manOfTheMatch.setPlayerId(playerId);
-                        manOfTheMatch.setTeamId(existingPlayerMap.get(playerId).getTeamId());
+                    List<FielderDismissal> fieldersToDelete = existingFielders.stream().filter(fielderDismissal -> !processedFielders.contains(fielderDismissal.getPlayerId())).collect(Collectors.toList());
+                    this.matchRepository.removeFielderDismissals(fieldersToDelete);
+                }
+                else
+                {
+                    this.matchRepository.removeFielderDismissals(this.matchRepository.getFielderDismissals(Collections.singletonList(battingScore.getId())));
 
-                        motsToAdd.add(manOfTheMatch);
-                    }
+                }
+            }
+
+            List<BattingScore> scoresToDelete = existingBattingScores.stream().filter(battingScore -> !processedScores.contains(battingScore.getPlayerId() + "_" + battingScore.getInnings())).collect(Collectors.toList());
+            List<Long> scoreIdsToDelete = scoresToDelete.stream().map(BattingScore::getId).collect(Collectors.toList());
+            List<Long> bowlerIdsToDelete = scoresToDelete.stream().filter(battingScore -> (null != battingScore.getBowlerDismissalId())).map(BattingScore::getBowlerDismissalId).collect(Collectors.toList());
+
+            this.matchRepository.removeFielderDismissals(this.matchRepository.getFielderDismissals(scoreIdsToDelete));
+            this.matchRepository.removeBattingScores(scoresToDelete);
+            this.matchRepository.removeBowlerDismissals(this.matchRepository.getBowlingDismissals(bowlerIdsToDelete));
+        }
+
+        if(null != updateRequest.getBowlingFigures())
+        {
+            List<BowlingFigure> existingBowlingFigures = this.matchRepository.getBowlingFigures(id);
+            Map<String, BowlingFigure> existingFigureMap = existingBowlingFigures.stream().collect(Collectors.toMap(bowlingFigure -> (bowlingFigure.getPlayerId() + "_" + bowlingFigure.getInnings()), bowlingFigure -> bowlingFigure));
+
+            List<BowlingFigure> figuresToAdd = new ArrayList<>();
+            List<String> processedFigures = new ArrayList<>();
+            for(Map<String, String> bowlingFigureRaw: updateRequest.getBowlingFigures())
+            {
+                Long playerId = Long.parseLong(bowlingFigureRaw.get("playerId"));
+                int balls = Integer.parseInt(bowlingFigureRaw.get("balls"));
+                int maidens = Integer.parseInt(bowlingFigureRaw.get("maidens"));
+                int runs = Integer.parseInt(bowlingFigureRaw.get("runs"));
+                int wickets = Integer.parseInt(bowlingFigureRaw.get("wickets"));
+                int innings = Integer.parseInt(bowlingFigureRaw.get("innings"));
+                int teamInnings = Integer.parseInt(bowlingFigureRaw.get("teamInnings"));
+                BowlingFigure bowlingFigure = new BowlingFigure();
+                String key = playerId + "_" + innings;
+
+                if(processedFigures.contains(key))
+                {
+                    continue;
+                }
+                processedFigures.add(key);
+
+                if(
+                        existingFigureMap.containsKey(key)
+                                &&
+                                (existingFigureMap.get(key).getBalls() == balls)
+                                &&
+                                (existingFigureMap.get(key).getRuns() == runs)
+                                &&
+                                (existingFigureMap.get(key).getMaidens() == maidens)
+                                &&
+                                (existingFigureMap.get(key).getWickets() == wickets)
+                                &&
+                                (existingFigureMap.get(key).getInnings() == innings)
+                                &&
+                                (existingFigureMap.get(key).getTeamInnings() == teamInnings)
+                )
+                {
+                    continue;
                 }
 
-                this.matchRepository.addManOfTheMatchList(motsToAdd);
+                if(existingFigureMap.containsKey(key))
+                {
+                    bowlingFigure = existingFigureMap.get(key);
+                }
 
-                List<ManOfTheMatch> motsToDelete = existingMOTS.stream().filter(manOfTheMatch -> (!processedMOTS.contains(manOfTheMatch.getPlayerId()))).collect(Collectors.toList());
-                this.matchRepository.removeManOfTheMatchList(motsToDelete);
+                bowlingFigure.setMatchId(id);
+
+                Player player = this.playerRepository.get(playerId);
+                if(null == player)
+                {
+                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler"));
+                }
+                bowlingFigure.setPlayerId(playerId);
+
+                Long teamId = existingPlayerMap.get(playerId).getTeamId();
+                Team team = this.teamService.getRaw(teamId);
+                if(null == team)
+                {
+                    throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Bowler's Team"));
+                }
+                bowlingFigure.setTeamId(teamId);
+
+                bowlingFigure.setBalls(balls);
+                bowlingFigure.setMaidens(maidens);
+                bowlingFigure.setRuns(runs);
+                bowlingFigure.setWickets(wickets);
+                bowlingFigure.setInnings(innings);
+                bowlingFigure.setTeamInnings(teamInnings);
+
+                figuresToAdd.add(bowlingFigure);
             }
+
+            this.matchRepository.addBowlingFigures(figuresToAdd);
+
+            List<BowlingFigure> figuresToDelete = existingBowlingFigures.stream().filter(bowlingFigure -> !processedFigures.contains(bowlingFigure.getPlayerId() + "_" + bowlingFigure.getInnings())).collect(Collectors.toList());
+            this.matchRepository.removeBowlingFigures(figuresToDelete);
+        }
+
+        if(null != updateRequest.getManOfTheMatchList())
+        {
+            List<ManOfTheMatch> existingMOTS = this.matchRepository.getManOfTheMatchList(id);
+            Map<Long, ManOfTheMatch> existingMOTSMap = existingMOTS.stream().collect(Collectors.toMap(ManOfTheMatch::getPlayerId, manOfTheMatch -> manOfTheMatch));
+
+            List<ManOfTheMatch> motsToAdd = new ArrayList<>();
+            List<Long> processedMOTS = new ArrayList<>();
+            for(Long playerId: updateRequest.getManOfTheMatchList())
+            {
+                if(!existingPlayerMap.containsKey(playerId))
+                {
+                    throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid player for man of the match");
+                }
+
+                if(processedMOTS.contains(playerId))
+                {
+                    continue;
+                }
+                processedMOTS.add(playerId);
+
+                if(!existingMOTSMap.containsKey(playerId))
+                {
+                    ManOfTheMatch manOfTheMatch = new ManOfTheMatch();
+                    manOfTheMatch.setMatchId(id);
+                    manOfTheMatch.setPlayerId(playerId);
+                    manOfTheMatch.setTeamId(existingPlayerMap.get(playerId).getTeamId());
+
+                    motsToAdd.add(manOfTheMatch);
+                }
+            }
+
+            this.matchRepository.addManOfTheMatchList(motsToAdd);
+
+            List<ManOfTheMatch> motsToDelete = existingMOTS.stream().filter(manOfTheMatch -> (!processedMOTS.contains(manOfTheMatch.getPlayerId()))).collect(Collectors.toList());
+            this.matchRepository.removeManOfTheMatchList(motsToDelete);
         }
 
         if(isUpdateRequired)
