@@ -24,42 +24,24 @@ import java.util.List;
 public class Series extends Model
 {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column
     private Long id;
 
-    @Column(name = "name", nullable = false, length = 50)
+    @Column
     private String name;
 
-    @ManyToOne
-    private Country homeCountry;
+    @Column
+    private Long homeCountryId;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "series_teams_map",
-        joinColumns = @JoinColumn(name = "series_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "team_id", referencedColumnName = "id")
-    )
-    private List<Team> teams = new ArrayList<>();
+    @Column
+    private Long tourId;
 
-    @OrderBy("startTime asc")
-    @OneToMany(mappedBy = "series", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("series")
-    private List<Match> matches;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "tour_id", referencedColumnName = "id")
-    @JsonIgnoreProperties("seriesList")
-    private Tour tour;
-
-    @Column(nullable = false)
+    @Column
     private SeriesType type;
 
-    @Column(name = "game_type", nullable = false)
+    @Column
     private GameType gameType;
 
-    @Column(name = "start_time", nullable = false)
+    @Column
     private Long startTime;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(referencedColumnName = "id", name = "series_id")
-    private List<ManOfTheSeries> manOfTheSeriesList;
 }

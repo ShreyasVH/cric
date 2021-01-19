@@ -28,7 +28,6 @@ public class PlayerResponse
     {
         this.id = player.getId();
         this.name = player.getName();
-        this.country = player.getCountry();
         this.dateOfBirth = player.getDateOfBirth();
         this.image = player.getImage();
     }

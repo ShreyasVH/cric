@@ -72,7 +72,7 @@ public class StadiumRepository
 
         try
         {
-            stadium = this.db.find(Stadium.class).where().eq("name", name).eq("country.id", countryId).findOne();
+            stadium = this.db.find(Stadium.class).where().eq("name", name).eq("countryId", countryId).findOne();
         }
         catch(Exception ex)
         {

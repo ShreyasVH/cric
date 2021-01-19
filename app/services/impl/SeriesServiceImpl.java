@@ -12,7 +12,13 @@ import org.springframework.util.StringUtils;
 import repositories.*;
 import requests.series.CreateRequest;
 import requests.series.UpdateRequest;
+import responses.ManOfTheSeriesResponse;
+import responses.SeriesResponse;
+import responses.TeamResponse;
+import services.CountryService;
+import services.PlayerService;
 import services.SeriesService;
+import services.TeamService;
 import utils.Utils;
 
 import java.text.SimpleDateFormat;
@@ -22,30 +28,68 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
 
 public class SeriesServiceImpl implements SeriesService
 {
-    private final CountryRepository countryRepository;
+    private final CountryService countryService;
+    private final PlayerService playerService;
+    private final TeamService teamService;
+
+    private final MatchRepository matchRepository;
     private final PlayerRepository playerRepository;
     private final SeriesRepository seriesRepository;
-    private final TeamRepository teamRepository;
     private final TourRepository tourRepository;
 
     @Inject
     public SeriesServiceImpl
     (
-        CountryRepository countryRepository,
+        CountryService countryService,
+        PlayerService playerService,
+        TeamService teamService,
+
+        MatchRepository matchRepository,
         PlayerRepository playerRepository,
         SeriesRepository seriesRepository,
-        TeamRepository teamRepository,
         TourRepository tourRepository
     )
     {
-        this.countryRepository = countryRepository;
+        this.countryService = countryService;
+        this.playerService = playerService;
+        this.teamService = teamService;
+
+        this.matchRepository = matchRepository;
         this.playerRepository = playerRepository;
         this.seriesRepository = seriesRepository;
-        this.teamRepository = teamRepository;
         this.tourRepository = tourRepository;
+    }
+
+    public SeriesResponse seriesResponse(Series series)
+    {
+        SeriesResponse seriesResponse = new SeriesResponse(series);
+
+        seriesResponse.setHomeCountry(this.countryService.get(series.getHomeCountryId()));
+        seriesResponse.setTeams(this.teamService.get(this.seriesRepository.getTeamsForSeries(series.getId()).stream().map(SeriesTeamsMap::getTeamId).collect(Collectors.toList())));
+        List<ManOfTheSeries> manOfTheSeriesList = this.seriesRepository.getManOfTheSeriesForSeries(series.getId());
+        for(ManOfTheSeries mots: manOfTheSeriesList)
+        {
+            ManOfTheSeriesResponse motsResponse = new ManOfTheSeriesResponse(mots);
+            Team team = this.teamService.getRaw(mots.getTeamId());
+            if(null == team)
+            {
+                throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
+            }
+            motsResponse.setTeamName(team.getName());
+
+            Player player = this.playerService.getRaw(mots.getPlayerId());
+            motsResponse.setPlayerName(player.getName());
+
+            seriesResponse.getManOfTheSeriesList().add(motsResponse);
+        }
+
+        seriesResponse.setMatches(this.matchRepository.getMatchesForSeries(series.getId()));
+
+        return seriesResponse;
     }
 
     @Override
@@ -55,7 +99,7 @@ public class SeriesServiceImpl implements SeriesService
     }
 
     @Override
-    public Series get(Long id)
+    public SeriesResponse get(Long id)
     {
         Series series = this.seriesRepository.get(id);
         if(null == series)
@@ -63,7 +107,7 @@ public class SeriesServiceImpl implements SeriesService
             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Series"));
         }
 
-        return series;
+        return seriesResponse(series);
     }
 
     @Override
@@ -81,7 +125,7 @@ public class SeriesServiceImpl implements SeriesService
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
         }
 
-        Country homeCountry = this.countryRepository.get(createRequest.getHomeCountryId());
+        Country homeCountry = this.countryService.get(createRequest.getHomeCountryId());
         if(null == homeCountry)
         {
             throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
@@ -91,7 +135,7 @@ public class SeriesServiceImpl implements SeriesService
         try
         {
             Series series = new Series();
-            series.setHomeCountry(homeCountry);
+            series.setHomeCountryId(homeCountry.getId());
             series.setName(createRequest.getName());
             series.setType(createRequest.getType());
             series.setGameType(createRequest.getGameType());
@@ -102,16 +146,18 @@ public class SeriesServiceImpl implements SeriesService
             {
                 throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
             }
-            series.setTour(tour);
+            series.setTourId(tour.getId());
 
-            List<Team> teams = this.teamRepository.get(createRequest.getTeams());
+            List<Team> teams = this.teamService.get(createRequest.getTeams());
             if(createRequest.getTeams().size() != teams.size())
             {
                 throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
             }
 
-            series.setTeams(teams);
             Series createdSeries = this.seriesRepository.save(series);
+
+            this.seriesRepository.addTeamsToSeries(createRequest.getTeams(), createdSeries.getId());
+
             transaction.commit();
             transaction.end();
             return createdSeries;
@@ -132,7 +178,8 @@ public class SeriesServiceImpl implements SeriesService
         {
             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Series"));
         }
-        updateRequest.validate(existingSeries);
+        List<SeriesTeamsMap> existingTeams = this.seriesRepository.getTeamsForSeries(id);
+        updateRequest.validate(existingSeries, existingTeams);
 
         Transaction transaction = Ebean.beginTransaction();
         try
@@ -157,25 +204,25 @@ public class SeriesServiceImpl implements SeriesService
                 existingSeries.setGameType(updateRequest.getGameType());
             }
 
-            if((null != updateRequest.getStartTime()) && !updateRequest.getStartTime().equals(existingSeries.getStartTime()))
+            if((null != updateRequest.getStartTime()) && !existingSeries.getStartTime().equals(updateRequest.getStartTime()))
             {
                 isUpdateRequired = true;
                 existingSeries.setStartTime(updateRequest.getStartTime());
             }
 
-            if((null != updateRequest.getHomeCountryId()) && (!updateRequest.getHomeCountryId().equals(existingSeries.getHomeCountry().getId())))
+            if((null != updateRequest.getHomeCountryId()) && (!updateRequest.getHomeCountryId().equals(existingSeries.getHomeCountryId())))
             {
-                Country country = this.countryRepository.get(updateRequest.getHomeCountryId());
+                Country country = this.countryService.get(updateRequest.getHomeCountryId());
                 if(null == country)
                 {
                     throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
                 }
 
                 isUpdateRequired = true;
-                existingSeries.setHomeCountry(country);
+                existingSeries.setHomeCountryId(country.getId());
             }
 
-            if((null != updateRequest.getTourId()) && !updateRequest.getTourId().equals(existingSeries.getTour().getId()))
+            if((null != updateRequest.getTourId()) && !updateRequest.getTourId().equals(existingSeries.getTourId()))
             {
                 Tour tour = this.tourRepository.get(updateRequest.getTourId());
                 if(null == tour)
@@ -183,55 +230,106 @@ public class SeriesServiceImpl implements SeriesService
                     throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Tour"));
                 }
                 isUpdateRequired = true;
-                existingSeries.setTour(tour);
+                existingSeries.setTourId(tour.getId());
             }
 
             if((null != updateRequest.getTeams()) && (updateRequest.getTeams().size() > 0))
             {
-                List<Team> teams = this.teamRepository.get(updateRequest.getTeams());
-                if(teams.size() != updateRequest.getTeams().size())
+                if(existingTeams.size() != updateRequest.getTeams().size())
                 {
                     throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
                 }
 
-                isUpdateRequired = true;
-                existingSeries.getTeams().clear();
-                existingSeries.getTeams().addAll(teams);
+                List<Long> existingTeamIds = existingTeams.stream().map(SeriesTeamsMap::getTeamId).collect(Collectors.toList());
+
+                List<Long> teamsToDelete = new ArrayList<>();
+                List<Long> teamsToAdd = new ArrayList<>();
+
+                for(Long team: updateRequest.getTeams())
+                {
+                    if(!existingTeamIds.contains(team))
+                    {
+                        teamsToAdd.add(team);
+                    }
+                }
+
+                for(Long team: existingTeamIds)
+                {
+                    if(!updateRequest.getTeams().contains(team))
+                    {
+                        teamsToDelete.add(team);
+                    }
+                }
+
+                this.seriesRepository.addTeamsToSeries(teamsToAdd, existingSeries.getId());
+                this.seriesRepository.removeTeamsFromSeries(teamsToDelete, existingSeries.getId());
+
+                isUpdateRequired = ((!teamsToAdd.isEmpty()) || (!teamsToDelete.isEmpty()));
             }
 
             if(null != updateRequest.getManOfTheSeriesList())
             {
-                List<ManOfTheSeries> manOfTheSeriesList = new ArrayList<>();
+                List<ManOfTheSeries> manOfTheSeriesToAdd = new ArrayList<>();
+                List<ManOfTheSeries> existingManOfTheSeriesList = this.seriesRepository.getManOfTheSeriesForSeries(id);
+                List<String> existingManOfTheSeriesLookup = existingManOfTheSeriesList.stream().map(mots -> mots.getPlayerId() + "_" + mots.getTeamId()).collect(Collectors.toList());
+                List<ManOfTheSeries> manOfTheSeriesToDelete = new ArrayList<>();
+                List<String> motsLookup = new ArrayList<>();
                 for(Map<String, Long> manOfTheSeriesRaw: updateRequest.getManOfTheSeriesList())
                 {
                     Long playerId = manOfTheSeriesRaw.get("playerId");
                     Long teamId = manOfTheSeriesRaw.get("teamId");
                     ManOfTheSeries manOfTheSeries = new ManOfTheSeries();
-
-                    Player player = this.playerRepository.get(playerId);
-                    if(null == player)
+                    String key = playerId + "_" + teamId;
+                    if(!existingManOfTheSeriesLookup.contains(key))
                     {
-                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+                        Player player = this.playerRepository.get(playerId);
+                        if(null == player)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
+                        }
+
+                        manOfTheSeries.setPlayerId(player.getId());
+
+                        TeamResponse team = this.teamService.get(teamId);
+                        if(null == team)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
+                        }
+                        manOfTheSeries.setTeamId(team.getId());
+                        manOfTheSeries.setSeriesId(existingSeries.getId());
+
+                        manOfTheSeriesToAdd.add(manOfTheSeries);
                     }
 
-                    manOfTheSeries.setPlayer(player);
-
-                    Team team = this.teamRepository.get(teamId);
-                    if(null == team)
-                    {
-                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
-                    }
-                    manOfTheSeries.setTeam(team);
-                    manOfTheSeries.setSeries(existingSeries);
-
-                    manOfTheSeriesList.add(manOfTheSeries);
+                    motsLookup.add(key);
                 }
-                isUpdateRequired = true;
-                existingSeries.getManOfTheSeriesList().clear();
-                existingSeries.getManOfTheSeriesList().addAll(manOfTheSeriesList);
+
+                for(ManOfTheSeries mots: existingManOfTheSeriesList)
+                {
+                    Long playerId = mots.getPlayerId();
+                    Long teamId = mots.getTeamId();
+                    String key = playerId + "_" + teamId;
+                    if(!motsLookup.contains(key))
+                    {
+                        manOfTheSeriesToDelete.add(mots);
+                    }
+                }
+
+
+                isUpdateRequired = ((!manOfTheSeriesToAdd.isEmpty()) || (!manOfTheSeriesToDelete.isEmpty()));
+
+                if(!manOfTheSeriesToAdd.isEmpty())
+                {
+                    this.seriesRepository.addManOfTheSeriesToSeries(manOfTheSeriesToAdd);
+                }
+
+                if(!manOfTheSeriesToDelete.isEmpty())
+                {
+                    this.seriesRepository.removeManOfTheSeriesToSeries(manOfTheSeriesToDelete);
+                }
             }
 
-            Series updatedSeries = null;
+            Series updatedSeries;
             if(isUpdateRequired)
             {
                 updatedSeries = this.seriesRepository.save(existingSeries);
@@ -250,5 +348,11 @@ public class SeriesServiceImpl implements SeriesService
             transaction.end();
             throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), ErrorCode.DB_INTERACTION_FAILED.getDescription());
         }
+    }
+
+    @Override
+    public List<Series> getSeriesForTour(Long tourId)
+    {
+        return this.seriesRepository.getSeriesListForTour(tourId);
     }
 }

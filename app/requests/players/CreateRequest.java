@@ -37,7 +37,7 @@ public class CreateRequest
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), ErrorCode.INVALID_REQUEST.getDescription());
         }
 
-        if(this.dateOfBirth == null)
+        if(null == this.dateOfBirth)
         {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Date of Birth cannot be empty");
         }

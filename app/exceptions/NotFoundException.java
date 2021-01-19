@@ -1,5 +1,6 @@
 package exceptions;
 
+import enums.ErrorCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,5 +15,10 @@ public class NotFoundException extends MyException
     public NotFoundException(Integer code, String description)
     {
         super(code, description);
+    }
+
+    public NotFoundException(String entity)
+    {
+        this(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), entity));
     }
 }

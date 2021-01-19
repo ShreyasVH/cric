@@ -19,12 +19,12 @@ import javax.persistence.*;
 public class BowlerDismissal extends Model
 {
     @Id
-    @OneToOne(mappedBy = "bowler")
+    @Column
     private Long id;
 
-    @OneToOne
-    private Player player;
+    @Column
+    private Long playerId;
 
-    @OneToOne
-    private Team team;
+    @Column
+    private Long teamId;
 }

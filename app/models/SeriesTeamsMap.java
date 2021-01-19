@@ -7,44 +7,29 @@ import io.ebean.annotation.CacheQueryTuning;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import requests.players.CreateRequest;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+@Entity
+@Table(name = "series_teams_map")
 @Getter
 @Setter
-@Entity
-@Table(name = "players")
-@NoArgsConstructor
 @Cache(enableQueryCache=true)
 @CacheQueryTuning(maxSecsToLive = 3600)
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Player extends Model
+public class SeriesTeamsMap extends Model
 {
     @Id
     @Column
     private Long id;
 
     @Column
-    private String name;
+    private Long seriesId;
 
     @Column
-    private Long countryId;
-
-    @Column
-    private Long dateOfBirth;
-
-    @Column
-    private String image;
-
-    public Player(CreateRequest createRequest)
-    {
-        this.name = createRequest.getName();
-        this.countryId = createRequest.getCountryId();
-        this.dateOfBirth = createRequest.getDateOfBirth();
-        this.image = createRequest.getImage();
-    }
+    private Long teamId;
 }

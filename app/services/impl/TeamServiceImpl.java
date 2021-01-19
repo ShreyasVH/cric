@@ -8,32 +8,40 @@ import exceptions.NotFoundException;
 import models.Country;
 import models.Team;
 import org.springframework.util.StringUtils;
-import repositories.CountryRepository;
 import repositories.TeamRepository;
-import requests.UpdateCountryRequest;
 import requests.teams.CreateRequest;
 import requests.teams.UpdateRequest;
+import responses.TeamResponse;
+import services.CountryService;
 import services.TeamService;
-import utils.Utils;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class TeamServiceImpl implements TeamService
 {
-    private final CountryRepository countryRepository;
+    private final CountryService countryService;
+
     private final TeamRepository teamRepository;
 
     @Inject
     public TeamServiceImpl
     (
-        CountryRepository countryRepository,
+        CountryService countryService,
+
         TeamRepository teamRepository
     )
     {
-        this.countryRepository = countryRepository;
+        this.countryService = countryService;
+
         this.teamRepository = teamRepository;
+    }
+
+    public TeamResponse teamResponse(Team team)
+    {
+        TeamResponse teamResponse = new TeamResponse(team);
+        teamResponse.setCountry(this.countryService.get(team.getCountryId()));
+        return teamResponse;
     }
 
     public CompletionStage<List<Team>> getAll()
@@ -41,14 +49,26 @@ public class TeamServiceImpl implements TeamService
         return this.teamRepository.getAll();
     }
 
-    public Team get(Long id)
+    public TeamResponse get(Long id)
     {
-        Team team = this.teamRepository.get(id);
+        Team team = this.getRaw(id);
         if(null == team)
         {
             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Team"));
         }
-        return team;
+        return teamResponse(team);
+    }
+
+    @Override
+    public Team getRaw(Long id)
+    {
+        return this.teamRepository.get(id);
+    }
+
+    @Override
+    public List<Team> get(List<Long> ids)
+    {
+        return this.teamRepository.get(ids);
     }
 
     public List<Team> get(String keyword)
@@ -66,15 +86,13 @@ public class TeamServiceImpl implements TeamService
             throw new BadRequestException(ErrorCode.ALREADY_EXISTS.getCode(), ErrorCode.ALREADY_EXISTS.getDescription());
         }
 
-        Country country = this.countryRepository.get(createRequest.getCountryId());
+        Country country = this.countryService.get(createRequest.getCountryId());
         if(null == country)
         {
             throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
         }
 
-        Team team = new Team(createRequest);
-        team.setCountry(country);
-        return this.teamRepository.save(team);
+        return this.teamRepository.save(new Team(createRequest));
     }
 
     public Team update(Long id, UpdateRequest updateRequest)
@@ -101,16 +119,16 @@ public class TeamServiceImpl implements TeamService
             isUpdateRequired = true;
         }
 
-        if((null != updateRequest.getCountryId()) && (!updateRequest.getCountryId().equals(existingTeam.getCountry().getId())))
+        if((null != updateRequest.getCountryId()) && (!updateRequest.getCountryId().equals(existingTeam.getCountryId())))
         {
-            Country country = this.countryRepository.get(updateRequest.getCountryId());
+            Country country = this.countryService.get(updateRequest.getCountryId());
             if(null == country)
             {
                 throw new BadRequestException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Country"));
             }
 
             isUpdateRequired = true;
-            existingTeam.setCountry(country);
+            existingTeam.setCountryId(country.getId());
 
         }
 

@@ -22,15 +22,12 @@ public class ManOfTheSeries extends Model
     @Id
     private Long id;
 
-    @ManyToOne
-    @JsonBackReference
-    private Series series;
+    @Column
+    private Long seriesId;
 
-    @OneToOne
-    @JoinColumn(name = "team_id", referencedColumnName = "id")
-    private Team team;
+    @Column
+    private Long teamId;
 
-    @OneToOne
-    @JoinColumn(name = "player_id", referencedColumnName = "id")
-    private Player player;
+    @Column
+    private Long playerId;
 }

@@ -12,6 +12,8 @@ public interface PlayerService
 {
     PlayerResponse get(Long id);
 
+    Player getRaw(Long id);
+
     List<Player> get(String keyword);
 
     Player create(CreateRequest createRequest);

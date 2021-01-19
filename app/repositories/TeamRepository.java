@@ -124,7 +124,7 @@ public class TeamRepository
 
         try
         {
-            team = this.db.find(Team.class).where().eq("name", name).eq("country.id", countryId).findOne();
+            team = this.db.find(Team.class).where().eq("name", name).eq("countryId", countryId).findOne();
         }
         catch(Exception ex)
         {

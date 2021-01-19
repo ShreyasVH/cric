@@ -6,11 +6,14 @@ import enums.GameType;
 import exceptions.DBInteractionException;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import models.ManOfTheSeries;
 import models.Series;
+import models.SeriesTeamsMap;
 import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -112,5 +115,105 @@ public class SeriesRepository
             throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
         }
         return series;
+    }
+
+    public List<Series> getSeriesListForTour(Long tourId)
+    {
+        return this.db.find(Series.class).where().eq("tourId", tourId).findList();
+    }
+
+    public List<SeriesTeamsMap> getTeamsForSeries(Long seriesId)
+    {
+        return this.db.find(SeriesTeamsMap.class).where().eq("seriesId", seriesId).findList();
+    }
+
+    public void addTeamsToSeries(List<Long> teamIds, Long seriesId)
+    {
+        if(teamIds.size() > 0)
+        {
+            try
+            {
+                List<SeriesTeamsMap> seriesTeamsMaps = new ArrayList<>();
+                for(Long teamId: teamIds)
+                {
+                    SeriesTeamsMap seriesTeamsMap = new SeriesTeamsMap();
+                    seriesTeamsMap.setSeriesId(seriesId);
+                    seriesTeamsMap.setTeamId(teamId);
+
+                    seriesTeamsMaps.add(seriesTeamsMap);
+                }
+                this.db.saveAll(seriesTeamsMaps);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public void removeTeamsFromSeries(List<Long> teamIds, Long seriesId)
+    {
+        if(teamIds.size() > 0)
+        {
+            try
+            {
+                this.db.deleteAll(
+                    this.db.find(SeriesTeamsMap.class).where().eq("seriesId", seriesId).in("teamId", teamIds).findList()
+                );
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public void addManOfTheSeriesToSeries(List<ManOfTheSeries> manOfTheSeriesList)
+    {
+        if(manOfTheSeriesList.size() > 0)
+        {
+            try
+            {
+                this.db.saveAll(manOfTheSeriesList);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public void removeManOfTheSeriesToSeries(List<ManOfTheSeries> manOfTheSeriesList)
+    {
+        if(manOfTheSeriesList.size() > 0)
+        {
+            try
+            {
+                this.db.deleteAll(manOfTheSeriesList);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public List<ManOfTheSeries> getManOfTheSeriesForSeries(Long seriesId)
+    {
+        List<ManOfTheSeries> manOfTheSeriesList = new ArrayList<>();
+        try
+        {
+            manOfTheSeriesList = this.db.find(ManOfTheSeries.class).where().eq("seriesId", seriesId).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return manOfTheSeriesList;
     }
 }

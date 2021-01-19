@@ -8,6 +8,7 @@ import exceptions.BadRequestException;
 import lombok.Getter;
 import lombok.Setter;
 import models.Series;
+import models.SeriesTeamsMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class UpdateRequest
     private List<Long> teams;
     private List<Map<String, Long>> manOfTheSeriesList;
 
-    public void validate(Series existingSeries)
+    public void validate(Series existingSeries, List<SeriesTeamsMap> existingTeams)
     {
         SeriesType seriesType = existingSeries.getType();
         if(null != this.type)
@@ -35,7 +36,7 @@ public class UpdateRequest
             seriesType = this.type;
         }
 
-        int teamSize = existingSeries.getTeams().size();
+        int teamSize = existingTeams.size();
         if(null != this.getTeams())
         {
             teamSize = this.teams.size();
