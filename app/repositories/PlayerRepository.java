@@ -97,7 +97,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN dismissal_modes dm ON bs.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL and dm.id = bs.mode_of_dismissal and dm.name != 'Retired Hurt' inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series inner join teams t on t.id = bs.team_id and t.team_type_id = 0 GROUP BY s.game_type, bs.mode_of_dismissal";
+            String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN dismissal_modes dm ON bs.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL and dm.id = bs.mode_of_dismissal inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series inner join teams t on t.id = bs.team_id and t.team_type_id = 0 GROUP BY s.game_type, bs.mode_of_dismissal";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 
