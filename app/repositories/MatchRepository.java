@@ -472,7 +472,7 @@ public class MatchRepository
 
         try
         {
-            matches = this.db.find(Match.class).where().eq("series", seriesId).findList();
+            matches = this.db.find(Match.class).where().eq("series", seriesId).orderBy("startTime ASC, id ASC").findList();
         }
         catch(Exception ex)
         {
