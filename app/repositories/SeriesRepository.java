@@ -119,7 +119,7 @@ public class SeriesRepository
 
     public List<Series> getSeriesListForTour(Long tourId)
     {
-        return this.db.find(Series.class).where().eq("tourId", tourId).findList();
+        return this.db.find(Series.class).where().eq("tourId", tourId).orderBy("startTime ASC, id ASC").findList();
     }
 
     public List<SeriesTeamsMap> getTeamsForSeries(Long seriesId)
