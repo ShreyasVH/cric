@@ -33,6 +33,7 @@ POST    /cricbuzz/matches                       controllers.MatchController.crea
 PUT     /cricbuzz/matches/:id                   controllers.MatchController.update(id: Long, request: Request)
 DELETE  /cricbuzz/matches/:id                   controllers.MatchController.delete(id: Long)
 
+GET     /cricbuzz/tours/years                   controllers.TourController.getYears
 GET     /cricbuzz/tours/:id                     controllers.TourController.get(id: Long)
 POST    /cricbuzz/tours                         controllers.TourController.create(request: Request)
 PUT     /cricbuzz/tours/:id                     controllers.TourController.update(id: Long, request: Request)

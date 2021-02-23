@@ -113,4 +113,10 @@ public class TourServiceImpl implements TourService
         filterRequest.validate();
         return this.tourRepository.filter(filterRequest.getYear(), filterRequest.getOffset(), filterRequest.getCount());
     }
+
+    @Override
+    public List<Integer> getYears()
+    {
+        return this.tourRepository.getYears();
+    }
 }

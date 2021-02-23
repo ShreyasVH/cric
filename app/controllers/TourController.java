@@ -92,4 +92,9 @@ public class TourController extends Controller
             return this.tourService.filter(filterRequest);
         }, this.httpExecutionContext.current()).thenApplyAsync(tours -> ok(Json.toJson(tours)), this.httpExecutionContext.current());
     }
+
+    public CompletionStage<Result> getYears()
+    {
+        return CompletableFuture.supplyAsync(this.tourService::getYears, this.httpExecutionContext.current()).thenApplyAsync(years -> ok(Json.toJson(years)), this.httpExecutionContext.current());
+    }
 }
