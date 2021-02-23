@@ -3,13 +3,15 @@ package repositories;
 import com.google.inject.Inject;
 import enums.ErrorCode;
 import exceptions.DBInteractionException;
-import io.ebean.*;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
+import io.ebean.SqlQuery;
+import io.ebean.SqlRow;
 import models.Tour;
 import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
