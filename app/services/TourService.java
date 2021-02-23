@@ -17,4 +17,6 @@ public interface TourService
     Tour update(Long id, UpdateRequest updateRequest);
 
     List<Tour> filter(FilterRequest filterRequest);
+
+    List<Integer> getYears();
 }

@@ -784,7 +784,12 @@ public class MatchServiceImpl implements MatchService
                         throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Dismissal Mode"));
                     }
 
-                    isAddRequired = (isAddRequired || (dismissalMode.getId().intValue() != battingScore.getDismissalMode()));
+                    isAddRequired = (isAddRequired ||
+                            (
+                                null == battingScore.getDismissalMode()
+                                    ||
+                                dismissalMode.getId().intValue() != battingScore.getDismissalMode())
+                            );
                     battingScore.setDismissalMode(dismissalMode.getId().intValue());
 
                     if(null != battingScoreRaw.get("bowlerId"))

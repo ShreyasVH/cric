@@ -3,15 +3,14 @@ package repositories;
 import com.google.inject.Inject;
 import enums.ErrorCode;
 import exceptions.DBInteractionException;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
-import io.ebean.ExpressionList;
+import io.ebean.*;
 import models.Tour;
 import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -119,5 +118,30 @@ public class TourRepository
         }
 
         return tours;
+    }
+
+    public List<Integer> getYears()
+    {
+        List<Integer> years = new ArrayList<>();
+
+        try
+        {
+            String query = "SELECT DISTINCT DATE_FORMAT(DATE_ADD(FROM_UNIXTIME(0), INTERVAL start_time / 1000 SECOND), '%Y') AS year FROM `tours` ORDER BY `year` DESC";
+            SqlQuery sqlQuery = this.db.createSqlQuery(query);
+            List<SqlRow> result = sqlQuery.findList();
+
+            for(SqlRow row: result)
+            {
+                Integer year = row.getInteger("year");
+                years.add(year);
+            }
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+
+        return years;
     }
 }
