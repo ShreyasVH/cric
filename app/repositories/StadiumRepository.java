@@ -40,7 +40,7 @@ public class StadiumRepository
 
             try
             {
-                stadiums = this.db.find(Stadium.class).findList();
+                stadiums = this.db.find(Stadium.class).orderBy("name ASC").findList();
             }
             catch(Exception ex)
             {
