@@ -270,7 +270,7 @@ public class PlayerRepository
 
         try
         {
-            players = this.db.find(Player.class).setMaxRows(count).setFirstRow(offset).findList();
+            players = this.db.find(Player.class).orderBy("name ASC").setMaxRows(count).setFirstRow(offset).findList();
         }
         catch(Exception ex)
         {
