@@ -121,6 +121,7 @@ public class MatchServiceImpl implements MatchService
 
         Match match = new Match();
 
+        match.setOfficial(createRequest.isOfficial());
         match.setStartTime(createRequest.getStartTime());
 
         match.setTag(createRequest.getTag());

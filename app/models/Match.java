@@ -62,4 +62,7 @@ public class Match extends Model
 
     @Column
     private String tag;
+
+    @Column
+    private boolean isOfficial;
 }
