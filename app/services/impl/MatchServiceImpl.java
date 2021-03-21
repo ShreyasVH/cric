@@ -121,6 +121,7 @@ public class MatchServiceImpl implements MatchService
 
         Match match = new Match();
 
+        match.setOfficial(createRequest.isOfficial());
         match.setStartTime(createRequest.getStartTime());
 
         match.setTag(createRequest.getTag());
@@ -303,14 +304,19 @@ public class MatchServiceImpl implements MatchService
             this.matchRepository.addBowlingFigures(bowlingFigures);
 
             List<ManOfTheMatch> manOfTheMatchList = new ArrayList<>();
+            List<Long> motmPlayerIds = new ArrayList<>();
             for(Long playerId: createRequest.getManOfTheMatchList())
             {
-                ManOfTheMatch manOfTheMatch = new ManOfTheMatch();
-                manOfTheMatch.setMatchId(createdMatch.getId());
-                manOfTheMatch.setPlayerId(playerId);
-                manOfTheMatch.setTeamId(playerIdTeamMap.get(playerId).getId());
+                if(!motmPlayerIds.contains(playerId))
+                {
+                    ManOfTheMatch manOfTheMatch = new ManOfTheMatch();
+                    manOfTheMatch.setMatchId(createdMatch.getId());
+                    manOfTheMatch.setPlayerId(playerId);
+                    manOfTheMatch.setTeamId(playerIdTeamMap.get(playerId).getId());
 
-                manOfTheMatchList.add(manOfTheMatch);
+                    manOfTheMatchList.add(manOfTheMatch);
+                    motmPlayerIds.add(playerId);
+                }
             }
             this.matchRepository.addManOfTheMatchList(manOfTheMatchList);
 

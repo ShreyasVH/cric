@@ -97,7 +97,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN dismissal_modes dm ON bs.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL and dm.id = bs.mode_of_dismissal and dm.name != 'Retired Hurt' inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series inner join teams t on t.id = bs.team_id and t.team_type_id = 0 GROUP BY s.game_type, bs.mode_of_dismissal";
+            String query = "SELECT dm.name AS dismissalMode, COUNT(*) AS count, s.game_type as gameType FROM `batting_scores` bs INNER JOIN dismissal_modes dm ON bs.player_id = " + playerId + " AND bs.mode_of_dismissal IS NOT NULL and dm.id = bs.mode_of_dismissal and dm.name != 'Retired Hurt' inner join matches m on m.id = bs.match_id and m.is_official = 1 inner join series s on s.id = m.series inner join teams t on t.id = bs.team_id and t.team_type_id = 0 GROUP BY s.game_type, bs.mode_of_dismissal";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 
@@ -135,7 +135,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "SELECT COUNT(*) AS innings, SUM(runs) AS runs, SUM(balls) AS balls, SUM(fours) AS fours, SUM(sixes) AS sixes, MAX(runs) AS highest, s.game_type as gameType, count(CASE WHEN (bs.runs >= 50 and bs.runs < 100) then 1 end) as fifties, count(CASE WHEN (bs.runs >= 100 and bs.runs < 200) then 1 end) as hundreds, count(CASE WHEN (bs.runs >= 200 and bs.runs < 300) then 1 end) as twoHundreds, count(CASE WHEN (bs.runs >= 300 and bs.runs < 400) then 1 end) as threeHundreds, count(CASE WHEN (bs.runs >= 400 and bs.runs < 500) then 1 end) as fourHundreds FROM `batting_scores` bs inner join matches m on player_id = " + playerId + " and m.id = bs.match_id inner join series s on s.id = m.series  inner join teams t on t.id = bs.team_id and t.team_type_id = 0 group by s.game_type";
+            String query = "SELECT COUNT(*) AS innings, SUM(runs) AS runs, SUM(balls) AS balls, SUM(fours) AS fours, SUM(sixes) AS sixes, MAX(runs) AS highest, s.game_type as gameType, count(CASE WHEN (bs.runs >= 50 and bs.runs < 100) then 1 end) as fifties, count(CASE WHEN (bs.runs >= 100 and bs.runs < 200) then 1 end) as hundreds, count(CASE WHEN (bs.runs >= 200 and bs.runs < 300) then 1 end) as twoHundreds, count(CASE WHEN (bs.runs >= 300 and bs.runs < 400) then 1 end) as threeHundreds, count(CASE WHEN (bs.runs >= 400 and bs.runs < 500) then 1 end) as fourHundreds FROM `batting_scores` bs inner join matches m on player_id = " + playerId + " and m.id = bs.match_id and m.is_official = 1 inner join series s on s.id = m.series  inner join teams t on t.id = bs.team_id and t.team_type_id = 0 group by s.game_type";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 
@@ -179,7 +179,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "select dm.name as dismissalMode, count(*) as count, s.game_type as gameType from fielder_dismissals fd inner join batting_scores bs on bs.id = fd.score_id and fd.player_id = " + playerId + " inner join dismissal_modes dm on dm.id = bs.mode_of_dismissal inner join matches m on m.id = bs.match_id inner join series s on s.id = m.series inner join teams t on t.id = fd.team_id and t.team_type_id = 0 group by s.game_type, bs.mode_of_dismissal";
+            String query = "select dm.name as dismissalMode, count(*) as count, s.game_type as gameType from fielder_dismissals fd inner join batting_scores bs on bs.id = fd.score_id and fd.player_id = " + playerId + " inner join dismissal_modes dm on dm.id = bs.mode_of_dismissal inner join matches m on m.id = bs.match_id and m.is_official = 1 inner join series s on s.id = m.series inner join teams t on t.id = fd.team_id and t.team_type_id = 0 group by s.game_type, bs.mode_of_dismissal";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 
@@ -216,7 +216,7 @@ public class PlayerRepository
 
         try
         {
-            String query = "SELECT COUNT(*) AS innings, SUM(balls) AS balls, SUM(maidens) AS maidens, SUM(runs) AS runs, SUM(wickets) AS wickets, s.game_type AS gameType, COUNT(CASE WHEN (bf.wickets >= 5 and bf.wickets < 10) then 1 end) as fifers,  COUNT(CASE WHEN (bf.wickets = 10) then 1 end) as tenWickets FROM bowling_figures bf INNER JOIN matches m ON bf.player_id = " + playerId + " and m.id = bf.match_id INNER JOIN series s ON s.id = m.series inner join teams t on t.id = bf.team_id and t.team_type_id = 0 GROUP BY s.game_type";
+            String query = "SELECT COUNT(*) AS innings, SUM(balls) AS balls, SUM(maidens) AS maidens, SUM(runs) AS runs, SUM(wickets) AS wickets, s.game_type AS gameType, COUNT(CASE WHEN (bf.wickets >= 5 and bf.wickets < 10) then 1 end) as fifers,  COUNT(CASE WHEN (bf.wickets = 10) then 1 end) as tenWickets FROM bowling_figures bf INNER JOIN matches m ON bf.player_id = " + playerId + " and m.id = bf.match_id INNER JOIN series s ON s.id = m.series and m.is_official = 1 inner join teams t on t.id = bf.team_id and t.team_type_id = 0 GROUP BY s.game_type";
             SqlQuery sqlQuery = this.db.createSqlQuery(query);
             List<SqlRow> result = sqlQuery.findList();
 
