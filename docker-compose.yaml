@@ -1,0 +1,25 @@
+version: '3'
+services:
+  app:
+    build: ./
+    ports:
+      - "8059:8059"
+      - "9059:9059"
+      - "10059:10059"
+    expose:
+      - 8059
+      - 9059
+      - 10059
+    volumes:
+      - ./:/app
+      - /app/target
+      - /app/project/project
+      - /app/project/target
+    container_name: cric-api
+    stdin_open: true
+    tty: true
+
+networks:
+  default:
+    external:
+      name: local
