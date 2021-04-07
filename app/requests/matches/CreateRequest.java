@@ -39,6 +39,7 @@ public class CreateRequest
     private List<Long> manOfTheMatchList = new ArrayList<>();
     private List<Map<String, Long>> manOfTheSeriesList = new ArrayList<>();
     private List<Long> captains = new ArrayList<>();
+    private List<Long> wicketKeepers = new ArrayList<>();
     private boolean isOfficial = true;
 
     public void validate()

@@ -95,6 +95,7 @@ public class MatchServiceImpl implements MatchService
         matchResponse.setPlayers(this.matchRepository.getPlayers(matchResponse.getId()));
         matchResponse.setManOfTheMatchList(this.matchRepository.getManOfTheMatchList(match.getId()));
         matchResponse.setCaptains(this.matchRepository.getCaptainsForMatch(match.getId()));
+        matchResponse.setWicketKeepers(this.matchRepository.getWicketKeepersForMatch(match.getId()));
 
         return matchResponse;
     }
@@ -403,6 +404,25 @@ public class MatchServiceImpl implements MatchService
                 }
             }
             this.matchRepository.addCaptainsForMatch(captains);
+
+            List<WicketKeeper> wicketKeepers = new ArrayList<>();
+            List<Long> processedWicketKeepers = new ArrayList<>();
+            for(Long playerId: createRequest.getWicketKeepers())
+            {
+                Team team = playerIdTeamMap.get(playerId);
+                if(!processedWicketKeepers.contains(playerId) && (null != team))
+                {
+                    WicketKeeper wicketKeeper = new WicketKeeper();
+                    wicketKeeper.setMatchId(createdMatch.getId());
+                    wicketKeeper.setPlayerId(playerId);
+                    wicketKeeper.setTeamId(team.getId());
+
+                    wicketKeepers.add(wicketKeeper);
+
+                    processedWicketKeepers.add(playerId);
+                }
+            }
+            this.matchRepository.addWicketKeepersForMatch(wicketKeepers);
 
             transaction.commit();
             transaction.end();

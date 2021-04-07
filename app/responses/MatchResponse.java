@@ -32,6 +32,7 @@ public class MatchResponse
     private List<MatchPlayerMap> players = new ArrayList<>();
     private List<ManOfTheMatch> manOfTheMatchList = new ArrayList<>();
     private List<Captain> captains = new ArrayList<>();
+    private List<WicketKeeper> wicketKeepers = new ArrayList<>();
 
     public MatchResponse(Match match)
     {

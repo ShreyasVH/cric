@@ -529,4 +529,35 @@ public class MatchRepository
             }
         }
     }
+
+    public void addWicketKeepersForMatch(List<WicketKeeper> wicketKeepers)
+    {
+        if(!wicketKeepers.isEmpty())
+        {
+            try
+            {
+                this.db.saveAll(wicketKeepers);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public List<WicketKeeper> getWicketKeepersForMatch(Long matchId)
+    {
+        List<WicketKeeper> wicketKeepers = new ArrayList<>();
+        try
+        {
+            wicketKeepers = this.db.find(WicketKeeper.class).where().eq("matchId", matchId).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return wicketKeepers;
+    }
 }
