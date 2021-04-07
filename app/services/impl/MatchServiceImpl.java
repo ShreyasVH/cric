@@ -1093,6 +1093,7 @@ public class MatchServiceImpl implements MatchService
         try
         {
 
+            this.matchRepository.removeCaptains(this.matchRepository.getCaptainsForMatch(id));
             this.matchRepository.removeExtrasForMatch(this.matchRepository.getExtras(id));
             this.matchRepository.removeManOfTheMatchList(this.matchRepository.getManOfTheMatchList(id));
             this.matchRepository.removeBowlingFigures(this.matchRepository.getBowlingFigures(id));

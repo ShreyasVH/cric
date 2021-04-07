@@ -514,4 +514,19 @@ public class MatchRepository
         return captains;
     }
 
+    public void removeCaptains(List<Captain> captains)
+    {
+        if(!captains.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(captains);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
 }
