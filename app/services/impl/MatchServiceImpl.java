@@ -94,6 +94,7 @@ public class MatchServiceImpl implements MatchService
         matchResponse.setExtras(this.matchRepository.getExtras(matchResponse.getId()));
         matchResponse.setPlayers(this.matchRepository.getPlayers(matchResponse.getId()));
         matchResponse.setManOfTheMatchList(this.matchRepository.getManOfTheMatchList(match.getId()));
+        matchResponse.setCaptains(this.matchRepository.getCaptainsForMatch(match.getId()));
 
         return matchResponse;
     }
@@ -384,6 +385,24 @@ public class MatchServiceImpl implements MatchService
                 }
             }
 
+            List<Captain> captains = new ArrayList<>();
+            List<Long> processedCaptains = new ArrayList<>();
+            for(Long playerId: createRequest.getCaptains())
+            {
+                Team team = playerIdTeamMap.get(playerId);
+                if(!processedCaptains.contains(playerId) && (null != team))
+                {
+                    Captain captain = new Captain();
+                    captain.setMatchId(createdMatch.getId());
+                    captain.setPlayerId(playerId);
+                    captain.setTeamId(team.getId());
+
+                    captains.add(captain);
+
+                    processedCaptains.add(playerId);
+                }
+            }
+            this.matchRepository.addCaptainsForMatch(captains);
 
             transaction.commit();
             transaction.end();

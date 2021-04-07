@@ -483,4 +483,35 @@ public class MatchRepository
         return matches;
     }
 
+    public void addCaptainsForMatch(List<Captain> captains)
+    {
+        if(!captains.isEmpty())
+        {
+            try
+            {
+                this.db.saveAll(captains);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public List<Captain> getCaptainsForMatch(Long matchId)
+    {
+        List<Captain> captains = new ArrayList<>();
+        try
+        {
+            captains = this.db.find(Captain.class).where().eq("matchId", matchId).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return captains;
+    }
+
 }
