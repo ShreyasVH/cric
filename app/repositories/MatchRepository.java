@@ -560,4 +560,20 @@ public class MatchRepository
         }
         return wicketKeepers;
     }
+
+    public void removeWicketKeepers(List<WicketKeeper> wicketKeepers)
+    {
+        if(!wicketKeepers.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(wicketKeepers);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
 }

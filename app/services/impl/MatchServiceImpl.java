@@ -1112,7 +1112,7 @@ public class MatchServiceImpl implements MatchService
         Transaction transaction = Ebean.beginTransaction();
         try
         {
-
+            this.matchRepository.removeWicketKeepers(this.matchRepository.getWicketKeepersForMatch(id));
             this.matchRepository.removeCaptains(this.matchRepository.getCaptainsForMatch(id));
             this.matchRepository.removeExtrasForMatch(this.matchRepository.getExtras(id));
             this.matchRepository.removeManOfTheMatchList(this.matchRepository.getManOfTheMatchList(id));
