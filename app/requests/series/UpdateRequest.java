@@ -26,7 +26,7 @@ public class UpdateRequest
     private Long startTime;
     private Long tourId;
     private List<Long> teams;
-    private List<Map<String, Long>> manOfTheSeriesList;
+    private List<Long> manOfTheSeriesList;
 
     public void validate(Series existingSeries, List<SeriesTeamsMap> existingTeams)
     {

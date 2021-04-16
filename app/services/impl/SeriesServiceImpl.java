@@ -269,19 +269,23 @@ public class SeriesServiceImpl implements SeriesService
 
             if(null != updateRequest.getManOfTheSeriesList())
             {
-                List<ManOfTheSeries> manOfTheSeriesToAdd = new ArrayList<>();
                 List<ManOfTheSeries> existingManOfTheSeriesList = this.seriesRepository.getManOfTheSeriesForSeries(id);
-                List<String> existingManOfTheSeriesLookup = existingManOfTheSeriesList.stream().map(mots -> mots.getPlayerId() + "_" + mots.getTeamId()).collect(Collectors.toList());
-                List<ManOfTheSeries> manOfTheSeriesToDelete = new ArrayList<>();
-                List<String> motsLookup = new ArrayList<>();
-                for(Map<String, Long> manOfTheSeriesRaw: updateRequest.getManOfTheSeriesList())
+                Map<Long, ManOfTheSeries> existingManOfTheSeriesMap = existingManOfTheSeriesList.stream().collect(Collectors.toMap(ManOfTheSeries::getPlayerId, mots -> mots));
+
+                List<ManOfTheSeries> manOfTheSeriesToAdd = new ArrayList<>();
+                List<Long> processedMOTS = new ArrayList<>();
+                for(Long playerId: updateRequest.getManOfTheSeriesList())
                 {
-                    Long playerId = manOfTheSeriesRaw.get("playerId");
-                    Long teamId = manOfTheSeriesRaw.get("teamId");
-                    ManOfTheSeries manOfTheSeries = new ManOfTheSeries();
-                    String key = playerId + "_" + teamId;
-                    if(!existingManOfTheSeriesLookup.contains(key))
+                    Long teamId = this.matchRepository.getTeamIdForPlayerFromSeries(id, playerId);
+                    if(processedMOTS.contains(playerId))
                     {
+                       continue;
+                    }
+                    processedMOTS.add(playerId);
+
+                    if(!existingManOfTheSeriesMap.containsKey(playerId))
+                    {
+                        ManOfTheSeries manOfTheSeries = new ManOfTheSeries();
                         Player player = this.playerRepository.get(playerId);
                         if(null == player)
                         {
@@ -300,32 +304,25 @@ public class SeriesServiceImpl implements SeriesService
 
                         manOfTheSeriesToAdd.add(manOfTheSeries);
                     }
-
-                    motsLookup.add(key);
-                }
-
-                for(ManOfTheSeries mots: existingManOfTheSeriesList)
-                {
-                    Long playerId = mots.getPlayerId();
-                    Long teamId = mots.getTeamId();
-                    String key = playerId + "_" + teamId;
-                    if(!motsLookup.contains(key))
+                    else if(!existingManOfTheSeriesMap.get(playerId).getTeamId().equals(teamId))
                     {
-                        manOfTheSeriesToDelete.add(mots);
+                        ManOfTheSeries manOfTheSeries = existingManOfTheSeriesMap.get(playerId);
+                        manOfTheSeries.setTeamId(teamId);
+
+                        manOfTheSeriesToAdd.add(manOfTheSeries);
                     }
                 }
-
-
-                isUpdateRequired = ((!manOfTheSeriesToAdd.isEmpty()) || (!manOfTheSeriesToDelete.isEmpty()));
-
-                if(!manOfTheSeriesToAdd.isEmpty())
+                this.seriesRepository.addManOfTheSeriesToSeries(manOfTheSeriesToAdd);
+                if(manOfTheSeriesToAdd.size() > 0)
                 {
-                    this.seriesRepository.addManOfTheSeriesToSeries(manOfTheSeriesToAdd);
+                    isUpdateRequired = true;
                 }
 
-                if(!manOfTheSeriesToDelete.isEmpty())
+                List<ManOfTheSeries> manOfTheSeriesToDelete = existingManOfTheSeriesList.stream().filter(mots -> (!processedMOTS.contains(mots.getPlayerId()))).collect(Collectors.toList());
+                this.seriesRepository.removeManOfTheSeriesToSeries(manOfTheSeriesToDelete);
+                if(manOfTheSeriesToDelete.size() > 0)
                 {
-                    this.seriesRepository.removeManOfTheSeriesToSeries(manOfTheSeriesToDelete);
+                    isUpdateRequired = true;
                 }
             }
 

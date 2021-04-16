@@ -5,6 +5,8 @@ import enums.ErrorCode;
 import exceptions.DBInteractionException;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.SqlQuery;
+import io.ebean.SqlRow;
 import models.*;
 import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
@@ -483,4 +485,112 @@ public class MatchRepository
         return matches;
     }
 
+    public void addCaptainsForMatch(List<Captain> captains)
+    {
+        if(!captains.isEmpty())
+        {
+            try
+            {
+                this.db.saveAll(captains);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public List<Captain> getCaptainsForMatch(Long matchId)
+    {
+        List<Captain> captains = new ArrayList<>();
+        try
+        {
+            captains = this.db.find(Captain.class).where().eq("matchId", matchId).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return captains;
+    }
+
+    public void removeCaptains(List<Captain> captains)
+    {
+        if(!captains.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(captains);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public void addWicketKeepersForMatch(List<WicketKeeper> wicketKeepers)
+    {
+        if(!wicketKeepers.isEmpty())
+        {
+            try
+            {
+                this.db.saveAll(wicketKeepers);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public List<WicketKeeper> getWicketKeepersForMatch(Long matchId)
+    {
+        List<WicketKeeper> wicketKeepers = new ArrayList<>();
+        try
+        {
+            wicketKeepers = this.db.find(WicketKeeper.class).where().eq("matchId", matchId).findList();
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+        return wicketKeepers;
+    }
+
+    public void removeWicketKeepers(List<WicketKeeper> wicketKeepers)
+    {
+        if(!wicketKeepers.isEmpty())
+        {
+            try
+            {
+                this.db.deleteAll(wicketKeepers);
+            }
+            catch(Exception ex)
+            {
+                String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+                throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+            }
+        }
+    }
+
+    public Long getTeamIdForPlayerFromSeries(Long seriesId, Long playerId)
+    {
+        Long teamId = null;
+        String query = "SELECT mpm.team_id as teamId FROM `match_player_map` mpm inner join matches m on m.id = mpm.match_id and m.series = " + seriesId + " and mpm.player_id = " + playerId + " limit 1";
+        SqlQuery sqlQuery = this.db.createSqlQuery(query);
+        List<SqlRow> result = sqlQuery.findList();
+        if(result.size() > 0)
+        {
+            SqlRow row = result.get(0);
+            teamId = row.getLong("teamId");
+        }
+
+        return teamId;
+    }
 }
