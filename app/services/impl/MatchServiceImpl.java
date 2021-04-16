@@ -1101,6 +1101,51 @@ public class MatchServiceImpl implements MatchService
             this.matchRepository.removeCaptains(captainsToDelete);
         }
 
+        if(null != updateRequest.getWicketKeepers())
+        {
+            List<WicketKeeper> existingWicketKeepers = this.matchRepository.getWicketKeepersForMatch(id);
+            Map<Long, WicketKeeper> existingWicketKeepersMap = existingWicketKeepers.stream().collect(Collectors.toMap(WicketKeeper::getPlayerId, wicketKeeper -> wicketKeeper));
+
+            List<WicketKeeper> wicketKeepersToAdd = new ArrayList<>();
+            List<Long> processedWicketKeepers = new ArrayList<>();
+            for(Long playerId: updateRequest.getWicketKeepers())
+            {
+                if(!existingPlayerMap.containsKey(playerId))
+                {
+                    throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid player for wicket keeper");
+                }
+
+                if(processedWicketKeepers.contains(playerId))
+                {
+                    continue;
+                }
+                processedWicketKeepers.add(playerId);
+
+                Long teamId = existingPlayerMap.get(playerId).getTeamId();
+                if(!existingWicketKeepersMap.containsKey(playerId))
+                {
+                    WicketKeeper wicketKeeper = new WicketKeeper();
+                    wicketKeeper.setMatchId(id);
+                    wicketKeeper.setPlayerId(playerId);
+                    wicketKeeper.setTeamId(teamId);
+
+                    wicketKeepersToAdd.add(wicketKeeper);
+                }
+                else if(!existingWicketKeepersMap.get(playerId).getTeamId().equals(teamId))
+                {
+                    WicketKeeper wicketKeeper = existingWicketKeepersMap.get(playerId);
+                    wicketKeeper.setTeamId(teamId);
+
+                    wicketKeepersToAdd.add(wicketKeeper);
+                }
+            }
+
+            this.matchRepository.addWicketKeepersForMatch(wicketKeepersToAdd);
+
+            List<WicketKeeper> wicketKeepersToDelete = existingWicketKeepers.stream().filter(wicketKeeper -> (!processedWicketKeepers.contains(wicketKeeper.getPlayerId()))).collect(Collectors.toList());
+            this.matchRepository.removeWicketKeepers(wicketKeepersToDelete);
+        }
+
         if(isUpdateRequired)
         {
             Transaction transaction = Ebean.beginTransaction();
