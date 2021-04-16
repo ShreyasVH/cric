@@ -741,27 +741,6 @@ public class MatchServiceImpl implements MatchService
 
             List<MatchPlayerMap> playersToDelete = existingPlayers.stream().filter(matchPlayerMap -> (!processedPlayers.contains(matchPlayerMap.getPlayerId()))).collect(Collectors.toList());
             this.matchRepository.removePlayers(playersToDelete);
-//
-//            if(null != updateRequest.getBench())
-//            {
-//                for(Map<String, String> matchPlayerMapRaw: updateRequest.getBench())
-//                {
-//                    Team team = this.teamRepository.get(Long.parseLong(matchPlayerMapRaw.get("teamId")));
-//                    if(null == team)
-//                    {
-//                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player's Team"));
-//                    }
-//
-//                    Player player = this.playerRepository.get(Long.parseLong(matchPlayerMapRaw.get("playerId")));
-//                    if(null == player)
-//                    {
-//                        throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
-//                    }
-//
-//                    playerIdPlayerMap.put(player.getId(), player);
-//                    playerIdTeamMap.put(player.getId(), team);
-//                }
-//            }
         }
 
         if(null != updateRequest.getBattingScores())
@@ -1075,6 +1054,51 @@ public class MatchServiceImpl implements MatchService
 
             List<ManOfTheMatch> motsToDelete = existingMOTS.stream().filter(manOfTheMatch -> (!processedMOTS.contains(manOfTheMatch.getPlayerId()))).collect(Collectors.toList());
             this.matchRepository.removeManOfTheMatchList(motsToDelete);
+        }
+
+        if(null != updateRequest.getCaptains())
+        {
+            List<Captain> existingCaptains = this.matchRepository.getCaptainsForMatch(id);
+            Map<Long, Captain> existingCaptainsMap = existingCaptains.stream().collect(Collectors.toMap(Captain::getPlayerId, captain -> captain));
+
+            List<Captain> captainsToAdd = new ArrayList<>();
+            List<Long> processedCaptains = new ArrayList<>();
+            for(Long playerId: updateRequest.getCaptains())
+            {
+                if(!existingPlayerMap.containsKey(playerId))
+                {
+                    throw new BadRequestException(ErrorCode.INVALID_REQUEST.getCode(), "Invalid player for captain");
+                }
+
+                if(processedCaptains.contains(playerId))
+                {
+                    continue;
+                }
+                processedCaptains.add(playerId);
+
+                Long teamId = existingPlayerMap.get(playerId).getTeamId();
+                if(!existingCaptainsMap.containsKey(playerId))
+                {
+                    Captain captain = new Captain();
+                    captain.setMatchId(id);
+                    captain.setPlayerId(playerId);
+                    captain.setTeamId(teamId);
+
+                    captainsToAdd.add(captain);
+                }
+                else if(!existingCaptainsMap.get(playerId).getTeamId().equals(teamId))
+                {
+                    Captain captain = existingCaptainsMap.get(playerId);
+                    captain.setTeamId(teamId);
+
+                    captainsToAdd.add(captain);
+                }
+            }
+
+            this.matchRepository.addCaptainsForMatch(captainsToAdd);
+
+            List<Captain> captainsToDelete = existingCaptains.stream().filter(captain -> (!processedCaptains.contains(captain.getPlayerId()))).collect(Collectors.toList());
+            this.matchRepository.removeCaptains(captainsToDelete);
         }
 
         if(isUpdateRequired)

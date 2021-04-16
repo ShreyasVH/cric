@@ -37,6 +37,7 @@ public class UpdateRequest
     private List<Map<String, String>> bowlingFigures;
     private List<Long> manOfTheMatchList;
     private List<Map<String, Long>> manOfTheSeriesList;
+    private List<Long> captains;
 
     public void validate()
     {
