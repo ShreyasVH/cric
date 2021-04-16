@@ -95,7 +95,6 @@ CREATE TABLE `man_of_the_match` (
     `player_id`                     int unsigned NOT NULL,
     `team_id`                       int unsigned NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `player_match` (`match_id`, `player_id`, `team_id`),
     KEY `match` (`match_id`),
     KEY `player` (`player_id`),
     KEY `team` (`team_id`),
@@ -108,11 +107,10 @@ CREATE TABLE `man_of_the_series` (
     `player_id`                     int unsigned NOT NULL,
     `team_id`                       int unsigned NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `player_series` (`series_id`, `player_id`, `team_id`),
     KEY `series` (`series_id`),
     KEY `player` (`player_id`),
     KEY `team` (`team_id`),
-    UNIQUE KEY `uk_mots_match_player_series` (`series_id`, `player_id`, `team_id`)
+    UNIQUE KEY `uk_mots_series_player_team` (`series_id`, `player_id`, `team_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `matches` (
