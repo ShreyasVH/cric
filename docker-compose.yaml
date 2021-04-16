@@ -18,8 +18,5 @@ services:
     container_name: cric-api
     stdin_open: true
     tty: true
-
-networks:
-  default:
-    external:
-      name: local
+    env_file:
+      - ./.env
