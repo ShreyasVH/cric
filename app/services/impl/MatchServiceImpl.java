@@ -1219,6 +1219,7 @@ public class MatchServiceImpl implements MatchService
             }
             else
             {
+                transaction.end();
                 return existingMatch;
             }
         }

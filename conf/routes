@@ -38,3 +38,5 @@ GET     /cricbuzz/tours/:id                     controllers.TourController.get(i
 POST    /cricbuzz/tours                         controllers.TourController.create(request: Request)
 PUT     /cricbuzz/tours/:id                     controllers.TourController.update(id: Long, request: Request)
 POST    /cricbuzz/tours/filter                  controllers.TourController.filter(request: Request)
+
+POST    /cricbuzz/stats                         controllers.StatsController.getStats(request: Request)
