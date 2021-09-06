@@ -264,7 +264,7 @@ public class SeriesServiceImpl implements SeriesService
                 this.seriesRepository.addTeamsToSeries(teamsToAdd, existingSeries.getId());
                 this.seriesRepository.removeTeamsFromSeries(teamsToDelete, existingSeries.getId());
 
-                isUpdateRequired = ((!teamsToAdd.isEmpty()) || (!teamsToDelete.isEmpty()));
+                isUpdateRequired = (isUpdateRequired || (!teamsToAdd.isEmpty()) || (!teamsToDelete.isEmpty()));
             }
 
             if(null != updateRequest.getManOfTheSeriesList())
@@ -335,6 +335,7 @@ public class SeriesServiceImpl implements SeriesService
             }
             else
             {
+                transaction.end();
                 updatedSeries = existingSeries;
             }
             return updatedSeries;
