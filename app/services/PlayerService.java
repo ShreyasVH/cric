@@ -1,8 +1,10 @@
 package services;
 
 import models.Player;
+import requests.players.BattingScoreRequest;
 import requests.players.CreateRequest;
 import requests.players.UpdateRequest;
+import responses.BattingScoreMiniResponse;
 import responses.PlayerResponse;
 
 import java.util.List;
@@ -21,4 +23,6 @@ public interface PlayerService
     Player update(Long id, UpdateRequest updateRequest);
 
     List<Player> getAll(int offset, int count);
+
+    List<BattingScoreMiniResponse> getScores(BattingScoreRequest request);
 }

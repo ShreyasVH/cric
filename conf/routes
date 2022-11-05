@@ -21,6 +21,7 @@ GET     /cricbuzz/players/all/:offset/:count    controllers.PlayerController.get
 GET     /cricbuzz/players/keyword/:keyword      controllers.PlayerController.getByKeyword(keyword: String)
 POST    /cricbuzz/players                       controllers.PlayerController.create(request: Request)
 PUT     /cricbuzz/players/:id                   controllers.PlayerController.update(id: Long, request: Request)
+POST    /cricbuzz/players/scores                controllers.PlayerController.getScores(request: Request)
 
 GET     /cricbuzz/series                        controllers.SeriesController.getAll
 GET     /cricbuzz/series/:id                    controllers.SeriesController.get(id: Long)

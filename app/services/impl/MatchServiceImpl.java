@@ -237,7 +237,14 @@ public class MatchServiceImpl implements MatchService
                             throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player"));
                         }
 
+                        Team team = this.teamRepository.get(Long.parseLong(matchPlayerMapRaw.get("teamId")));
+                        if (null == team)
+                        {
+                            throw new NotFoundException(ErrorCode.NOT_FOUND.getCode(), String.format(ErrorCode.NOT_FOUND.getDescription(), "Player's Team"));
+                        }
+
                         playerIdPlayerMap.put(player.getId(), player);
+                        playerIdTeamMap.put(player.getId(), team);
                     }
                 }
             }

@@ -12,7 +12,9 @@ import models.Player;
 import modules.DatabaseExecutionContext;
 import play.db.ebean.EbeanConfig;
 import play.db.ebean.EbeanDynamicEvolutions;
+import requests.players.BattingScoreRequest;
 import requests.stats.FilterRequest;
+import responses.BattingScoreMiniResponse;
 import responses.StatsResponse;
 
 import java.util.ArrayList;
@@ -616,5 +618,37 @@ public class PlayerRepository
         }
 
         return fieldName;
+    }
+
+    public List<BattingScoreMiniResponse> getBattingScores(BattingScoreRequest request)
+    {
+        List<BattingScoreMiniResponse> scores = new ArrayList<>();
+        String sql = "select bs.runs, bs.balls, bs.fours, bs.sixes, bs.team_id as teamId, s.game_type as gameType, m.start_time as matchTime from batting_scores bs inner join matches m on m.id = bs.match_id and bs.player_id = " + request.getPlayerId() + " inner join series s on s.id = m.series order by m.start_time DESC";
+        try
+        {
+            SqlQuery sqlQuery = this.db.createSqlQuery(sql);
+            List<SqlRow> result = sqlQuery.findList();
+
+            for(SqlRow row: result)
+            {
+                BattingScoreMiniResponse battingScoreMiniResponse = new BattingScoreMiniResponse();
+                battingScoreMiniResponse.setRuns(row.getInteger("runs"));
+                battingScoreMiniResponse.setBalls(row.getInteger("balls"));
+                battingScoreMiniResponse.setFours(row.getInteger("fours"));
+                battingScoreMiniResponse.setSixes(row.getInteger("sixes"));
+                battingScoreMiniResponse.setGameType(row.getInteger("gameType"));
+                battingScoreMiniResponse.setTeamId(row.getLong("teamId"));
+                battingScoreMiniResponse.setMatchTime(row.getLong("matchTime"));
+
+                scores.add(battingScoreMiniResponse);
+            }
+        }
+        catch(Exception ex)
+        {
+            String message = ErrorCode.DB_INTERACTION_FAILED.getDescription() + ". Exception: " + ex;
+            throw new DBInteractionException(ErrorCode.DB_INTERACTION_FAILED.getCode(), message);
+        }
+
+        return scores;
     }
 }

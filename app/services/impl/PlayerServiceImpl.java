@@ -8,12 +8,10 @@ import models.Country;
 import models.Player;
 import org.springframework.util.StringUtils;
 import repositories.PlayerRepository;
+import requests.players.BattingScoreRequest;
 import requests.players.CreateRequest;
 import requests.players.UpdateRequest;
-import responses.BattingStats;
-import responses.BowlingStats;
-import responses.FieldingStats;
-import responses.PlayerResponse;
+import responses.*;
 import services.CountryService;
 import services.PlayerService;
 
@@ -222,5 +220,11 @@ public class PlayerServiceImpl implements PlayerService
     public List<Player> getAll(int offset, int count)
     {
         return this.playerRepository.getAll(offset, count);
+    }
+
+    @Override
+    public List<BattingScoreMiniResponse> getScores(BattingScoreRequest request)
+    {
+        return this.playerRepository.getBattingScores(request);
     }
 }
