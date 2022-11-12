@@ -14,4 +14,7 @@ public class BattingScoreMiniResponse
     private long teamId;
     private int gameType;
     private long matchTime;
+    private String series;
+    private String team;
+    private String opposingTeam;
 }

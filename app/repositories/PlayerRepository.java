@@ -623,7 +623,7 @@ public class PlayerRepository
     public List<BattingScoreMiniResponse> getBattingScores(BattingScoreRequest request)
     {
         List<BattingScoreMiniResponse> scores = new ArrayList<>();
-        String sql = "select bs.runs, bs.balls, bs.fours, bs.sixes, bs.team_id as teamId, s.game_type as gameType, m.start_time as matchTime from batting_scores bs inner join matches m on m.id = bs.match_id and bs.player_id = " + request.getPlayerId() + " inner join series s on s.id = m.series order by m.start_time DESC";
+        String sql = "select bs.runs, bs.balls, bs.fours, bs.sixes, bs.team_id as teamId, s.game_type as gameType, m.start_time as matchTime, IF(bs.team_id = t1.id, t1.name, t2.name) as team, IF(bs.team_id = t2.id, t1.name, t2.name) as opposingTeam, s.name as series from batting_scores bs inner join matches m on m.id = bs.match_id and bs.player_id = " + request.getPlayerId() + " inner join series s on s.id = m.series inner join teams t1 on t1.id = m.team_1 inner join teams t2 on t2.id = m.team_2 order by m.start_time DESC";
         try
         {
             SqlQuery sqlQuery = this.db.createSqlQuery(sql);
@@ -639,6 +639,9 @@ public class PlayerRepository
                 battingScoreMiniResponse.setGameType(row.getInteger("gameType"));
                 battingScoreMiniResponse.setTeamId(row.getLong("teamId"));
                 battingScoreMiniResponse.setMatchTime(row.getLong("matchTime"));
+                battingScoreMiniResponse.setSeries(row.getString("series"));
+                battingScoreMiniResponse.setTeam(row.getString("team"));
+                battingScoreMiniResponse.setOpposingTeam(row.getString("opposingTeam"));
 
                 scores.add(battingScoreMiniResponse);
             }
