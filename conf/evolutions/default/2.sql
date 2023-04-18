@@ -1,3 +1,5 @@
+-- !Ups
+
 INSERT INTO `dismissal_modes` (`id`, `name`) VALUES
 ("1", "Bowled"),
 ("2", "Caught"),
@@ -10,3 +12,5 @@ INSERT INTO `dismissal_modes` (`id`, `name`) VALUES
 ("9", "Timed Out"),
 ("10", "Retired Hurt"),
 ("11", "Handled the Ball");
+
+-- !Downs

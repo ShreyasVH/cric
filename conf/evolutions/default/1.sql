@@ -1,3 +1,5 @@
+-- !Ups
+
 CREATE TABLE `batting_scores` (
   `id`                            int unsigned AUTO_INCREMENT NOT NULL,
   `match_id`                      int unsigned NOT NULL,
@@ -265,3 +267,23 @@ ALTER TABLE series_teams_map ADD CONSTRAINT fk_series_teams_team_id FOREIGN KEY 
 ALTER TABLE stadiums ADD CONSTRAINT fk_stadiums_country_id FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`) on DELETE RESTRICT ON UPDATE RESTRICT;
 
 ALTER TABLE teams ADD CONSTRAINT fk_teams_country_id FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`) on DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- !Downs
+
+DROP TABLE `match_player_map`;
+DROP TABLE `man_of_the_series`;
+DROP TABLE `man_of_the_match`;
+DROP TABLE `fielder_dismissals`;
+DROP TABLE `extras`;
+DROP TABLE `dismissal_modes`;
+DROP TABLE `countries`;
+DROP TABLE `bowling_figures`;
+DROP TABLE `bowler_dismissals`;
+DROP TABLE `batting_scores`;
+DROP TABLE `players`;
+DROP TABLE `teams`;
+DROP TABLE `matches`;
+DROP TABLE `stadiums`;
+DROP TABLE `series_teams_map`;
+DROP TABLE `series`;
+DROP TABLE `tours`;
