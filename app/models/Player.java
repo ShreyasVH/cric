@@ -19,8 +19,6 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "players")
 @NoArgsConstructor
-@Cache(enableQueryCache=true)
-@CacheQueryTuning(maxSecsToLive = 3600)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Player extends Model
 {

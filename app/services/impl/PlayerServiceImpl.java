@@ -72,9 +72,9 @@ public class PlayerServiceImpl implements PlayerService
             for(GameType gameType: basicStatsMap.keySet())
             {
                 BattingStats battingStats = new BattingStats(basicStatsMap.get(gameType));
-                battingStats.setNotOuts(battingStats.getInnings() - dismissalCountMap.get(gameType));
+                battingStats.setNotOuts(battingStats.getInnings() - dismissalCountMap.getOrDefault(gameType, 0));
 
-                if(dismissalCountMap.get(gameType) > 0)
+                if(dismissalCountMap.getOrDefault(gameType, 0) > 0)
                 {
                     battingStats.setAverage(battingStats.getRuns() * 1.0 / dismissalCountMap.get(gameType));
                 }
