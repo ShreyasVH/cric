@@ -4,7 +4,7 @@ rm -rf $HOME/dbBackups/cric.sql
 
 MYSQL_PLAY_SOURCE_VERSION=$MYSQL_VERSION
 MYSQL_PLAY_SOURCE_NAME=$MYSQL_DB_NAME
-MYSQL_PLAY_SOURCE_PORT=$(grep -E '^ *port=' $HOME/workspace/myProjects/config-samples/$OS/mysql/$MYSQL_PLAY_SOURCE_VERSION/my.cnf | awk -F= '{print $2}' | tr -d ' ')
+MYSQL_PLAY_SOURCE_PORT=$(grep -E '^ *port=' $HOME/programs/mysql/$MYSQL_VERSION/my.cnf | awk -F= '{print $2}' | tr -d ' ')
 MYSQL_PLAY_SOURCE_SOCKET="$HOME/programs/mysql/$MYSQL_PLAY_SOURCE_VERSION/data/mysql_"$(echo "$MYSQL_PLAY_SOURCE_VERSION" | sed 's/\./_/g')".sock"
 MYSQL_PLAY_SOURCE_PASSWORD=password
 MYSQL_PLAY_SOURCE_USER=shreyas
